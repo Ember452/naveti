@@ -46,16 +46,16 @@ async function offered(root: Conversation): Promise<string[]> {
 	return (await root.agent(context)).tools.map((each) => each.name);
 }
 
-/** The model messages of the `pi.system` entries, oldest first. */
+/** The model messages of the `naveti.system` entries, oldest first. */
 function systemMessages(entries: readonly EntryRecord[]) {
 	return entries
-		.filter((entry) => entry.kind === "pi.system")
+		.filter((entry) => entry.kind === "naveti.system")
 		.map((entry) => entry.model![0] as { toolsAdded?: { name: string }[]; toolsRemoved?: { name: string }[] });
 }
 
 function toolResultTexts(entries: readonly EntryRecord[]): string[] {
 	return entries
-		.filter((entry) => entry.kind === "pi.tool-result")
+		.filter((entry) => entry.kind === "naveti.tool-result")
 		.map((entry) => (entry.model![0] as { content: { text?: string }[] }).content.map((item) => item.text).join(""));
 }
 

@@ -125,7 +125,7 @@ describe("nested tool calls", () => {
 		};
 		const { harness, root } = await openChat(storage, setup);
 		await (await root.submit({ type: "input", content: "go" }, context)).wait(context);
-		const nested = written.filter((write) => write.kind.startsWith("pi.tool."));
+		const nested = written.filter((write) => write.kind.startsWith("naveti.tool."));
 		expect(nested).toEqual([
 			{ kind: NestedCallDoc.definition.kind, key: "1" },
 			{ kind: NestedCallDoc.definition.kind, key: "named" },
@@ -425,7 +425,7 @@ describe("nested tool calls", () => {
 		await harness.close(context);
 	});
 
-	it("reports nested calls in pi.live.nestedTools with their parent", async () => {
+	it("reports nested calls in naveti.live.nestedTools with their parent", async () => {
 		const setup = chatSetup();
 		const release = deferred();
 		const running = deferred();
@@ -862,7 +862,7 @@ describe("nested tool calls", () => {
 		const submission = await root.submit({ type: "input", content: "go" }, context);
 		await Promise.all([running.one.promise, running.two.promise]);
 		const watch = await root.watch(context);
-		const nestedOf = (view: ConversationView) => (view.docs["pi.live"] as LiveState).nestedTools ?? [];
+		const nestedOf = (view: ConversationView) => (view.docs["naveti.live"] as LiveState).nestedTools ?? [];
 		expect(nestedOf(watch.value).map((slot) => [slot.callId, slot.status])).toEqual([
 			["c1/1", "running"],
 			["c1/2", "running"],

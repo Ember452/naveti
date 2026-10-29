@@ -166,7 +166,7 @@ export function builtinProviders(): Provider[] {
 		qwenTokenPlanProvider(),
 		qwenTokenPlanCnProvider(),
 		qwenTokenPlanIndividualProvider(),
-		radiusProvider(),
+		// Radius is opt-in: it ships no catalog until a gateway is configured, so it is not a builtin.
 		togetherProvider(),
 		typesafeProvider(),
 		vercelAIGatewayProvider(),

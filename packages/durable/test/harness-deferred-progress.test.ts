@@ -1,5 +1,5 @@
 // Deferred progress commits (`PROGRESS_COMMIT`): the partial answer and tool output reach watches at once and Storage at
-// the next commit that reads or writes `pi.live` or within `settings.progress.persistWithinMs`. Crashes are simulated
+// the next commit that reads or writes `naveti.live` or within `settings.progress.persistWithinMs`. Crashes are simulated
 // by failing the Harness: from that moment nothing more reaches Storage, as when the process dies; the reopened Harness
 // resumes from what was stored.
 
@@ -42,14 +42,14 @@ async function open(storage: ControlledStorage, setup: ChatSetup) {
 	return { ...opened, memory: memoryPartials(opened.harness) };
 }
 
-/** The partial text of every `pi.live` revision memory adopted, the last one last. */
+/** The partial text of every `naveti.live` revision memory adopted, the last one last. */
 function memoryPartials(harness: Harness): string[] {
 	const texts: string[] = [];
 	followCommits(harness, (publication) => {
 		for (const change of publication.changes) {
 			if (change.type !== "document" || change.kind !== "change" || change.record.kind !== LiveDoc.definition.kind)
 				continue;
-			// Publications carry untyped document values; this one is `pi.live`.
+			// Publications carry untyped document values; this one is `naveti.live`.
 			const message = (change.value as LiveState)?.generation?.message;
 			if (message !== undefined) texts.push(partialText(message) ?? "");
 		}
@@ -64,13 +64,13 @@ async function crash(harness: Harness): Promise<void> {
 	await harness.closed;
 }
 
-/** `pi.live` as Storage has it, read past the Session, also after a crash closed it. */
+/** `naveti.live` as Storage has it, read past the Session, also after a crash closed it. */
 async function storedLive(storage: ControlledStorage, conversationId: ConversationId): Promise<LiveState | undefined> {
 	storage.reopen();
 	const address = { kind: LiveDoc.definition.kind, scope: { kind: "conversation", conversationId } } as const;
 	const record = await storage.findDocument(address, "current", context);
 	if (record === undefined) return undefined;
-	// Storage values are untyped; this one is `pi.live`.
+	// Storage values are untyped; this one is `naveti.live`.
 	return (await storage.document(record.id, "current", context))?.value as LiveState | undefined;
 }
 
@@ -330,7 +330,8 @@ describe("tool output", () => {
 			);
 			await crash(opened.harness);
 			opened = await open(storage, setup);
-			const tool = (await opened.harness.commit((tx) => tx.scanTasks({ kind: "pi.tool" }, 1), context)).items[0]!;
+			const tool = (await opened.harness.commit((tx) => tx.scanTasks({ kind: "naveti.tool" }, 1), context))
+				.items[0]!;
 			expect(tool.restarts).toBe(crashes);
 		}
 		await opened.harness.close(context);
@@ -418,13 +419,13 @@ describe("compaction", () => {
 		setup.faux.setResponses([fauxAssistantMessage("SUMMARY")]);
 		opened = await open(storage, setup);
 		expect((await opened.harness.waitForTask(id, context)).state.outcome.status).toBe("completed");
-		await waitFor(async () => (await allEntries(opened.root)).some((entry) => entry.kind === "pi.compaction"));
+		await waitFor(async () => (await allEntries(opened.root)).some((entry) => entry.kind === "naveti.compaction"));
 		expect(await opened.harness.snapshot(LiveDoc, opened.root.id, context)).toEqual({});
 		await opened.harness.close(context);
 	});
 });
 
-describe("reading pi.live in a commit", () => {
+describe("reading naveti.live in a commit", () => {
 	it("stores the held partial a third-party task's commit read, with what it derived", async () => {
 		const storage = new ControlledStorage();
 		const setup = slowSetup(Number.POSITIVE_INFINITY);

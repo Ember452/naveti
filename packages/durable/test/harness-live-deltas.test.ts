@@ -18,7 +18,7 @@ import { context, documentChanges, documentValues, followCommits } from "./sessi
 type Action = (api: ToolExecutionApi) => void | Promise<void>;
 
 /**
- * Drive one tool call step by step and capture the exact Chord operations of every `pi.live` commit. Each `step()`
+ * Drive one tool call step by step and capture the exact Chord operations of every `naveti.live` commit. Each `step()`
  * runs one action inside the tool and returns the operations of the commit it caused.
  */
 async function drive(outputLimits: ToolRegistration["outputLimits"] = {}) {
@@ -54,7 +54,7 @@ async function drive(outputLimits: ToolRegistration["outputLimits"] = {}) {
 	const commits: Op[][] = [];
 	followCommits(harness, (publication) => {
 		for (const change of documentValues(publication)) {
-			if (change.record.kind === "pi.live" && change.ops.length > 0) commits.push([...change.ops]);
+			if (change.record.kind === "naveti.live" && change.ops.length > 0) commits.push([...change.ops]);
 		}
 	});
 	const submission = await root.submit({ type: "input", content: "go" }, context);
@@ -66,7 +66,7 @@ async function drive(outputLimits: ToolRegistration["outputLimits"] = {}) {
 	return {
 		harness,
 		commits,
-		/** Operations of every `pi.live` commit so far. */
+		/** Operations of every `naveti.live` commit so far. */
 		async step(action: Action): Promise<readonly Op[]> {
 			const before = commits.length;
 			push(async (api) => {
@@ -96,7 +96,7 @@ function isOutput(op: Op): boolean {
 	return JSON.stringify(op[1]) === JSON.stringify(OUTPUT);
 }
 
-describe("pi.live deltas", () => {
+describe("naveti.live deltas", () => {
 	it("hands a generation over to its tool round and starts a tool with one field write each", async () => {
 		const setup = chatSetup();
 		addTool(
@@ -117,7 +117,7 @@ describe("pi.live deltas", () => {
 		harness.observeCommits({
 			advance: (publication) => {
 				for (const change of documentValues(publication)) {
-					if (change.record.kind === "pi.live" && change.ops.length > 0) commits.push([...change.ops]);
+					if (change.record.kind === "naveti.live" && change.ops.length > 0) commits.push([...change.ops]);
 				}
 			},
 			end: () => {},
@@ -125,10 +125,10 @@ describe("pi.live deltas", () => {
 		await (await root.submit({ type: "input", content: "go" }, context)).wait(context);
 		const tasks = await harness.commit((tx) => tx.scanTasks({ conversationId: root.id }, 20), context);
 		const id = (kind: string) => tasks.items.filter((task) => task.kind === kind).map((task) => task.id);
-		const [firstGeneration, secondGeneration] = id("pi.generation").sort((a, b) => a - b);
-		const [tool] = id("pi.tool");
+		const [firstGeneration, secondGeneration] = id("naveti.generation").sort((a, b) => a - b);
+		const [tool] = id("naveti.tool");
 		const entries = await root.entries({}, 10, undefined, context);
-		const result = entries.items.find((entry) => entry.kind === "pi.tool-result")!.id;
+		const result = entries.items.find((entry) => entry.kind === "naveti.tool-result")!.id;
 		expect(commits).toEqual([
 			// submission
 			[
@@ -273,7 +273,7 @@ describe("pi.live deltas", () => {
 		const commits: Op[][] = [];
 		followCommits(harness, (publication) => {
 			for (const change of documentValues(publication)) {
-				if (change.record.kind === "pi.live" && change.ops.length > 0) commits.push([...change.ops]);
+				if (change.record.kind === "naveti.live" && change.ops.length > 0) commits.push([...change.ops]);
 			}
 		});
 		await (await root.submit({ type: "input", content: "go" }, context)).wait(context);
@@ -287,7 +287,7 @@ describe("pi.live deltas", () => {
 	});
 
 	it("stores a complete base exactly in the commits where nothing runs", async () => {
-		// Storage that remembers whether each commit wrote pi.live as a base or a delta.
+		// Storage that remembers whether each commit wrote naveti.live as a base or a delta.
 		const written = new Map<number, "base" | "delta">();
 		let liveId: number | undefined;
 		class RecordingStorage extends MemoryStorage {
@@ -334,7 +334,7 @@ describe("pi.live deltas", () => {
 		harness.observeCommits({
 			advance: (publication) => {
 				for (const change of documentChanges(publication)) {
-					if (change.record.kind !== "pi.live") continue;
+					if (change.record.kind !== "naveti.live") continue;
 					liveId = change.record.id;
 					if (change.kind === "change") values.set(publication.seq, change.value as LiveState);
 				}
@@ -377,7 +377,7 @@ describe("pi.live deltas", () => {
 		harness.observeCommits({
 			advance: (publication) => {
 				for (const change of documentValues(publication)) {
-					if (change.record.kind === "pi.live" && change.ops.length > 0) commits.push([...change.ops]);
+					if (change.record.kind === "naveti.live" && change.ops.length > 0) commits.push([...change.ops]);
 				}
 			},
 			end: () => {},
@@ -420,7 +420,7 @@ describe("pi.live deltas", () => {
 		harness.observeCommits({
 			advance: (publication) => {
 				for (const change of documentValues(publication)) {
-					if (change.record.kind === "pi.live" && (change.value as LiveState)?.tools?.length === 2) {
+					if (change.record.kind === "naveti.live" && (change.value as LiveState)?.tools?.length === 2) {
 						handover ??= publication;
 					}
 				}
@@ -432,7 +432,7 @@ describe("pi.live deltas", () => {
 		const kinds = changes.flatMap((change) =>
 			change.type === "entry" ? [change.value.kind] : change.type === "task" ? [change.value.kind] : [],
 		);
-		expect(kinds.sort()).toEqual(["pi.assistant", "pi.generation", "pi.tool", "pi.tool"]);
+		expect(kinds.sort()).toEqual(["naveti.assistant", "naveti.generation", "naveti.tool", "naveti.tool"]);
 		await harness.close(context);
 	});
 

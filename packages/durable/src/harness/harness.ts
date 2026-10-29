@@ -2,7 +2,7 @@ import type { Models } from "@naveti/ai";
 import {
 	type ClientIdentity,
 	mergeClientIdentity,
-	PI_ATTRIBUTION,
+	NAVETI_ATTRIBUTION,
 	withClientIdentity,
 } from "@naveti/ai/utils/identity";
 import type { Context, JsonValue } from "@naveti/chord";
@@ -183,8 +183,8 @@ class ConversationImpl<Tool extends ToolRegistration> implements Conversation {
 	}
 }
 
-/** Request identity of a Harness's model requests: pi-ai's defaults with provider attribution to pi. */
-export const DEFAULT_HARNESS_IDENTITY: ClientIdentity = { attribution: PI_ATTRIBUTION };
+/** Request identity of a Harness's model requests: pi-ai's defaults with provider attribution to naveti. */
+export const DEFAULT_HARNESS_IDENTITY: ClientIdentity = { attribution: NAVETI_ATTRIBUTION };
 
 /**
  * `HarnessOptions.models` as a function with `HarnessOptions.identity` applied. A plain `Models` is wrapped once; a
@@ -271,7 +271,7 @@ class HarnessImpl<Tool extends ToolRegistration> extends SessionImpl implements 
 		};
 	}
 
-	/** Resolve a conversation's committed `pi.agent` against `snapshot`, or the current one, and the current settings. */
+	/** Resolve a conversation's committed `naveti.agent` against `snapshot`, or the current one, and the current settings. */
 	async resolveAgent(
 		id: ConversationId,
 		snapshot: RegistrySnapshot<Tool> | undefined,
@@ -354,7 +354,7 @@ class HarnessImpl<Tool extends ToolRegistration> extends SessionImpl implements 
 		return this.#tasks.waitForIdle(undefined, context);
 	}
 
-	/** Sum every conversation's committed `pi.usage`. Each document is read at its own point; totals only grow. */
+	/** Sum every conversation's committed `naveti.usage`. Each document is read at its own point; totals only grow. */
 	async usage(context: Context): Promise<UsageState> {
 		const conversations = await this.readOnLine(() =>
 			scanAll((cursor) => this.storage.scanConversations({}, SCAN_PAGE_SIZE, cursor, context)),
@@ -432,8 +432,8 @@ class HarnessImpl<Tool extends ToolRegistration> extends SessionImpl implements 
 	}
 
 	/**
-	 * The built-in creation hook, in every commit that creates or forks a conversation: empty `pi.live`, `pi.inbox`, and
-	 * `pi.usage`, a fresh `pi.provider`, the conversation's `pi.agent` (see `createAgent()`), then
+	 * The built-in creation hook, in every commit that creates or forks a conversation: empty `naveti.live`, `naveti.inbox`, and
+	 * `naveti.usage`, a fresh `naveti.provider`, the conversation's `naveti.agent` (see `createAgent()`), then
 	 * `HarnessOptions.conversationCreated`.
 	 */
 	protected override async conversationCreated(tx: Transaction, record: ConversationRecord): Promise<void> {
@@ -455,7 +455,7 @@ function safeReport(
 	telemetry: TelemetryContext,
 ): (error: unknown, info: ReportInfo, context?: Context) => void {
 	const reports = createTypedMetrics(telemetry.metrics ?? NOOP_TELEMETRY_METRICS, [DURABLE_TELEMETRY_SCHEMA]).counter(
-		"pi.durable.reports",
+		"naveti.durable.reports",
 	);
 	return (error, info, context) => {
 		if (onReport !== undefined) {
@@ -487,7 +487,7 @@ function safeReport(
 		}
 		try {
 			reports.add(1, { type: info.kind });
-			context?.telemetry.addEvent("pi.durable.report", attributes);
+			context?.telemetry.addEvent("naveti.durable.report", attributes);
 		} catch {
 			// Dropped: see above.
 		}

@@ -4,7 +4,7 @@
 
 - `src/providers/data/<provider>.json`: model values, grouped by API (gitignored)
 - `src/providers/<provider>.models.ts` and `src/models.generated.ts`: typed wrappers (committed)
-- with `--json-output <dir>`: the public catalog JSON served by pi.dev
+- with `--json-output <dir>`: the public catalog JSON
 
 ## Layout
 
@@ -20,7 +20,7 @@
 
 For each provider:
 
-1. `models(ctx)` returns its chat models: upstream entries mapped to pi models, data corrections (limits, prices), and authored models. `ctx.providerModels(id)` returns another provider's models from this step, e.g. Azure derives from OpenAI.
+1. `models(ctx)` returns its chat models: upstream entries mapped to naveti models, data corrections (limits, prices), and authored models. `ctx.providerModels(id)` returns another provider's models from this step, e.g. Azure derives from OpenAI.
 2. `compat` defaults for each API are merged under each model's own compat. Then the shared rules run: models.dev effort levels for APIs that send them natively, and the rules in `families/`.
 3. `finalize(model, ctx)` applies provider-specific behavior. It runs after the shared rules, so its values win.
 4. Image input limits get the default resize profile, then `finalizeAll(models, ctx)` runs cross-model logic such as Anthropic's allowed fallback models.

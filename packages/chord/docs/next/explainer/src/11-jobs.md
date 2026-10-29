@@ -4,7 +4,7 @@
 Importing a 50 MB text file into notes takes a minute. The tab that started it may close; the import must go on, be
 cancellable, not run twice when the tab retries after a link blip, and its result must be recorded. A method cannot do
 this (it dies with its caller), a routine is standing behaviour rather than a request, and a Durable task is for work
-that must resume after a crash. Chord's form for it is the **job**, built in pi-durable's sandwich: **intent** (a
+that must resume after a crash. Chord's form for it is the **job**, built in @naveti/durable's sandwich: **intent** (a
 transaction), **effect** (anything), **outcome** (a transaction in the current code).
 
 ## Defining and running a job
@@ -126,7 +126,7 @@ retention limit would let a retried key rerun its effect. The owner knows which 
   recorded, `finish` not yet committed) or `blocked` (with the reason). `concurrency` counts only active runs. The
   panel shows a progress bar from it.
 - **Progress** is in memory, throttled and sent as deltas. For output, use `OutputBuffer` and `Progress` from
-  `@earendil-works/chord/output`: bounded windows, adaptive throttling, no write amplification.
+  `@naveti/chord/output`: bounded windows, adaptive throttling, no write amplification.
 - **Waiting:** `start` returns a run with `outcome(ctx)`. The caller's abort ends only its wait, never the run.
 - **Abort is a request:** `job.abort(id)` fires the run's `ctx.signal`; the run decides what it returns (a result
   that already arrived stays a success). A run that ignores the signal keeps its slot until it ends. `finish` runs in

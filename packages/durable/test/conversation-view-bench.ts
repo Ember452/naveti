@@ -4,11 +4,11 @@
  *   node --conditions=source --experimental-strip-types --expose-gc test/conversation-view-bench.ts
  *
  * Scenarios, each in its own child process so heap numbers are its own, on SQLite so history stays out of the heap
- * (`SqliteStorage`; with `PI_DURABLE_BENCH_STORAGE=store`, Durable's storage on Chord's store, `StoreStorage`):
+ * (`SqliteStorage`; with `NAVETI_DURABLE_BENCH_STORAGE=store`, Durable's storage on Chord's store, `StoreStorage`):
  * - `start`: acquire a watch of a conversation of N entries (the mount is built every time; the watch is stopped).
  * - `append`: K started watches; commit entries one per commit, or in bursts of 50 per commit, and wait for delivery.
  * - `resume`: a watch with `from` 20 entries back, as a client that reconnects after a short drop.
- * - `stream`: K started watches; commits that change only `pi.live` (a streamed answer), no entries.
+ * - `stream`: K started watches; commits that change only `naveti.live` (a streamed answer), no entries.
  * - `long-lived`: one started watch while 20,000 entries are appended; heap after GC, and whether the first entry
  *   delivered is still reachable.
  */
@@ -74,7 +74,7 @@ function label(scenario: Scenario): string {
 		case "append":
 			return `append x${scenario.burst} per commit, ${scenario.watches} watches`;
 		case "stream":
-			return `pi.live only, ${scenario.watches} watches`;
+			return `naveti.live only, ${scenario.watches} watches`;
 		case "long-lived":
 			return `long-lived watch, ${scenario.entries} appends`;
 	}
@@ -118,7 +118,7 @@ async function run(scenario: Scenario): Promise<Record<string, number>> {
 	try {
 		const path = join(directory, "session.sqlite");
 		storage =
-			process.env.PI_DURABLE_BENCH_STORAGE === "store"
+			process.env.NAVETI_DURABLE_BENCH_STORAGE === "store"
 				? await openStoreStorage(path)
 				: await openNodeSqliteStorage(path);
 		const models = createModels();
@@ -187,7 +187,7 @@ async function run(scenario: Scenario): Promise<Record<string, number>> {
 			const done = () =>
 				watches.every(
 					(watch) =>
-						(watch.value.docs["pi.live"] as { compactionFailure?: { error: string } } | undefined)
+						(watch.value.docs["naveti.live"] as { compactionFailure?: { error: string } } | undefined)
 							?.compactionFailure?.error === last,
 				);
 			while (calls < scenario.watches || !done()) await new Promise((resolve) => setTimeout(resolve, 1));

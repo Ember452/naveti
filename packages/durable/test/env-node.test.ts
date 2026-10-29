@@ -602,10 +602,10 @@ describe("NodeExecutionEnv shell", () => {
 
 	it.each([
 		["a missing override preserves the base value", undefined, "x:/stale/parent.jsonl"],
-		["an empty override shadows the base value", { PI_SESSION_FILE: "" }, "x:"],
+		["an empty override shadows the base value", { NAVETI_SESSION_FILE: "" }, "x:"],
 		[
 			"a string override replaces the base value",
-			{ PI_SESSION_FILE: "/sessions/current.jsonl" },
+			{ NAVETI_SESSION_FILE: "/sessions/current.jsonl" },
 			"x:/sessions/current.jsonl",
 		],
 	] as const)(
@@ -615,14 +615,14 @@ describe("NodeExecutionEnv shell", () => {
 			const env = new NodeExecutionEnv({
 				cwd: root,
 				shellEnv: {
-					PI_SESSION_FILE: "/stale/parent.jsonl",
-					PI_CODING_AGENT: "true",
-					PI_NODE_ENV_PRESERVED_TEST: "preserved",
+					NAVETI_SESSION_FILE: "/stale/parent.jsonl",
+					NAVETI_CODING_AGENT: "true",
+					NAVETI_NODE_ENV_PRESERVED_TEST: "preserved",
 				},
 			});
 			const collected = await collectShellOutput(
 				env,
-				`printf '%s:%s|%s|%s' "\${PI_SESSION_FILE+x}" "\${PI_SESSION_FILE-}" "$PI_CODING_AGENT" "$PI_NODE_ENV_PRESERVED_TEST"`,
+				`printf '%s:%s|%s|%s' "\${NAVETI_SESSION_FILE+x}" "\${NAVETI_SESSION_FILE-}" "$NAVETI_CODING_AGENT" "$NAVETI_NODE_ENV_PRESERVED_TEST"`,
 				{ env: overrides },
 				BACKGROUND_CONTEXT,
 			);
@@ -633,9 +633,9 @@ describe("NodeExecutionEnv shell", () => {
 
 	it("can replace rather than inherit the default shell environment", async () => {
 		const root = createTempDir();
-		const inheritedKey = "PI_NODE_ENV_INHERITED_TEST";
-		const configuredKey = "PI_NODE_ENV_CONFIGURED_TEST";
-		const explicitKey = "PI_NODE_ENV_EXPLICIT_TEST";
+		const inheritedKey = "NAVETI_NODE_ENV_INHERITED_TEST";
+		const configuredKey = "NAVETI_NODE_ENV_CONFIGURED_TEST";
+		const explicitKey = "NAVETI_NODE_ENV_EXPLICIT_TEST";
 		const previousInherited = process.env[inheritedKey];
 		process.env[inheritedKey] = "host";
 		try {

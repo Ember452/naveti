@@ -66,7 +66,7 @@ const root = await harness.root(context);
 const tools = async () => (await root.agent(context)).tools.map((tool) => tool.name);
 console.log("default tools:", await tools());
 
-// configure() stores choices in the conversation's pi.agent document, one
+// configure() stores choices in the conversation's naveti.agent document, one
 // commit per call. Extensions and tools are passed as objects and stored by
 // name, so a typo cannot slip in.
 await root.configure(

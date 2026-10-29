@@ -3,7 +3,7 @@
 
 Notes must be stored, changed safely while others read them, sent to viewers as small changes, and survive a worker
 restart. An object's data lives in **documents**: named JSON values the object owns, changed only in
-**transactions**. The design is a port of pi-durable's store, so most rules will look familiar; this chapter states
+**transactions**. The design is a port of @naveti/durable's store, so most rules will look familiar; this chapter states
 them for Chord.
 
 ## Defining a document
@@ -28,7 +28,7 @@ const Draft = defineState("notes.draft", {                         // one unfini
 });
 ```
 
-`checkpointWhen` is required on every definition, with no default (R14, as in Durable since pi `5c1736f82`): it says
+`checkpointWhen` is required on every definition, with no default (R14, as in Durable since naveti `5c1736f82`): it says
 when a commit stores a complete base instead of a delta, which bounds how much is replayed on load. Small documents
 checkpoint on every write; growing ones after a number of deltas.
 
@@ -220,12 +220,12 @@ interface DocumentStorage {
 }
 ```
 
-Chord ships a memory storage and a SQLite storage (over `@earendil-works/chord/sqlite`, the driver layer that moved
+Chord ships a memory storage and a SQLite storage (over `@naveti/chord/sqlite`, the driver layer that moved
 from Durable; Node and Durable Object drivers). Storages check only metadata (incarnation, version, sequence, address
 occupancy, fingerprint) and write the supplied delta or base; they never rebuild or validate content on a commit.
 Chord documents never commit together with Durable transcripts: Chord has its own storage, not an adapter over
 Durable's. Your own storage can prove itself with `registerDocumentStorageConformance(runner, name, withStorage)` from
-`@earendil-works/chord/testing`.
+`@naveti/chord/testing`.
 
 Keyed persisted documents that nobody reads, writes or watches for 10 minutes leave memory and reload on the next
 access. A storage error ends the store and closes the host; `onError` receives `{ kind: "storage_failed" }` and the

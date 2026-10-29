@@ -263,9 +263,9 @@ describe("Anthropic preferred strict tool fallback", () => {
 			attempt === 1 ? errorResponse() : successResponse(),
 		);
 		const transcript = context([tool("lookup", "prefer")]);
-		const gatewayModel: Model<"pi-messages"> = {
+		const gatewayModel: Model<"naveti-messages"> = {
 			...model,
-			api: "pi-messages",
+			api: "naveti-messages",
 			provider: "radius",
 			baseUrl: "https://radius.example/v1",
 			compat: undefined,

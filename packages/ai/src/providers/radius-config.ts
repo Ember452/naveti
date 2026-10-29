@@ -2,7 +2,8 @@ import type { OAuthCredential } from "../auth/types.ts";
 import type { Model, ThinkingLevelMap } from "../types.ts";
 import { ownedSlice } from "../utils/text.ts";
 
-export const DEFAULT_RADIUS_GATEWAY = "https://radius.pi.dev";
+/** An empty default: a gateway must be configured explicitly, so no request is sent by default. */
+export const DEFAULT_RADIUS_GATEWAY = "";
 
 export type RadiusGatewayModel = {
 	id: string;
@@ -10,7 +11,7 @@ export type RadiusGatewayModel = {
 	reasoning: boolean;
 	thinkingLevelMap?: ThinkingLevelMap;
 	input: ("text" | "image")[];
-	cost: Model<"pi-messages">["cost"];
+	cost: Model<"naveti-messages">["cost"];
 	contextWindow: number;
 	maxTokens: number;
 };
@@ -51,7 +52,9 @@ function sanitizeRadiusGatewayConfig(config: unknown): RadiusGatewayConfig | und
 }
 
 export function normalizeRadiusGatewayUrl(value: string): string {
-	const withScheme = /^https?:\/\//iu.test(value) ? value : `https://${value}`;
+	const trimmed = value.trim();
+	if (trimmed === "") return "";
+	const withScheme = /^https?:\/\//iu.test(trimmed) ? trimmed : `https://${trimmed}`;
 	return withScheme.replace(/\/+$/u, "");
 }
 
@@ -59,16 +62,19 @@ export function getRadiusCredentialConfig(credential: OAuthCredential | undefine
 	return sanitizeRadiusGatewayConfig((credential as RadiusOAuthCredential | undefined)?.gatewayConfig);
 }
 
-export function getRadiusModelsFromConfig(providerId: string, config: RadiusGatewayConfig): Model<"pi-messages">[] {
+export function getRadiusModelsFromConfig(providerId: string, config: RadiusGatewayConfig): Model<"naveti-messages">[] {
 	return config.models.map((model) => ({
 		...model,
-		api: "pi-messages",
+		api: "naveti-messages",
 		provider: providerId,
 		baseUrl: config.baseUrl,
 	}));
 }
 
-export function getRadiusModels(providerId: string, credential: OAuthCredential | undefined): Model<"pi-messages">[] {
+export function getRadiusModels(
+	providerId: string,
+	credential: OAuthCredential | undefined,
+): Model<"naveti-messages">[] {
 	const config = getRadiusCredentialConfig(credential);
 	return config ? getRadiusModelsFromConfig(providerId, config) : [];
 }

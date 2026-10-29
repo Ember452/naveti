@@ -1,7 +1,7 @@
 import {
-	DEFAULT_RADIUS_GATEWAY,
 	getRadiusModelsFromConfig,
 	loadRadiusGatewayConfig,
+	normalizeRadiusGatewayUrl,
 } from "../../src/providers/radius-config.ts";
 import type { Model } from "../../src/types.ts";
 import {
@@ -23,7 +23,7 @@ export interface CatalogSources {
 	aiGateway: AiGatewayCatalog;
 	/** Live NVIDIA NIM ids, keyed by both the raw and the normalized id. */
 	nvidiaModelIds: Map<string, string>;
-	radius: Model<"pi-messages">[];
+	radius: Model<"naveti-messages">[];
 }
 
 async function fetchJson<T>(url: string, label: string): Promise<T> {
@@ -46,10 +46,16 @@ async function fetchNvidiaModelIds(): Promise<Map<string, string>> {
 	return modelIds;
 }
 
-async function fetchRadiusModels(): Promise<Model<"pi-messages">[]> {
-	const config = await loadRadiusGatewayConfig(DEFAULT_RADIUS_GATEWAY);
+/**
+ * Radius is opt-in: without an explicit gateway the catalog is skipped, so no
+ * request leaves the machine and no upstream service is assumed.
+ */
+async function fetchRadiusModels(): Promise<Model<"naveti-messages">[]> {
+	const gateway = process.env.NAVETI_RADIUS_GATEWAY?.trim();
+	if (!gateway) return [];
+	const config = await loadRadiusGatewayConfig(normalizeRadiusGatewayUrl(gateway));
 	const models = getRadiusModelsFromConfig("radius", config);
-	if (models.length === 0) throw new Error("Radius API returned no models");
+	if (models.length === 0) throw new Error("Radius gateway returned no models");
 	return models;
 }
 
@@ -89,7 +95,7 @@ export async function loadCatalogSources(strict: boolean): Promise<CatalogSource
 	});
 	if (strict && openRouter.images.length === 0) throw new Error("OpenRouter API returned no usable image models");
 	const aiGateway = await load("Vercel AI Gateway models", fetchAiGatewayCatalog, { chat: [], classifiers: [] });
-	const radius = await load("Radius models", fetchRadiusModels, []);
+	const radius = process.env.NAVETI_RADIUS_GATEWAY?.trim() ? await load("Radius models", fetchRadiusModels, []) : [];
 
 	return { modelsDev, modelsDevDecisions, openRouter, aiGateway, nvidiaModelIds, radius };
 }

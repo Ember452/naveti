@@ -288,14 +288,14 @@ const PATHS: readonly Path[] = [
 			),
 	},
 	{
-		name: "pi-messages",
+		name: "naveti-messages",
 		stream: (deltas, args) =>
 			streamPiMessages(
 				{
 					...baseModel,
 					id: "auto",
 					name: "a",
-					api: "pi-messages",
+					api: "naveti-messages",
 					provider: "radius",
 					baseUrl: "https://example.test/v1",
 				},

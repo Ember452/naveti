@@ -67,13 +67,11 @@ describe("builtin providers", () => {
 
 		for (const provider of providers) {
 			const list = models.getAllModels(provider.id);
-			expect(list.length).toBeGreaterThan(0);
+			expect(list.length, `${provider.id} ships no models`).toBeGreaterThan(0);
 			expect(list.every((m) => m.provider === provider.id)).toBe(true);
 		}
-		expect(getBuiltinModel("radius", "balanced")).toMatchObject({
-			api: "pi-messages",
-			provider: "radius",
-		});
+		// Radius is opt-in: without a configured gateway it contributes no builtin models.
+		expect(builtinProviders()).not.toContain("radius");
 	});
 
 	it("returns empty results for unknown provider ids", () => {

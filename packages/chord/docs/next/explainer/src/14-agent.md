@@ -1,9 +1,9 @@
 
-# The Agent {#agent lede="pi-durable inside Chord: the harness as a core object, models, environments and tools through registries, and how a tool reaches Chord objects and people."}
+# The Agent {#agent lede="@naveti/durable inside Chord: the harness as a core object, models, environments and tools through registries, and how a tool reaches Chord objects and people."}
 
-Each Studio worker runs a pi-durable harness for its session. The harness must run for the worker's whole life,
+Each Studio worker runs a @naveti/durable harness for its session. The harness must run for the worker's whole life,
 whether anyone watches or not. Its models come from the models plugin, its execution environments from the envs
-plugin, its tools from every plugin, and all of those reload independently. This chapter assumes you know pi-durable
+plugin, its tools from every plugin, and all of those reload independently. This chapter assumes you know @naveti/durable
 and shows only how it plugs into Chord.
 
 ## Shared foundations
@@ -17,7 +17,7 @@ members without conversion. Only plain data crosses between Durable and Chord ob
 
 ```ts
 // studio/src/core/harness.ts (base code)
-import { Harness as DurableHarness } from "@earendil-works/pi-durable";
+import { Harness as DurableHarness } from "@naveti/durable";
 
 export const ChordHostKey = createContextKey<Host<P>>("studio.chord-host");
 export const HarnessModels = defineRegistry<Models, Models>("studio.harness-models", { version: 1, compose: firstModels });
@@ -51,12 +51,12 @@ host.serve(Harness, (_input, self) => {
   continue.
 - **Base code:** it lives in the core facet, so a plugin reload never restarts it; only a base-code change (a host
   restart) does.
-- **Registries, looked up at each use:** Durable's `models` and `settings` accept functions (pi `7ec1f648e`), so each
+- **Registries, looked up at each use:** Durable's `models` and `settings` accept functions (naveti `7ec1f648e`), so each
   generation gets the current value. After a models reload the next request uses the new runtime; a running stream
   finishes on the old one.
 - **Durable's storage is its own.** Chord documents never commit together with Durable transcripts.
 
-The design writes the call as `Durable.open(storage, { … })`; pi-durable's actual entry point is
+The design writes the call as `Durable.open(storage, { … })`; @naveti/durable's actual entry point is
 `Harness.open(storage, options, context)`, used here as `DurableHarness` to keep it apart from the core object
 `Harness`.
 
@@ -175,7 +175,7 @@ native may reach another object only through a registry entry), and exposes a bo
 
 ## Code mode
 
-Code mode is a plugin. It owns its `pi-codemode` sandbox as a native; its tool entry looks up the **current** sandbox
+Code mode is a plugin. It owns its `@naveti/codemode` sandbox as a native; its tool entry looks up the **current** sandbox
 when `execute()` starts, so a call pinned by a phase before a reload (waiting in an approval hook, say) starts on the
 new sandbox. On `reload` and `stop` the old sandbox is sealed and drained in `close`: running scripts finish or hit
 their deadline, for at most 30 s (Q7). After a worker stop Durable replays as it does today.

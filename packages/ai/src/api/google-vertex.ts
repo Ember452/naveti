@@ -59,7 +59,7 @@ export interface GoogleVertexOptions extends StreamOptions {
 	location?: string;
 }
 
-const API_VERSION = "v1";
+const ANAVETI_VERSION = "v1";
 const GCP_VERTEX_CREDENTIALS_MARKER = "gcp-vertex-credentials";
 
 // Counter for generating unique tool call IDs
@@ -368,7 +368,7 @@ function createClient(
 		vertexai: true,
 		project,
 		location,
-		apiVersion: API_VERSION,
+		apiVersion: ANAVETI_VERSION,
 		...(googleAuthOptions ? { googleAuthOptions } : {}),
 		httpOptions: buildHttpOptions(model, optionsHeaders, identity),
 	});
@@ -383,7 +383,7 @@ function createClientWithApiKey(
 	return new GoogleGenAI({
 		vertexai: true,
 		apiKey,
-		apiVersion: API_VERSION,
+		apiVersion: ANAVETI_VERSION,
 		httpOptions: buildHttpOptions(model, optionsHeaders, identity),
 	});
 }

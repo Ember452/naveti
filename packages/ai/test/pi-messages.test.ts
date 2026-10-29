@@ -66,11 +66,11 @@ async function startServer(options: ResponderOptions): Promise<{ baseUrl: string
 	return { baseUrl: `http://127.0.0.1:${address.port}/v1`, requests };
 }
 
-function createModel(baseUrl: string): Model<"pi-messages"> {
+function createModel(baseUrl: string): Model<"naveti-messages"> {
 	return {
 		id: "auto",
 		name: "Radius Auto",
-		api: "pi-messages",
+		api: "naveti-messages",
 		provider: "radius",
 		baseUrl,
 		reasoning: false,
@@ -94,7 +94,7 @@ const usage = {
 	cost: { input: 0.1, output: 0.2, cacheRead: 0, cacheWrite: 0, total: 0.3 },
 };
 
-describe("pi-messages", () => {
+describe("naveti-messages", () => {
 	it("streams text and tool calls and resolves the terminal message", async () => {
 		const { baseUrl, requests } = await startServer({
 			events: [
@@ -315,11 +315,11 @@ describe("pi-messages", () => {
 describe("pi-messages api registration", () => {
 	it("is registered as a builtin api provider", async () => {
 		const { getApiProvider } = await import("../src/compat.ts");
-		expect(getApiProvider("pi-messages")).toBeDefined();
+		expect(getApiProvider("naveti-messages")).toBeDefined();
 	});
 
 	it("is a known api usable on models", () => {
-		const api: Api = "pi-messages";
-		expect(api).toBe("pi-messages");
+		const api: Api = "naveti-messages";
+		expect(api).toBe("naveti-messages");
 	});
 });

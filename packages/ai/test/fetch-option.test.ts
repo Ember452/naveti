@@ -112,7 +112,7 @@ describe("fetch stream option", () => {
 			transport: "sse",
 			maxRetries: 0,
 		}).result();
-		await streamPiMessages(createModel("pi-messages"), context, {
+		await streamPiMessages(createModel("naveti-messages"), context, {
 			apiKey: "test-key",
 			fetch: custom,
 		}).result();

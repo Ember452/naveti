@@ -19,7 +19,7 @@ const server = createHost<P, Revocation>({
   address: Server(), principal: { kind: "server" }, onError,
   revokedBy: (p) => p.kind === "guest" ? [{ grant: p.grant }, { session: p.session }]
     : p.kind === "owner" && p.access === "device" ? [{ device: p.device }] : [],
-  compression: nodeCompression,                      // from `@earendil-works/chord/next/node`
+  compression: nodeCompression,                      // from `@naveti/chord/next/node`
 });
 server.revoke({ grant: "g1" }, ctx);                 // ends g1's objects here and on every worker, closes g1's links
 
@@ -179,7 +179,7 @@ browsers have only the asynchronous `CompressionStream`/`DecompressionStream`.
 ## Carry-over taken (from `slices.md`, section "Slice 4b")
 
 All of it: revocation, cross-host cycles with instance ids, `host.references` and `host.activity`, size limits and
-compression, the Durable conversation view's size on re-hold (known cost until pi #11327; nothing to build), route
+compression, the Durable conversation view's size on re-hold (known cost until naveti #11327; nothing to build), route
 links' context (give `route` a `context` option, defaulting to the host's background context, used for the link's
 work and telemetry), one N on every host (unchanged; note stays), `gone` becomes reachable (test it through
 revocation; drop the hand-ended test only if the new one covers the same paths).

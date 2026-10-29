@@ -29,7 +29,7 @@ slice spec's section citations are for orientation, not a reading limit (owner, 
   errors. `index.ts` for apps, `internal.ts` for Chord's own code.
 - **Slices 1, 2, 3a, 3b, 4a, 4b, 5, 6a, 6b, 8** (committed; 5 `4a5b45c45`, 6a and 6b 2026-10-27/28, 8 2026-10-28): `src/next/documents`, `state`, `host`, `jobs`, `link`,
   `remote`, `store`, `registries`; examples 01-30 (Durable's 35-37); benchmarks in `benchmarks.md`.
-- **Chord's shared code** (upstream pi): `src/watch.ts` (`Watch`, `NativeWatch`, `WatchHandle`, `WatchEnd`,
+- **Chord's shared code** (upstream naveti): `src/watch.ts` (`Watch`, `NativeWatch`, `WatchHandle`, `WatchEnd`,
   `NativeWatchable`), Delta (`track`, `diffRevisions`, `applyImmutable`, encoders, `PendingOps`, `appendText`),
   context, JSON, output, SQLite drivers.
 
@@ -158,7 +158,7 @@ deleted (the slice's spec and code are the record). Moved here from `carry-over.
 - **One N on every host:** a relay forwards calls at once, so a worker announcing a smaller N than the relay's could
   see more running calls of one origin than it accepts (a protocol error). Every host announces 256; per-link N, if
   ever needed, must bound the relay's forwarding too. (Slice 4a rework.)
-- **The Durable conversation view's size on re-hold** is a known cost until pi #11327 (windowed view) lands. (Slice 4.)
+- **The Durable conversation view's size on re-hold** is a known cost until naveti #11327 (windowed view) lands. (Slice 4.)
 - **`map(bytes())` is refused at declaration** ("unsupported keyword `~refine`"): TypeBox's `Record` copies the bytes
   schema's check as an enumerable key, which the snapshot walk refuses. An L1 bug found in slice 3a, not fixed yet.
 
@@ -230,7 +230,7 @@ deleted (the slice's spec and code are the record). Moved here from `carry-over.
 ### When v2 goes upstream
 
 - `mapShared` lives in `src/next/state/derive.ts` and moves into Delta. (L2 decisions.)
-- `withLinkedAbortSignal` lives in `src/next/host/ctx.ts` and moves next to `withAbortSignal` in `src/context` (pi
+- `withLinkedAbortSignal` lives in `src/next/host/ctx.ts` and moves next to `withAbortSignal` in `src/context` (naveti
   first): a call's context linked to long-lived abort signals until the call settles, instead of `AbortSignal.any`,
   which keeps cleanup entries per call while its sources live before Node 24.16.0 (nodejs/node#62367). (Slice 4a.)
 - The `./next` package export returns when the new code has an entry point (removed with the frozen-kernel move).

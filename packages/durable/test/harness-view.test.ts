@@ -27,7 +27,7 @@ import { aborted, deferred } from "./task-support.ts";
 
 type Frame = { value: ConversationView; ops: readonly Op[] };
 
-const MOUNTED = ["pi.agent", "pi.inbox", "pi.live", "pi.provider", "pi.usage"];
+const MOUNTED = ["naveti.agent", "naveti.inbox", "naveti.live", "naveti.provider", "naveti.usage"];
 
 /** Start a watch of `conversation` that records its acquisition revision and every delivered frame. */
 async function record(conversation: Conversation, window?: ConversationWindow) {
@@ -120,8 +120,8 @@ describe("conversation view", () => {
 		expect(view.entries).toEqual(await allEntries(root));
 		expect(view.before).toBeUndefined();
 		expect(Object.keys(view.docs).sort()).toEqual(MOUNTED);
-		expect(view.docs["pi.live"]).toEqual({});
-		expect(view.docs["pi.inbox"]).toEqual({ items: [] });
+		expect(view.docs["naveti.live"]).toEqual({});
+		expect(view.docs["naveti.inbox"]).toEqual({ items: [] });
 		await harness.close(context);
 	});
 
@@ -137,7 +137,9 @@ describe("conversation view", () => {
 		const { initial, frames, stop } = await record(root);
 		const touching = touches(harness, root);
 		const submission = await root.submit({ type: "input", content: "hi" }, context);
-		await waitFor(() => frames.some((frame) => (frame.value.docs["pi.live"] as { generation?: unknown }).generation));
+		await waitFor(() =>
+			frames.some((frame) => (frame.value.docs["naveti.live"] as { generation?: unknown }).generation),
+		);
 		release.resolve();
 		await submission.wait(context);
 		await harness.waitForIdle(context);
@@ -145,11 +147,17 @@ describe("conversation view", () => {
 		expect(frames).toHaveLength(touching.count);
 		const last = replay(initial, frames);
 		expect(last).toEqual(await committed(harness, root, initial.conversation, last.entries.length));
-		expect(frames[0]!.ops).toContainEqual(["p", ["entries"], 0, 0, [expect.objectContaining({ kind: "pi.user" })]]);
+		expect(frames[0]!.ops).toContainEqual([
+			"p",
+			["entries"],
+			0,
+			0,
+			[expect.objectContaining({ kind: "naveti.user" })],
+		]);
 		// Document operations keep their exact shape under the mount path.
 		expect(frames.flatMap((frame) => frame.ops)).toContainEqual([
 			"s",
-			["docs", "pi.live", "generation"],
+			["docs", "naveti.live", "generation"],
 			{ attempt: 1 },
 		]);
 		await stop();
@@ -166,9 +174,9 @@ describe("conversation view", () => {
 		await root.commit((tx) => tx.appendEntry(root.id, { kind: "note" }), context);
 		await drained();
 		expect(frames).toHaveLength(2);
-		expect(frames[0]!.ops).toEqual([["s", ["docs", "pi.agent", "thinkingLevel"], "high"]]);
+		expect(frames[0]!.ops).toEqual([["s", ["docs", "naveti.agent", "thinkingLevel"], "high"]]);
 		expect(frames[0]!.value.entries).toBe(initial.entries);
-		expect(frames[0]!.value.docs["pi.live"]).toBe(initial.docs["pi.live"]);
+		expect(frames[0]!.value.docs["naveti.live"]).toBe(initial.docs["naveti.live"]);
 		expect(frames[1]!.value.docs).toBe(frames[0]!.value.docs);
 		await stop();
 		await harness.close(context);
@@ -189,7 +197,7 @@ describe("conversation view", () => {
 		expect(kinds).toEqual([
 			["a", "b", "c", "summary"],
 			["a", "b", "c", "summary", "d"],
-			["a", "b", "c", "summary", "d", "pi.reset"],
+			["a", "b", "c", "summary", "d", "naveti.reset"],
 		]);
 		expect(frames[0]!.ops).toEqual([["p", ["entries"], 3, 0, [summary]]]);
 		// The summary's `head` tells a renderer where the entries it summarizes end.
@@ -239,10 +247,10 @@ describe("conversation view", () => {
 		}, context);
 		await drained();
 		expect(frames.map((frame) => frame.ops)).toEqual([
-			[["d", ["docs", "pi.live"]]],
-			[["s", ["docs", "pi.live"], { tools: [] }]],
+			[["d", ["docs", "naveti.live"]]],
+			[["s", ["docs", "naveti.live"], { tools: [] }]],
 		]);
-		expect(frames[0]!.value.docs["pi.live"]).toBeUndefined();
+		expect(frames[0]!.value.docs["naveti.live"]).toBeUndefined();
 		await stop();
 		await harness.close(context);
 	});

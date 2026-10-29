@@ -17,7 +17,7 @@ const COPILOT_HEADERS = {
 	"Editor-Plugin-Version": "copilot-chat/0.35.0",
 	"Copilot-Integration-Id": "vscode-chat",
 } as const;
-const COPILOT_API_VERSION = "2026-06-01";
+const COPILOT_ANAVETI_VERSION = "2026-06-01";
 
 type DeviceCodeResponse = {
 	device_code: string;
@@ -183,7 +183,7 @@ async function fetchGitHubCopilotModels(
 				Accept: "application/json",
 				Authorization: `Bearer ${copilotToken}`,
 				...COPILOT_HEADERS,
-				"X-GitHub-Api-Version": COPILOT_API_VERSION,
+				"X-GitHub-Api-Version": COPILOT_ANAVETI_VERSION,
 			},
 		},
 		signal,

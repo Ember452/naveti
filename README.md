@@ -1,3 +1,3 @@
 # naveti
 
-基于 pi 的持久化 agent harness 改造的个人 agent。
+基于持久化 agent 内核的个人 agent。

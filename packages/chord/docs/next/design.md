@@ -1,6 +1,6 @@
 # Chord v2: target design
 
-The design of Chord v2 (`packages/chord/src/next`, export `@earendil-works/chord/next`) and of how apps (the
+The design of Chord v2 (`packages/chord/src/next`, export `@naveti/chord/next`) and of how apps (the
 playground, p3) use it: **the one current statement of every rule** (owner, 2026-10-24). Every decision is recorded in
 the decision log `packages/chord/docs/next/decisions.md` (the history and the reasons, kept complete) and folded into this
 document in the same commit. Where a rule is built, the slice is named (`slices.md`); the code follows this document.
@@ -235,7 +235,7 @@ The park deadline's per-type override is not built (only if a real case needs it
 belong to their mechanisms (**decision needed** on which stay host options, section 26). A route's `resolve` is
 bounded by the app.
 
-- **Incarnations** are minted by Chord (uuidv7, code copied from pi-ai, no dependency), never passed in, and carried
+- **Incarnations** are minted by Chord (uuidv7, code copied from @naveti/ai, no dependency), never passed in, and carried
   in the link handshake (`hello`): the other side sees a restart as a new incarnation of the same identity;
   references to it re-hold.
 - **Entry points vary** (loopback or tunnel WebSocket servers, Radius dialing out and delivering channels, a DO edge,
@@ -1213,7 +1213,7 @@ source (W1); a dirty derive nobody holds recomputes on its next read. A throwing
   visits per change) sets the documented limit.
 - **The footgun:** a derive that builds new objects for unchanged data makes every commit cost O(size of the value),
   per view, because the diff must compare contents. Unchanged parts must be the same objects as last time.
-- **`mapShared(f)`** (from `@earendil-works/chord/next` state; it moves into Delta when v2 goes upstream): an identity cache per source element: `f` runs only for new or
+- **`mapShared(f)`** (from `@naveti/chord/next` state; it moves into Delta when v2 goes upstream): an identity cache per source element: `f` runs only for new or
   changed source elements, unchanged ones return their previous result object. With it a list derive costs pointer
   comparisons, not content comparisons:
 
@@ -1646,7 +1646,7 @@ answer({ id, step, value }, ctx)  → ok | "step no longer active"
 cancel({ id }, ctx)
 ```
 
-The UI watches the state; a late or second answer to a step that is gone is refused; a promise-based callback (pi-ai's
+The UI watches the state; a late or second answer to a step that is gone is refused; a promise-based callback (@naveti/ai's
 `prompt`) stays inside the owner (its job keeps the resolver). Imperative consumers (tests, scripts, a CLI, an agent
 tool) use a generic client helper over the same state, not a second protocol:
 
@@ -1889,7 +1889,7 @@ Deferred: the HTTP and channel components and middleware phases are built after 
 proof (harness, one tool with an approval pause, a code mode reload); the playground's web shell serves its pages
 with plain app code until then. The design below stays the target.
 
-### HTTP (`@earendil-works/chord/next/http`)
+### HTTP (`@naveti/chord/next/http`)
 
 A route is `(req, ctx) => Promise<HttpResponse>`. `req` is a plain request summary (method, path params, query,
 principal, provenance such as local or relayed, selected headers; parsed and capped JSON bodies; uploads handed over in
@@ -1942,7 +1942,7 @@ loop. Chord has no stream type (it would need its own rules for drops, cancellat
 - Durable keeps importing today's Chord's `context`, `delta`, `json`, `output` and `sqlite`; `next/` imports the same
   modules, so `Context`, `Draft` and `JsonValue` are one type. Durable's conversation view, task graph and documents
   are `Watchable`s through Durable's watches (Durable's `WatchHandle` now lives in Chord); Durable adopts and dispatches
-  them synchronously inside the storage's commit (S1, W1; with `StoreStorage` that is the store's commit step), so a derive over a Durable view travels with it. This needs Durable to publish a commit when it adopts it (owner, 2026-10-26; a pi change, upstream first; explainer `durable-observers/`): inside `adopt`, its trackers, telemetry events and internal observers (view mounts, task graph, scheduler, submissions) run, and the host `observeCommits` observers are dispatched in one microtask queued before the observers, so they run before every wait the commit resolves and every abort it queues, but after the storage's synchronous step, never inside Chord's batch; host listeners and watch listeners have no order between them (owner, 2026-10-26). Durable's public primitive for adapters is a synchronous observer, `observeConversation`, `observeTaskGraph`, `observeDoc` (its `advance(call, ctx)` gets a `WatchCall` and runs inside `adopt`: record only, no awaits, no Session calls, no throws); `watchXXX` is built on it for app code. Chord's `self.follow(attach)` (slice 6b D9) is a source over it. Otherwise a derive over two Durable views computes between their frames of one commit. With `StoreStorage`, Durable's `adopt` runs inside the host's batch; the store knows nothing of Durable (no special cases) and needs only its step and flush to stay synchronous. Durable's
+  them synchronously inside the storage's commit (S1, W1; with `StoreStorage` that is the store's commit step), so a derive over a Durable view travels with it. This needs Durable to publish a commit when it adopts it (owner, 2026-10-26; a naveti change, upstream first; explainer `durable-observers/`): inside `adopt`, its trackers, telemetry events and internal observers (view mounts, task graph, scheduler, submissions) run, and the host `observeCommits` observers are dispatched in one microtask queued before the observers, so they run before every wait the commit resolves and every abort it queues, but after the storage's synchronous step, never inside Chord's batch; host listeners and watch listeners have no order between them (owner, 2026-10-26). Durable's public primitive for adapters is a synchronous observer, `observeConversation`, `observeTaskGraph`, `observeDoc` (its `advance(call, ctx)` gets a `WatchCall` and runs inside `adopt`: record only, no awaits, no Session calls, no throws); `watchXXX` is built on it for app code. Chord's `self.follow(attach)` (slice 6b D9) is a source over it. Otherwise a derive over two Durable views computes between their frames of one commit. With `StoreStorage`, Durable's `adopt` runs inside the host's batch; the store knows nothing of Durable (no special cases) and needs only its step and flush to stay synchronous. Durable's
   state getters (`documentState`, `viewState`, `taskGraph()`) and the `replicatedState` family are removed (W14). Only
   plain data crosses between Durable and v2 objects.
 - **The harness is an object in the core facet** (base code): a `Harness` `local` object with empty params, so host lifetime (it runs for the worker's whole life,
@@ -1961,7 +1961,7 @@ loop. Chord has no stream type (it would need its own rules for drops, cancellat
   }, context), (h, _reason, context) => h.close(context));
   ```
 
-  Durable's `models` and `settings` accept functions (pi `7ec1f648e`). Durable opens with scheduling paused; base code
+  Durable's `models` and `settings` accept functions (naveti `7ec1f648e`). Durable opens with scheduling paused; base code
   calls `harness.resume()` after `await host.load(...)`; the worker connects to its parent first (W6), so host-lifetime
   stores can reference server types during the barrier; requests arriving during `load` park like any call to a
   loading object (refines R17). A missing tool gives its call an error result the model sees; a missing model makes the generation
@@ -1985,7 +1985,7 @@ loop. Chord has no stream type (it would need its own rules for drops, cancellat
   user goes through an owner's state, e.g. the Questions service (`apps/p2/docs/questions.md`): the model-facing
   `ask_user` tool and any other tool call `Questions.ask`/`wait`, tabs render the open questions and `answer` them.
   Documented with this example.
-- **Code mode** (a plugin) keeps owning its `pi-codemode` sandbox; its tool entry looks up the current sandbox when
+- **Code mode** (a plugin) keeps owning its `@naveti/codemode` sandbox; its tool entry looks up the current sandbox when
   `execute()` starts, so a call pinned by a phase before a reload (e.g. waiting in an approval hook) starts on the new
   sandbox; on `reload` and `close` its `close` detaches the old sandbox, returns at once and disposes of it when its
   scripts finish or after `closeTimeout` (30 s at most, R16, Q7); after a worker stop Durable replays as today.
@@ -2116,8 +2116,8 @@ const accepted = checkAccepts(NotesV2, {
 Chord v2 is built in vertical slices; the plan, the feature map (every feature of this document assigned to the slice
 that builds it) and the carry-over of deferred obligations are in `slices.md`. Slice specs (`slice-N.md`) stay as the
 history of how each slice was specified; this document states the current rules. The first layered build (kernel steps
-1-6) was deleted on 2026-10-22 and survives only in git history. Done in pi: `pi-telemetry` (propagation, links,
-metrics, the store interface, the renderer), `chord/context` (`Context.telemetry`), pi-ai and Durable telemetry,
+1-6) was deleted on 2026-10-22 and survives only in git history. Done in naveti: `@naveti/telemetry` (propagation, links,
+metrics, the store interface, the renderer), `chord/context` (`Context.telemetry`), @naveti/ai and Durable telemetry,
 `chord/telemetry-sqlite` (section 29), Chord's shared `Watch`/`NativeWatch`/`PendingOps`, Delta's `appendText`.
 
 **Rules for every slice** (owner, 2026-10-22): the code follows the root `AGENTS.md` section "Chord v2 Code Style";
@@ -2143,13 +2143,13 @@ revisions).
 
 ## 29. Telemetry
 
-Chord reports traces, events and metrics through `@earendil-works/pi-telemetry`; one adapter per host
+Chord reports traces, events and metrics through `@naveti/telemetry`; one adapter per host
 (`createHost({ telemetry })`, NOOP by default) decides sampling, buffering, export and filtering.
 
 - **Types:** the adapter is a `TelemetryContext` (`startSpan` plus optional readonly `metrics` and `propagation`
   capabilities); only hosts hold it, to start roots. `Context.telemetry` is always a `TelemetrySpan` (the NOOP span by
   default); every span carries its adapter's `metrics` and `propagation`, so code with a context can record metrics
-  and inject carriers. `withTelemetry(span, context)`, `traceIn(options, fn, context)` (context last; pi change with S1); `value()` and keys stay.
+  and inject carriers. `withTelemetry(span, context)`, `traceIn(options, fn, context)` (context last; naveti change with S1); `value()` and keys stay.
   `Ctx` extends `Context`, so `ctx.telemetry` is the current span; app values such as the principal stay out of
   Durable's context. `ctx.trace(name, attributes, fn)` creates a child span and gives `fn` a child `ctx`.
 - **Adapters trust typed inputs:** no validation of malformed caller values and no try/catch around recording; only
@@ -2174,16 +2174,16 @@ Chord reports traces, events and metrics through `@earendil-works/pi-telemetry`;
   attributes of spans, never of metrics.
 - **Nothing is measured or walked for telemetry:** only sizes the code already has. Errors carry a fixed category and
   a message truncated to 500 characters; cancelling is not an error.
-- **A typed telemetry schema** ships with Chord, as pi-ai (`AI_TELEMETRY_SCHEMA`) and Durable
+- **A typed telemetry schema** ships with Chord, as @naveti/ai (`AI_TELEMETRY_SCHEMA`) and Durable
   (`DURABLE_TELEMETRY_SCHEMA`) have; call sites that only have a context use the generic `addEvent`.
-- **Storage and reading:** `@earendil-works/chord/telemetry-sqlite` over `chord/sqlite` (Node and Cloudflare): one
+- **Storage and reading:** `@naveti/chord/telemetry-sqlite` over `chord/sqlite` (Node and Cloudflare): one
   row per settled span (events and links inline), metrics aggregated per series per 10 s, a 1 s batched flush with
   retention (7 days), a bounded queue (dropped and counted). The shared read interface `TelemetryStore` (Jaeger
   style): `findTraces` (name, attributes, errors, time window, limit, cursor) returns complete traces, `getTrace`,
   `findMetrics`. Spans carry global ids and a trace id; links carry trace and span id. One renderer
-  (`pi-telemetry/render`) prints links and never follows them. A web trace viewer in the playground reads the store.
+  (`@naveti/telemetry/render`) prints links and never follows them. A web trace viewer in the playground reads the store.
 - **Durable** (done): submit and phase spans, stored carriers on submissions and tasks (`TaskOptions.trace`, creation
-  links), events after commit, report events; pi-ai emits `pi.ai.request`/`pi.ai.poll` from one observer in
+  links), events after commit, report events; @naveti/ai emits `pi.ai.request`/`pi.ai.poll` from one observer in
   `lazyStream`. Persisted Chord jobs store their start carrier.
 
 ## 30. Cost model
