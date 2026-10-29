@@ -1,0 +1,23 @@
+name: PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the PR title
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const pattern =
+              /^(feat|fix|docs|refactor|test|chore|perf|ci|build|revert)(\([a-z0-9-]+\))?: .{1,72}$/;
+            if (!pattern.test(title)) {
+              core.setFailed(`PR title must match "type(scope): summary". Got: ${title}`);
+            }

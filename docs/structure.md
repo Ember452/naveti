@@ -453,6 +453,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 文件 | 负责 | 需要改什么 |
 | --- | --- | --- |
 | `ci.yml` | `build-check`（build → check）+ `test-ci`（`pnpm test:ci`，与本地同源）+ `durable-lanes`（retention0 / store / workers） | 已转 pnpm；Ubuntu 已有两次实测（数字见 `docs/migration/baseline.md`） |
+| `pr-title.yml` | PR 标题格式：`type(scope): 摘要` | 不动 |
 | `deps-audit.yml` | 生产依赖公告审计（定时） | 已转 pnpm：`pnpm install --frozen-lockfile` + `node scripts/deps-audit.mjs`。npm 的 `audit signatures` 步骤已删——pnpm 无等价命令，锁文件完整性由安装本身保证 |
 | `pr-gate.yml` | PR 门槛 | 不动 |
 | `issue-gate.yml` | issue 准入门槛 | 不动 |
