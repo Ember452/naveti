@@ -129,3 +129,11 @@ test("scans tests/ for .only", async (t) => {
 	assert.equal(result.status, 1);
 	assert.match(result.stderr, /tests\/golden\/a\.test\.ts: uses \.only/);
 });
+
+test("accepts a loop replaced by it.each", async (t) => {
+	const { root, file } = await workspace(t);
+	assert.equal(run(root, "--write").status, 0);
+	await writeFile(file, 'import { it } from "vitest";\nit.each([[1], [2], [3]]) ("value %s", () => {});\n');
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+});

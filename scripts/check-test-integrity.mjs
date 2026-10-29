@@ -12,7 +12,9 @@
  *   - `describe.skip(` is an error. It removes a whole block at once.
  *
  * Ratchet against the committed baseline, per file:
- *   - `tests` may not decrease            (a deleted test, or a loop/each rewrite)
+ *   - `tests` may not decrease, unless the same file's `each` count increased
+ *                                          (a loop rewritten as `.each`, not a deletion)
+ *   - `each` is recorded so the `.each` rewrite is distinguishable from a deletion
  *   - `skips` may not increase            (`.skip(`)
  *   - `conditionalSkips` may not increase (`.skipIf(` — legitimate, but must be reviewed)
  *   - `helperSkips` may not increase      (`itSymlinkFile`-style wrappers that decide at runtime)
@@ -33,6 +35,7 @@ const SKIP_DIRECTORIES = new Set(["node_modules", "dist", ".upstream"]);
 const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx)$/;
 
 const DECLARATION = /^[ \t]*(?:it|test)(?:\.\w+)*\s*\(/gm;
+const EACH = /\b(?:it|test|describe)\.each\s*\(/g;
 const HARD_SKIP = /\b(?:it|test)\.skip\s*\(/g;
 const CONDITIONAL_SKIP = /\b(?:it|test)\.skipIf\s*\(/g;
 /** Wrappers that skip at runtime, so a text scan cannot see the decision. */
@@ -67,6 +70,7 @@ function inventory() {
 		const text = readFileSync(path, "utf8");
 		files[relative(ROOT, path).split("\\").join("/")] = {
 			tests: count(text, DECLARATION),
+			each: count(text, EACH),
 			skips: count(text, HARD_SKIP),
 			conditionalSkips: count(text, CONDITIONAL_SKIP),
 			helperSkips: count(text, HELPER_SKIP),
@@ -76,7 +80,7 @@ function inventory() {
 	return files;
 }
 
-const COUNTERS = ["tests", "skips", "conditionalSkips", "helperSkips", "todos"];
+const COUNTERS = ["tests", "each", "skips", "conditionalSkips", "helperSkips", "todos"];
 const write = process.argv.includes("--write");
 const current = inventory();
 
@@ -124,8 +128,10 @@ for (const [file, before] of Object.entries(baseline)) {
 		continue;
 	}
 	const after = current[file];
-	// Tests may grow; skips may shrink. Only the wrong direction fails.
-	if (after.tests < before.tests) {
+	// Tests may grow; skips may shrink. Only the wrong direction fails. A drop is allowed
+	// when the same file gained an `.each`, which is the only text signal that separates a
+	// loop rewrite from a deletion. It cannot see a rewrite that also deletes cases.
+	if (after.tests < before.tests && (after.each ?? 0) <= (before.each ?? 0)) {
 		failures.push(`${file}: tests ${before.tests} -> ${after.tests} (a test disappeared)`);
 	}
 	for (const counter of ["skips", "conditionalSkips", "helperSkips", "todos"]) {
@@ -146,14 +152,16 @@ if (failures.length > 0) {
 const totals = Object.values(current).reduce(
 	(sum, counters) => ({
 		tests: sum.tests + counters.tests,
+		each: sum.each + counters.each,
 		skips: sum.skips + counters.skips,
 		conditionalSkips: sum.conditionalSkips + counters.conditionalSkips,
 		helperSkips: sum.helperSkips + counters.helperSkips,
 		todos: sum.todos + counters.todos,
 	}),
-	{ tests: 0, skips: 0, conditionalSkips: 0, helperSkips: 0, todos: 0 },
+	{ tests: 0, each: 0, skips: 0, conditionalSkips: 0, helperSkips: 0, todos: 0 },
 );
 console.log(
 	`Test inventory is intact: ${Object.keys(current).length} files, ${totals.tests} declarations, ` +
-		`${totals.skips} skips, ${totals.conditionalSkips} conditional skips, ${totals.helperSkips} helper skips, ${totals.todos} todos.`,
+		`${totals.each} each uses, ${totals.skips} skips, ${totals.conditionalSkips} conditional skips, ` +
+		`${totals.helperSkips} helper skips, ${totals.todos} todos.`,
 );
