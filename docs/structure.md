@@ -120,11 +120,12 @@ naveti/
 │   ├── workflows/                       7 个（§14）
 │   ├── ISSUE_TEMPLATE/                  bug / config / contribution / package-report
 │   └── APPROVED_CONTRIBUTORS            贡献者准入名单（approve-contributor.yml 读）
+├── .githooks/                            pre-commit（静态检查）/ pre-push（pnpm check），用 hooks:install 装
 ├── .claude/skills                       [待建] 符号链接 → ../.agents/skills（不做第二份）
 ├── .upstream/                           gitignored，sync-upstream 的规范化缓存
 ├── AGENTS.md                            agent 硬约束（不是本文副本）
 ├── CLAUDE.md                            指针：规则见 AGENTS.md
-├── KERNEL.md  NOTICE.md  README.md  LICENSE
+├── KERNEL.md  NOTICE.md  README.md  LICENSE  CONTRIBUTING.md  SECURITY.md
 ├── pnpm-workspace.yaml                  [待建] 分组 globs
 ├── vitest.config.ts                     [待建] 根测试入口（test.projects，见 §13.1）
 ├── tsdown.config.ts                     [待建] 发布期唯一打包入口（§11）
@@ -480,6 +481,16 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 **待建：`desktop-release.yml`** —— build → 打包 → 签名 → 上传。触发条件：第一个能装的 exe 出现时。上签名证书后此文件是唯一发布路径。
 
+### `.githooks/`
+
+不用 husky 依赖，只把 `core.hooksPath` 指到仓库里的目录（`pnpm run hooks:install`，故意不进 `postinstall`）。
+
+| 钩子 | 跑什么 | 为什么是这个范围 |
+| --- | --- | --- |
+| `pre-commit` | biome **检查**（不写盘）、依赖钉版、相对导入、入口图、工作区解析、锁文件一致性、测试清单棘轮 | 只要秒级。钩子里的格式化会改文件，改完就提交等于提交了没审查的内容 |
+| `pre-push` | `pnpm check`（加 tsc 与守卫红例） | 离机前把静态门禁跑完 |
+| 不跑 | 测试 | `pnpm test:ci` 约 4.5 分钟且需要 build，留给 CI |
+
 ### `.agents/`（待建）
 
 | 路径 | 负责 | 出现时机 |
@@ -509,7 +520,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 只放长期权威文档（本文、`KERNEL.md`、`docs/kernel/*`、`docs/migration/*`、`docs/archived/*`）。临时分析、方案草稿、会议结论不放这里——它们属于 `.agents/notes/` 或直接消失。
 
-### `scripts/`（现有 17 个 + 6 个测试）
+### `scripts/`（现有 18 个 + 6 个测试）
 
 | 类 | 脚本 | 职责 |
 | --- | --- | --- |
@@ -522,6 +533,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
 | 测试编排 | `hermetic-env.mjs` | 移植上游 `test.sh` 的密封环境：临时 HOME/TMP、无 API key、不读用户 git/npm 配置、`TZ=UTC LANG=C` |
+| 仓库 | `install-hooks.mjs` | 把 `core.hooksPath` 指到 `.githooks/`；故意不进 `postinstall` |
 | 检查 | `model-catalog-protocol.ts` / `.test.ts` | 模型目录协议校验 |
 | 测试编排 | `run-tests.mjs` | 全量测试（Windows 上唯一受支持方式） |
 | 迁移 | `rename-scope.mjs`、`scope-rules.mjs`、`sync-upstream.mjs` | 作用域改名、规则表、上游对照 |

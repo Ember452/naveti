@@ -235,8 +235,13 @@ makes a 247,000-line vendored tree reviewable.
   `issue-analysis.yml`); coding-agent smoke entries (7 files, package not vendored);
   stats and transcript analysis (7 files, not gates); model-catalog comparison tools
   (5 files, superseded by `scripts/model-catalog-protocol.ts`); `nix/` `flake.*`
-  `.pi/` `CONTRIBUTING.md` `SECURITY.md` `pi-test.*` `auto-pi.sh` (environment or
-  product-specific).
+  `.pi/` `pi-test.*` `auto-pi.sh` (environment or product-specific);
+  `package-lock.json` (pnpm owns the lockfile now).
+- **Replaced rather than dropped:** upstream `.husky/` became `.githooks/` +
+  `core.hooksPath` (no npm dependency, and the hook chain is visible in the repo);
+  `CONTRIBUTING.md` and `SECURITY.md` exist again as shorter, repository-specific
+  documents; `README.md` carries a document map and the gate commands instead of
+  upstream's product copy.
 - **Why it happened:** `sync-upstream.mjs` iterates `packages/*` only. Root files,
   root `scripts/`, and `.github/` sit outside every comparison it performs, so a
   dropped root file is invisible to the mechanism that is supposed to notice.
