@@ -14,6 +14,7 @@
 | 这个文件该放哪、什么还不该建 | [`structure.md`](./structure.md) | docs |
 | 系统现在怎么运转 | [`architecture.md`](./architecture.md) | docs |
 | 接下来做什么、按什么顺序 | [`plan/master-plan.md`](./plan/master-plan.md) | docs |
+| 现在不做、将来才判断的事 | [`plan/parked.md`](./plan/parked.md) | docs |
 | 有哪些扩展点、机制是什么 | [`kernel/seats.md`](./kernel/seats.md) | docs |
 | 内核被动过哪些地方 | [`kernel/divergence.md`](./kernel/divergence.md) | docs |
 | 来源、偏离、什么算绿、怎么回补 | [`migration/`](./migration/) | docs |
