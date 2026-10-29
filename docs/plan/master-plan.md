@@ -32,6 +32,7 @@
 | 需要替换一个 seam 的第二个实现 | `packages/providers/<seam>-<impl>/` |
 | 第二个功能出现 | 显式 seat 表 + 打开 `check-feature-registry` |
 | 第一次出安装包 | `apps/desktop`、`tsdown.config.ts`、`desktop-release.yml` |
+| 第一个能装的 exe 出现，或 transport 开始接受来 127.0.0.1 之外的连接 | `deps-audit` 从每周一改回每天（现在没有自动依赖变更，每天跑只会训练唯一的那个读者去静音它），并把 `tests/golden/` 提到发布前置 |
 | 第一次要手机连本机 | `platform/host/src/transport/remote` + `contracts/auth.ts` |
 | 同一步骤被手工做 3 次 | `.agents/skills/<name>/` |
 | 首次改动内核 | `tests/golden/` + `docs/kernel/divergence.md` 条目 |

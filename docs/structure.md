@@ -403,6 +403,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
 | `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 |
 | `check-parked-triggers` | `docs/plan/parked.md` 每条推迟的事都必须带**触发条件 + 复核日期 + 前提**；条件成立或日期到期就红，红则必须在同一改动里做/改条件/作废 | 有 |
+| `check-gate-registration` | 每条 `scripts/check-*.mjs` 必须同时有 `.test.mjs`、在 `check` 链里可达（透过 `pnpm run` 别名追踪）、并在本文出现；链里引用的脚本必须存在 | 有 |
 
 两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。守卫能用夹具驱动的前提是它不把自己的目录当根：`check-entry-graphs` 靠 `NAVETI_CHECK_ROOT`，`check-ts-relative-imports` 靠 `process.cwd()`。
 
@@ -415,8 +416,6 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-feature-registry` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；壳文件无功能 id | 第二个功能出现时 |
 | `check-client-face` | 从 `src/client/index.ts` 走值导入图，命中 `node:*` / `platform/host` / 同包 `src/host/**` 即失败 | 第一个带界面的功能出现时 |
 | `check-kernel-divergence` | 与基线 hash 不同的内核文件必须在 `docs/kernel/divergence.md` 有条目 | 第一次真改内核前（需先生成 baseline hash 表） |
-
-两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。
 
 ### 不要生成器
 
@@ -452,8 +451,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 | 文件 | 负责 | 需要改什么 |
 | --- | --- | --- |
-| `ci.yml` | `build-check`（build → check）+ `test`（矩阵：`durable` 单跑、`other` 遍历其余包） | 已转 pnpm；Ubuntu 侧待首次 CI 运行确认（本机无法验证） |
-| `npm-audit.yml` | 依赖审计 | 换 pnpm 后改 `pnpm audit --omit=dev` |
+| `ci.yml` | `build-check`（build → check）+ `test`（矩阵：`durable` 单跑、`other` 遍历其余包） | 已转 pnpm；Ubuntu 已有两次实测（数字见 `docs/migration/baseline.md`） |
+| `deps-audit.yml` | 生产依赖公告审计（定时） | 已转 pnpm：`pnpm install --frozen-lockfile` + `node scripts/deps-audit.mjs`。npm 的 `audit signatures` 步骤已删——pnpm 无等价命令，锁文件完整性由安装本身保证 |
 | `pr-gate.yml` | PR 门槛 | 不动 |
 | `issue-gate.yml` | issue 准入门槛 | 不动 |
 | `issue-triage-labels.yml` | 自动打标签 | 不动 |
@@ -516,6 +515,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-doc-links.mjs` / `.test.mjs` | 本文档体系里的 markdown 链接必须能解析 |
 | 检查 | `check-doc-counts.mjs` / `.test.mjs` | 规则文档不携带清单数（`docs/migration/` 除外） |
 | 检查 | `check-parked-triggers.mjs` / `.test.mjs` | 推迟的点子必须可被叫醒，且带可推翻的前提 |
+| 检查 | `check-gate-registration.mjs` / `.test.mjs` | 守卫本身不得漏登记（缺红例 / 不在链里 / 不在本文） |
+| 审计 | `deps-audit.mjs` / `.test.mjs` + `deps-audit-accept.json` | 生产依赖公告；要联网所以不进 `check`，定时跑；豁免是一条带理由的数据行 |
 | 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
 | 检查 | `check-entry-graphs.mjs` / `.test.mjs` | 入口值导入图预算 |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
@@ -526,7 +527,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `model-catalog-protocol.ts` / `.test.ts` | 模型目录协议校验 |
 | 测试编排 | `run-tests.mjs` | 全量测试（Windows 上唯一受支持方式） |
 | 迁移 | `rename-scope.mjs`、`scope-rules.mjs`、`sync-upstream.mjs` | 作用域改名、规则表、上游对照 |
-| 发布 | `package-workspaces.mjs`、`release-packages.mjs`、`npm-audit.mjs` | 打包、发布、审计（`release-packages` 仅因 `check-runtime-deps` 引用而保留） |
+| 发布 | `package-workspaces.mjs`、`release-packages.mjs`、`deps-audit.mjs` / `.test.mjs` | 打包、发布、依赖审计（`deps-audit` 要联网，不进 `check`；它的夹具走 `NAVETI_AUDIT_REPORT`） |
 
 新增脚本必须落在其中一类，并更新 `package.json` 的 `check` 或 CI。
 

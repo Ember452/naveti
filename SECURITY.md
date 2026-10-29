@@ -23,7 +23,7 @@
 
 - 直接依赖钉死精确版本，`check-pinned-deps` 会拦浮动范围。
 - `pnpm-workspace.yaml` 的 `allowBuilds` 是显式清单：只有经过判断的包才允许在安装时执行构建脚本。
-- `npm-audit` 工作流定期审计依赖；升级依赖需要跑 `pnpm check && pnpm test:ci`。
+- `deps-audit` 定时工作流跑 `pnpm audit --prod`，moderate 以上未公告就红；豁免必须写清受影响包与理由，存在 `scripts/deps-audit-accept.json`（失效的豁免会被报出）。升级依赖需要跑 `pnpm check && pnpm test:ci`。
 
 ## 出网行为
 
