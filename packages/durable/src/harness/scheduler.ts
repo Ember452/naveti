@@ -352,8 +352,8 @@ export class TaskScheduler {
 	constructor(options: TaskSchedulerOptions) {
 		this.#telemetry = options.telemetry ?? NOOP_TELEMETRY_CONTEXT;
 		const metrics = createTypedMetrics(this.#telemetry.metrics ?? NOOP_TELEMETRY_METRICS, [DURABLE_TELEMETRY_SCHEMA]);
-		this.#activeMetric = metrics.upDownCounter("pi.durable.tasks.active");
-		this.#durationMetric = metrics.histogram("pi.durable.phase.duration");
+		this.#activeMetric = metrics.upDownCounter("naveti.durable.tasks.active");
+		this.#durationMetric = metrics.histogram("naveti.durable.phase.duration");
 		this.#session = options.session;
 		this.#storage = options.storage;
 		this.#registry = options.registry;
@@ -1278,7 +1278,7 @@ export class TaskScheduler {
 	}
 
 	/**
-	 * Count a task in or out of `pi.durable.tasks.active`. Commit observers count inside Storage's `adopt`, which must not
+	 * Count a task in or out of `naveti.durable.tasks.active`. Commit observers count inside Storage's `adopt`, which must not
 	 * throw, so a throwing adapter is reported.
 	 */
 	#countActive(delta: 1 | -1, kind: string): void {
@@ -1728,7 +1728,7 @@ export class TaskScheduler {
 		const attempt = checkpoint.attempt;
 		const resumed = this.#resumed.delete(task.id);
 		return createTypedSpanStarter(parent, [DURABLE_TELEMETRY_SCHEMA])(
-			"pi.durable.phase",
+			"naveti.durable.phase",
 			{
 				"task.id": task.id,
 				"task.name": task.kind,
@@ -2159,7 +2159,7 @@ export class TaskScheduler {
 					);
 				}
 				if (checkpoint !== undefined) {
-					invocation.context.telemetry.addEvent("pi.durable.checkpoint", {
+					invocation.context.telemetry.addEvent("naveti.durable.checkpoint", {
 						phase: checkpoint,
 					});
 				}

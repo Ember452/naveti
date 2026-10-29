@@ -105,7 +105,7 @@ export interface BedrockOptions extends StreamOptions {
 	/** Key-value pairs attached to the inference request for cost allocation tagging.
 	 * Keys: max 64 chars, no `aws:` prefix. Values: max 256 chars. Max 50 pairs.
 	 * Tags appear in AWS Cost Explorer split cost allocation data.
-	 * @see https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ConverseStream.html */
+	 * @see https://docs.aws.amazon.com/bedrock/latest/APIReference/ANAVETI_runtime_ConverseStream.html */
 	requestMetadata?: Record<string, string>;
 	/** Bearer token for Bedrock API key authentication.
 	 * When set, bypasses SigV4 signing and sends Authorization: Bearer <token> instead.
@@ -165,7 +165,7 @@ export const stream: StreamFunction<"bedrock-converse-stream", BedrockOptions> =
 
 		const openBlocks: OpenBlocks = new Map();
 
-		// A profile explicitly configured through pi's auth flow (the `profile`
+		// A profile explicitly configured through naveti's auth flow (the `profile`
 		// option or scoped `AWS_PROFILE` on the stored credential's env) must win
 		// over ambient AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY. The SDK default
 		// chain already prefers a configured profile over env keys, but only when
@@ -513,7 +513,7 @@ function isReservedHeader(key: string): boolean {
 function bedrockUserAgent(identity: ClientIdentity | undefined): string | [string, string?][] {
 	const mode = identity?.userAgent ?? "detailed";
 	if (typeof mode === "object") return mode.custom;
-	return mode === "short" ? [["pi"]] : [["pi", getClientVersion(identity)]];
+	return mode === "short" ? [["naveti"]] : [["naveti", getClientVersion(identity)]];
 }
 
 /**
@@ -871,13 +871,13 @@ function mapThinkingLevelToEffort(
 
 /**
  * Resolve cache retention preference.
- * Defaults to "short" and uses PI_CACHE_RETENTION for backward compatibility.
+ * Defaults to "short" and uses NAVETI_CACHE_RETENTION for backward compatibility.
  */
 function resolveCacheRetention(cacheRetention?: CacheRetention, env?: ProviderEnv): CacheRetention {
 	if (cacheRetention) {
 		return cacheRetention;
 	}
-	if (getProviderEnvValue("PI_CACHE_RETENTION", env) === "long") {
+	if (getProviderEnvValue("NAVETI_CACHE_RETENTION", env) === "long") {
 		return "long";
 	}
 	return "short";

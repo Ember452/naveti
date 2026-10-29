@@ -19,7 +19,7 @@ describe("Durable Object SQLite adapter", () => {
 		expect(sqlite.prepare("SELECT name FROM sqlite_master WHERE name = 'pi_durable_schema'").get()).toBeUndefined();
 	});
 
-	it("prefixes pi's tables and indexes without changing host tables", async () => {
+	it("prefixes naveti's tables and indexes without changing host tables", async () => {
 		const sqlite = new DatabaseSync(":memory:");
 		const storage = durableObjectStorage(sqlite);
 		const database = new DurableObjectSqliteDatabase(storage);

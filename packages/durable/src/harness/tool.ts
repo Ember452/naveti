@@ -96,9 +96,9 @@ export type ToolTaskResult = { kind: "model"; entryId: EntryId; control?: ToolCo
 
 /**
  * Memo of a tool task that made a nested call, in any attempt, committed before the first admission of each attempt:
- * only then can `pi.live` hold slots below it, which settling removes. A crash between the two only costs a scan.
+ * only then can `naveti.live` hold slots below it, which settling removes. A crash between the two only costs a scan.
  */
-const MADE_NESTED_CALLS = "pi.tool.madeNestedCalls";
+const MADE_NESTED_CALLS = "naveti.tool.madeNestedCalls";
 
 /** One nested call of a running tool: its task, and once it ended, its result. */
 export type NestedCallState = {
@@ -114,7 +114,7 @@ export type NestedCallState = {
  * terminal commit adds its result. One document per call, so no commit rewrites the others. Retires with the caller.
  */
 export const NestedCallDoc = defineDocFamily<NestedCallState, null>({
-	kind: "pi.tool.nested-call",
+	kind: "naveti.tool.nested-call",
 	version: 1,
 	scope: "task",
 	family: true,
@@ -133,7 +133,7 @@ type Content = (TextContent | ImageContent)[];
  * appending its result entry; a nested call by writing its result to its caller's `NestedCallDoc`.
  */
 export const ToolTask = defineTask<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks>({
-	name: "pi.tool",
+	name: "naveti.tool",
 	version: 3,
 	initial: () => ({ phase: "call" }),
 	// Version 1 had only model-issued calls, without `kind`; version 3 added `unoffered`, absent in version 2 inputs.
@@ -593,7 +593,7 @@ function progressClock(runtime: Runtime): ProgressClock {
 }
 
 /**
- * Throttled commits of what the tool reported into its slot, in `pi.live.tools` or `pi.live.nestedTools`, each writing
+ * Throttled commits of what the tool reported into its slot, in `naveti.live.tools` or `naveti.live.nestedTools`, each writing
  * only what changed since the last one, deferred (`PROGRESS_COMMIT`); none when `enabled` is false.
  */
 function publishProgress(runtime: Runtime, reported: Reported, enabled: boolean, context: Context): Progress {
@@ -786,7 +786,7 @@ function structuredOutputError(tool: ToolRegistration, result: ToolExecutionResu
  * Commit the tool's terminal state and mark its slot done. A model-issued call appends its result entry and ends with
  * the entry ID; a nested call writes its result to the caller's `NestedCallDoc`, records its usage, and ends with a
  * small receipt. Nested calls this call left running are aborted first, so they report into their slots before the
- * slots below the call leave `pi.live`. `control` applies only when the task completes.
+ * slots below the call leave `naveti.live`. `control` applies only when the task completes.
  */
 async function settle(
 	runtime: Runtime,
@@ -941,7 +941,7 @@ async function startNestedCall(
 		return undefined;
 	}, context);
 	if (replayed) {
-		context.telemetry.addEvent("pi.durable.replay", { "tool.name": name });
+		context.telemetry.addEvent("naveti.durable.replay", { "tool.name": name });
 	}
 	return id!;
 }
@@ -1046,8 +1046,8 @@ function errorTextOf(result: NestedToolExecutionResult, output: Content): string
 }
 
 /**
- * Append a `pi.tool-result` entry. The content ends with the rendered diagnostics, so the stored message is exactly
- * what the model sees; `data` keeps the structured list. A result's usage is added to `pi.usage` in the same commit.
+ * Append a `naveti.tool-result` entry. The content ends with the rendered diagnostics, so the stored message is exactly
+ * what the model sees; `data` keeps the structured list. A result's usage is added to `naveti.usage` in the same commit.
  */
 export async function appendToolResult(
 	tx: Tx,

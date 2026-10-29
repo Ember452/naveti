@@ -47,4 +47,4 @@ export * from "./utils/transcript.ts";
 export * from "./utils/typebox-helpers.ts";
 export { uuidv7 } from "./utils/uuid.ts";
 export * from "./utils/validation.ts";
-export { PI_AI_VERSION } from "./utils/version.ts";
+export { NAVETI_AI_VERSION } from "./utils/version.ts";

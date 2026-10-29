@@ -1,2 +1,2 @@
-// The @naveti/ai package version. scripts/sync-versions.js keeps it in sync with package.json.
-export const PI_AI_VERSION = "1.4.0";
+// The @naveti/ai package version. Keep it in sync with package.json.
+export const NAVETI_AI_VERSION = "0.0.1";

@@ -1,7 +1,7 @@
 import type { Api, Model, StreamOptions } from "../types.ts";
 import { getProviderEnvValue } from "../utils/provider-env.ts";
 
-const DEFAULT_AZURE_API_VERSION = "v1";
+const DEFAULT_AZURE_ANAVETI_VERSION = "v1";
 
 /** Azure models ship without a baseUrl: one resource per user, resolved per request. */
 export interface AzureEndpointOptions extends StreamOptions {
@@ -101,7 +101,7 @@ export function resolveAzureConfig(
 		baseUrl: resolveAzureBaseUrl(model, options),
 		apiVersion:
 			options?.azureApiVersion ||
-			getProviderEnvValue("AZURE_OPENAI_API_VERSION", options?.env) ||
-			DEFAULT_AZURE_API_VERSION,
+			getProviderEnvValue("AZURE_OPENAI_ANAVETI_VERSION", options?.env) ||
+			DEFAULT_AZURE_ANAVETI_VERSION,
 	};
 }

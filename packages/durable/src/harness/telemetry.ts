@@ -50,7 +50,7 @@ const submission = {
 export const DURABLE_TELEMETRY_SCHEMA = defineTelemetrySchema({
 	version: 1,
 	spans: {
-		"pi.durable.submit": {
+		"naveti.durable.submit": {
 			description:
 				"Public submission admission: with its commit for submit(draft, context); the admission only for submit(tx, draft), whose result is provisional (a later throw or storage failure of the caller's commit leaves no submission) and whose commit events go to the caller's commit context. Inputs and continues start root traces linked to their callers; writes are children. Internal admissions emit phase events only.",
 			parents: { kind: "any" },
@@ -71,10 +71,14 @@ export const DURABLE_TELEMETRY_SCHEMA = defineTelemetrySchema({
 					description: "Admission result; stale writes report done.",
 				},
 			},
-			events: { "pi.durable.entry": entry, "pi.durable.submission": submission, "pi.durable.report": report },
+			events: {
+				"naveti.durable.entry": entry,
+				"naveti.durable.submission": submission,
+				"naveti.durable.report": report,
+			},
 			status: { default: "ok", errorWhen: "Admission failed." },
 		},
-		"pi.durable.phase": {
+		"naveti.durable.phase": {
 			description: "One task phase invocation, including its decision commit, never a wait or restart.",
 			parents: { kind: "any" },
 			startAttributes: {
@@ -95,14 +99,14 @@ export const DURABLE_TELEMETRY_SCHEMA = defineTelemetrySchema({
 				"tool.call_id": { type: "string", description: "Transcript tool call ID.", cardinality: "high" },
 			},
 			events: {
-				"pi.durable.entry": entry,
-				"pi.durable.submission": submission,
-				"pi.durable.report": report,
-				"pi.durable.checkpoint": {
+				"naveti.durable.entry": entry,
+				"naveti.durable.submission": submission,
+				"naveti.durable.report": report,
+				"naveti.durable.checkpoint": {
 					description: "The running checkpoint's phase changed while the invocation continued.",
 					attributes: { phase: { type: "string", required: true, description: "Committed checkpoint phase." } },
 				},
-				"pi.durable.replay": {
+				"naveti.durable.replay": {
 					description: "A nested tool call was answered from its stored result.",
 					attributes: { "tool.name": { type: "string", required: true, description: "Called tool name." } },
 				},
@@ -115,12 +119,12 @@ export const DURABLE_TELEMETRY_SCHEMA = defineTelemetrySchema({
 		},
 	},
 	metrics: {
-		"pi.durable.reports": {
+		"naveti.durable.reports": {
 			kind: "counter",
 			description: "Reports raised, grouped by their fixed kind.",
 			attributes: { type: reportAttributes.type },
 		},
-		"pi.durable.phase.duration": {
+		"naveti.durable.phase.duration": {
 			kind: "histogram",
 			unit: "ms",
 			description: "Duration of a phase invocation and its decision commit.",
@@ -130,7 +134,7 @@ export const DURABLE_TELEMETRY_SCHEMA = defineTelemetrySchema({
 				outcome: { type: "string", required: true, description: "Phase outcome." },
 			},
 		},
-		"pi.durable.tasks.active": {
+		"naveti.durable.tasks.active": {
 			kind: "upDownCounter",
 			description: "Live tasks held by this Harness; decremented at terminal settlement or close.",
 			attributes: { task: { type: "string", required: true, description: "Registered task name." } },

@@ -73,9 +73,9 @@ const Failing = defineDoc<Counter>({
 
 /** The default retention of this run, as the setup file set it. */
 const defaultForRun =
-	process.env.PI_DURABLE_DOCUMENT_RETENTION_MS === undefined
+	process.env.NAVETI_DURABLE_DOCUMENT_RETENTION_MS === undefined
 		? 600_000
-		: Number(process.env.PI_DURABLE_DOCUMENT_RETENTION_MS);
+		: Number(process.env.NAVETI_DURABLE_DOCUMENT_RETENTION_MS);
 
 /** A conversation document any Harness test can read. */
 const TestDoc = defineDoc<Counter>({
@@ -544,7 +544,7 @@ describe("document cache retention", () => {
 			await harness.close(context);
 			// Ids and times differ between runs; the sequence of entries, run states, and tool outputs must not.
 			return history.views.map((view) => {
-				const live = (view.docs["pi.live"] ?? {}) as LiveState;
+				const live = (view.docs["naveti.live"] ?? {}) as LiveState;
 				const tools = (live.tools ?? []).map((slot) => `${slot.callId}:${slot.status}:${slot.output ?? ""}`);
 				const kinds = view.entries.map((entry) => entry.kind).join(",");
 				return `${kinds} run:${live.run !== undefined} generation:${live.generation !== undefined} ${tools.join(" ")}`;

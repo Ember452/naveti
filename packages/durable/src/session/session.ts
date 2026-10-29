@@ -1068,13 +1068,17 @@ export class SessionImpl implements Session {
 		for (const write of writes) {
 			switch (write.type) {
 				case "entry":
-					this.#event("pi.durable.entry", { "entry.id": write.value.id, "entry.kind": write.value.kind }, context);
+					this.#event(
+						"naveti.durable.entry",
+						{ "entry.id": write.value.id, "entry.kind": write.value.kind },
+						context,
+					);
 					changes?.push(write);
 					break;
 				case "submission":
 					if (write.value.status === "done" || write.value.status === "unanswered") {
 						this.#event(
-							"pi.durable.submission",
+							"naveti.durable.submission",
 							{
 								"submission.id": write.value.id,
 								status: write.value.status,

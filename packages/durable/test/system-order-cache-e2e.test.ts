@@ -35,7 +35,7 @@ function instructions(nonce: string): string {
 	];
 	for (let index = 0; index < 250; index++) {
 		lines.push(
-			`${nonce} cache record ${String(index).padStart(3, "0")}: alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega.`,
+			`${nonce} cache record ${String(index).padStart(3, "0")}: alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron naveti rho sigma tau upsilon phi chi psi omega.`,
 		);
 	}
 	return lines.join("\n");

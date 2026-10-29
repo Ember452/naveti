@@ -36,20 +36,17 @@ afterEach(() => {
 });
 
 describe("Radius provider catalogs", () => {
-	it("ships a static public catalog for the default gateway", () => {
+	it("ships no catalog without an explicit gateway", () => {
 		const provider = radiusProvider();
-		expect(provider.getModels().length).toBeGreaterThan(0);
-		expect(provider.getModels()).toContainEqual(
-			expect.objectContaining({ id: "balanced", provider: "radius", api: "pi-messages" }),
-		);
+		expect(provider.getModels()).toEqual([]);
 	});
 
-	it("does not apply the public Radius catalog to custom gateways", () => {
+	it("starts empty for a custom gateway", () => {
 		const provider = radiusProvider({ id: "radius-dev", gateway: "http://localhost:8788" });
 		expect(provider.getModels()).toEqual([]);
 	});
 
-	it("replaces the static public catalog with refreshed models", async () => {
+	it("loads models from the configured gateway", async () => {
 		vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			new Response(JSON.stringify(radiusConfig()), {
 				status: 200,
@@ -59,7 +56,7 @@ describe("Radius provider catalogs", () => {
 		const credentials = new InMemoryCredentialStore();
 		await credentials.modify("radius", async () => ({ type: "api_key", key: "radius-key" }));
 		const models = createModels({ credentials });
-		models.setProvider(radiusProvider());
+		models.setProvider(radiusProvider({ gateway: "https://radius.example" }));
 
 		const result = await models.refresh({ providers: ["radius"] });
 
@@ -70,18 +67,17 @@ describe("Radius provider catalogs", () => {
 			contextWindow: 424242,
 		});
 		expect(models.getModel("radius", "organization-only")).toBeDefined();
-		// Models disabled by the organization must not reappear from the shipped catalog.
 		expect(models.getModels("radius").map((model) => model.id)).toEqual(["balanced", "organization-only"]);
 	});
 
-	it("replaces the static public catalog with a cached catalog without network access", async () => {
+	it("restores a cached catalog without network access", async () => {
 		const store = new InMemoryModelsStore();
 		await store.write("radius", {
 			models: getRadiusModelsFromConfig("radius", radiusConfig()),
 			checkedAt: Date.now(),
 		});
 		const models = createModels({ modelsStore: store });
-		models.setProvider(radiusProvider());
+		models.setProvider(radiusProvider({ gateway: "https://radius.example" }));
 
 		await models.refresh({ providers: ["radius"], allowNetwork: false });
 
@@ -100,7 +96,7 @@ describe("Radius provider catalogs", () => {
 		const credentials = new InMemoryCredentialStore();
 		await credentials.modify("radius", async () => ({ type: "api_key", key: "radius-key" }));
 		const models = createModels({ credentials });
-		models.setProvider(radiusProvider());
+		models.setProvider(radiusProvider({ gateway: "https://radius.example" }));
 
 		const result = await models.refresh({ providers: ["radius"] });
 

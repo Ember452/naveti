@@ -52,7 +52,7 @@ vi.mock("openai", () => {
 	return { AzureOpenAI };
 });
 
-const PI_USER_AGENT = formatUserAgent();
+const NAVETI_USER_AGENT = formatUserAgent();
 
 const context: Context = {
 	messages: [{ role: "user", content: "hello", timestamp: Date.now() }],
@@ -60,7 +60,7 @@ const context: Context = {
 
 const originalAzureOpenAIBaseUrl = process.env.AZURE_OPENAI_BASE_URL;
 const originalAzureOpenAIResourceName = process.env.AZURE_OPENAI_RESOURCE_NAME;
-const originalAzureOpenAIApiVersion = process.env.AZURE_OPENAI_API_VERSION;
+const originalAzureOpenAIApiVersion = process.env.AZURE_OPENAI_ANAVETI_VERSION;
 const originalAzureOpenAIApiKey = process.env.AZURE_OPENAI_API_KEY;
 
 beforeEach(() => {
@@ -69,7 +69,7 @@ beforeEach(() => {
 	azureMock.streamEvents = undefined;
 	delete process.env.AZURE_OPENAI_BASE_URL;
 	delete process.env.AZURE_OPENAI_RESOURCE_NAME;
-	delete process.env.AZURE_OPENAI_API_VERSION;
+	delete process.env.AZURE_OPENAI_ANAVETI_VERSION;
 	delete process.env.AZURE_OPENAI_API_KEY;
 });
 
@@ -87,9 +87,9 @@ afterEach(() => {
 	}
 
 	if (originalAzureOpenAIApiVersion === undefined) {
-		delete process.env.AZURE_OPENAI_API_VERSION;
+		delete process.env.AZURE_OPENAI_ANAVETI_VERSION;
 	} else {
-		process.env.AZURE_OPENAI_API_VERSION = originalAzureOpenAIApiVersion;
+		process.env.AZURE_OPENAI_ANAVETI_VERSION = originalAzureOpenAIApiVersion;
 	}
 
 	if (originalAzureOpenAIApiKey === undefined) {
@@ -263,8 +263,8 @@ describe("azure provider stream events", () => {
 });
 
 describe("azure user agent", () => {
-	it("uses pi's User-Agent by default", async () => {
-		expect((await captureClientHeaders())["User-Agent"]).toBe(PI_USER_AGENT);
+	it("uses naveti's User-Agent by default", async () => {
+		expect((await captureClientHeaders())["User-Agent"]).toBe(NAVETI_USER_AGENT);
 	});
 
 	it("lets explicit headers override the default User-Agent", async () => {
