@@ -19,15 +19,30 @@ if (!existsSync(join(ROOT, HOOKS, "pre-commit"))) {
 }
 
 execFileSync("git", ["config", "core.hooksPath", HOOKS], { cwd: ROOT, stdio: "inherit" });
-// Windows does not carry the executable bit through the filesystem, so record it
-// in the index where git can see it.
+
+// Git only records the executable bit in the index, and only for tracked files. An
+// untracked hook stays 100644 and would silently not run on Linux or macOS, where
+// the bit is honoured.
+let tracked = "";
 try {
-	execFileSync("git", ["update-index", "--chmod=+x", `${HOOKS}/pre-commit`, `${HOOKS}/pre-push`], {
-		cwd: ROOT,
-		stdio: "ignore",
-	});
+	tracked = execFileSync("git", ["ls-files", `${HOOKS}/pre-commit`], { cwd: ROOT, encoding: "utf8" }).trim();
 } catch {
-	// Not fatal: git for Windows runs hooks through sh once the shebang is present.
+	tracked = "";
+}
+
+if (!tracked) {
+	console.warn(`Note: ${HOOKS}/pre-commit is untracked, so its executable bit is not recorded yet.`);
+	console.warn("Hooks still run locally, but a fresh clone on Linux or macOS would see mode 100644 and skip them.");
+	console.warn(`After adding them, run: git update-index --chmod=+x ${HOOKS}/pre-commit ${HOOKS}/pre-push`);
+} else {
+	try {
+		execFileSync("git", ["update-index", "--chmod=+x", `${HOOKS}/pre-commit`, `${HOOKS}/pre-push`], {
+			cwd: ROOT,
+			stdio: "ignore",
+		});
+	} catch {
+		console.warn(`Could not record the executable bit for ${HOOKS}/*; run git update-index --chmod=+x manually.`);
+	}
 }
 
 console.log(`core.hooksPath=${HOOKS}`);

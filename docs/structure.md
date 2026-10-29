@@ -491,6 +491,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `pre-push` | `pnpm check`（加 tsc 与守卫红例） | 离机前把静态门禁跑完 |
 | 不跑 | 测试 | `pnpm test:ci` 约 4.5 分钟且需要 build，留给 CI |
 
+两个坑：钩子必须在索引里是 `100755`，否则 Linux/macOS 上静默不执行（Git for Windows 不看这个位，本机测不出来）；`pre-commit` 里**不能**用 `biome --write`，它会改文件，改完就提交等于提交了没审查过的内容。
+
 ### `.agents/`（待建）
 
 | 路径 | 负责 | 出现时机 |
