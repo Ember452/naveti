@@ -1,8 +1,16 @@
 name: deps audit
 
+# Weekly, not daily: nothing in this repository moves dependencies on its own -
+# there is no renovate bot, and `minimumReleaseAge` holds back freshly published
+# versions - so a daily run produces no new information and trains the one reader
+# who matters to mute it. Revisit to daily when either happens:
+#   1. an installable artifact ships (the P3 gate in docs/plan/master-plan.md); or
+#   2. `platform/host` transport accepts a connection from outside 127.0.0.1.
+# Until then the attack surface this scan guards is an outbound HTTPS client held
+# by a local process with no users.
 on:
   schedule:
-    - cron: '37 7 * * *'
+    - cron: '37 7 * * 1'
   workflow_dispatch:
 
 permissions:
