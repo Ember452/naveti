@@ -1,6 +1,6 @@
 # Durable specification
 
-`@earendil-works/pi-durable` is a durable, extensible agent harness. This document is normative.
+`@naveti/durable` is a durable, extensible agent harness. This document is normative.
 It uses existing package types as follows:
 
 ```ts
@@ -12,8 +12,8 @@ import type {
   WatchCall,
   WatchEnd,
   WatchHandle,
-} from "@earendil-works/chord";
-import type { Op } from "@earendil-works/chord/delta";
+} from "@naveti/chord";
+import type { Op } from "@naveti/chord/delta";
 import type {
   AssistantMessage,
   CacheRetention,
@@ -28,14 +28,14 @@ import type {
   ToolResultMessage,
   Transport,
   UserMessage,
-} from "@earendil-works/pi-ai";
-import type { ExecutionEnv } from "@earendil-works/pi-durable/env";
+} from "@naveti/ai";
+import type { ExecutionEnv } from "@naveti/durable/env";
 
 type JsonObject = { [key: string]: JsonValue };
 type TaskOutcomeError = { message: string; detail?: JsonValue };
 ```
 
-Durable targets the transcript `SystemMessage` contract from pi-ai PR
+Durable targets the transcript `SystemMessage` contract from @naveti/ai PR
 [#9548](https://github.com/earendil-works/pi/pull/9548). `Message` includes that
 type once the PR lands.
 
@@ -133,7 +133,7 @@ type ConversationRecord = {
 };
 ```
 
-The referenced pi-ai member is:
+The referenced @naveti/ai member is:
 
 ```ts
 interface SystemMessage {
@@ -146,7 +146,7 @@ interface SystemMessage {
 }
 ```
 
-In pi-ai, `content` is the base prompt on the leading message and additional
+In @naveti/ai, `content` is the base prompt on the leading message and additional
 instruction text on later messages. `sections` is an ordered named patch: a
 string adds or replaces a section, while `null` removes it. `toolsRemoved` is
 applied before `toolsAdded` within one message. Replaying every system message
@@ -413,7 +413,7 @@ type AnyTask = {
 };
 
 type HarnessOptions<Tool extends ToolRegistration = ToolRegistration> = {
-  /** The pi-ai Models interface, or a function returning the current one, called at each use. */
+  /** The @naveti/ai Models interface, or a function returning the current one, called at each use. */
   readonly models: Models | (() => Models);
   readonly registry: RegistryReader<Tool>; // section 7.1
   /** Run settings, or a function returning the current ones; read at each use either way. */
@@ -453,7 +453,7 @@ type HarnessOptions<Tool extends ToolRegistration = ToolRegistration> = {
   readonly onReport?: (report: Report) => void;
 };
 
-/** Curated pi-ai request options; absent fields use pi-ai defaults. */
+/** Curated @naveti/ai request options; absent fields use @naveti/ai defaults. */
 type ConversationStreamOptions = {
   transport?: Transport;
   timeoutMs?: number;
@@ -466,7 +466,7 @@ type ConversationStreamOptions = {
   deferred?: boolean | { window?: "15m" | "1h" | "24h" };
 };
 
-/** Durable generation attempt retries; the JSON shape of pi-ai `RetryPolicy`. */
+/** Durable generation attempt retries; the JSON shape of @naveti/ai `RetryPolicy`. */
 type ConversationRetryPolicy = {
   enabled: boolean;
   maxRetries: number;
@@ -952,7 +952,7 @@ The UUID is a provider-facing conversation identity, not the numeric Durable
 `ConversationId` and not an enclosing application's Session ID. Every new,
 task-owned, raw-created, and forked conversation receives its own UUID in its
 creating commit; a fork never copies its parent's UUID. Generation requests and
-compaction summarization pass it to pi-ai as `options.sessionId`. Reset,
+compaction summarization pass it to @naveti/ai as `options.sessionId`. Reset,
 compaction, model changes, and reopen do not change it. A legacy conversation without the document creates and persists it
 on the Session line before its first generation or compaction provider request.
 Concurrent callers therefore observe one winner. Provider behavior still
@@ -3110,7 +3110,7 @@ The `Tool` parameter lets an application attach metadata, such as prompt
 snippets, to its tools and read it typed in its section renderers. The Harness
 only relies on `ToolRegistration`; its own surfaces, such as `runtime.agent()`,
 use the default. Metadata fields must be optional: the registry does not check
-them, and a default-typed extension may be installed. Pi-ai declarations derived from a tool keep only pi-ai `Tool`
+them, and a default-typed extension may be installed. Pi-ai declarations derived from a tool keep only @naveti/ai `Tool`
 fields (`toToolDeclaration`), so application metadata never enters the
 transcript.
 
@@ -3691,7 +3691,7 @@ once `execute()` has returned, and rejects when the caller is aborted or the
 Harness closes; cancelling its `context` stops only the wait. An abort that
 arrives during this cleanup still aborts the caller, whose finished result is
 then replaced by the `aborted` one. The caller's result message lists none
-of its nested calls (no pi-ai `nestedCalls`): their task records keep every
+of its nested calls (no @naveti/ai `nestedCalls`): their task records keep every
 call and its arguments, and a tool that wants a list in its result, as code
 mode does, writes one into its own `details`. A crash between the
 caller's return and its result commit leaves it in `execute`: a replay-safe
@@ -3748,7 +3748,7 @@ tool loads deferred tools with `control.addTools`, which writes their names to
 fork's entry, loaded tools are per branch, and a baseline after a head marker
 declares them, built from the resolved tools. Loaded tools follow the other
 tools in load order, so a load appends declarations to the transcript and the
-cached prefix holds. `@earendil-works/pi-durable/tool-search` provides the
+cached prefix holds. `@naveti/durable/tool-search` provides the
 coding agent's `tool_search` (`createToolSearchExtension()`): it ranks
 `Agent.deferred` with BM25 over the tools' names, descriptions, and parameter
 names and descriptions, and loads the matches. The `codemode` section does not
@@ -3790,7 +3790,7 @@ pause. Changes made during the delay
 coalesce into the next commit. The throttle is Harness policy, not part of
 `outputLimits`, which only bounds what is retained. Explicit
 text in explicit result content is bounded by the same limits before transcript
-persistence; non-text content is retained as declared by its pi-ai type. When
+persistence; non-text content is retained as declared by its @naveti/ai type. When
 bounding drops text, the Harness adds a `warn` diagnostic with code `truncated`
 stating the dropped lines and bytes.
 
@@ -4065,7 +4065,7 @@ A tool result may request `addTools`, `terminate`, or `handoff`. The
 generation's `tools` phase (section 8.5) adds the named tools to the
 conversation's stored tools filter; they take effect at the next preparation. The round
 terminates only when every result of the round requests `terminate`, as in the
-pi agent loop; the `tools` phase then uses a final boundary. Any
+naveti agent loop; the `tools` phase then uses a final boundary. Any
 `handoff` in the round, the last one in call order when several ask, appends a
 `pi.reset` entry with `head: "self"` and the handoff text as a user message
 (section 8.1), exactly what `reset(handoff)` writes, and the run continues: the
@@ -4094,7 +4094,7 @@ diagnostic with one of the codes `tool_unavailable`, `invalid_arguments`,
 and the error text as its message. Their content is the durable partial output,
 if any, and `details` is the tool's last reported value, if any.
 
-`@earendil-works/pi-durable/tools` provides `read`, `write`, `edit`, and `bash`
+`@naveti/durable/tools` provides `read`, `write`, `edit`, and `bash`
 factories, ported from the agent harness tools, the `CodingTools` extension
 with all four, and `createCodingTools({ images })`, the same with an image
 processor for `read`. They use only `api.env`; nothing installs them
@@ -4114,12 +4114,12 @@ With one, `await processor.prepare(bytes, mimeType, limits)` returns the image f
 diagnostic says when its format changed or it was resized, with the factor that
 maps coordinates back. The Photon processor decodes every image, returns it as
 it is when it is upright, inline, and within the limits, and otherwise
-re-encodes it as PNG or JPEG (JPEG first for JPEG sources). `@earendil-works/pi-durable/images` provides `createPhotonImages(wasm)`,
+re-encodes it as PNG or JPEG (JPEG first for JPEG sources). `@naveti/durable/images` provides `createPhotonImages(wasm)`,
 on Photon's WebAssembly, given its module or bytes; `/images/node` reads the
 wasm from the installed package and prepares images in a worker thread, which
 exits after 30 s without images (`{ worker: false }` prepares them inline);
 `/images/cloudflare` imports it as a Workers module and prepares inline. Neither is loaded unless imported. A conversation whose model
-does not take images still gets the image; pi-ai replaces it with a placeholder
+does not take images still gets the image; @naveti/ai replaces it with a placeholder
 in requests, and the diagnostic says so.
 
 For text, `read` reads a file through `openBinaryReader`: image detection reads
@@ -4252,7 +4252,7 @@ values and `null` removals.
 
 Tool changes are planned separately and ride on the last planned entry, or on
 one entry of their own when sections are unchanged. Declarations are compared
-with pi-ai `declarationsEqual()` and written with `toToolDeclaration()`, so
+with @naveti/ai `declarationsEqual()` and written with `toToolDeclaration()`, so
 application metadata never enters the transcript. A changed declaration is
 removed and re-added in the same message. Replay keeps retained tools in place
 and appends additions; when that would not yield the desired order, the message
@@ -4306,9 +4306,9 @@ any more (section 2.2).
 
 ### 7.6 Code mode
 
-`@earendil-works/pi-durable/codemode` provides the `codemode` tool (`createCodemodeExtension({ sandbox })`):
+`@naveti/durable/codemode` provides the `codemode` tool (`createCodemodeExtension({ sandbox })`):
 `callers: ["model"]`, `replay: "safe"`. Its argument is a script, run with
-pi-codemode's deterministic `sandbox.start()`. The script calls the agent's
+@naveti/codemode's deterministic `sandbox.start()`. The script calls the agent's
 `callable` tools as `tools.<name>(args)`; each call is a nested call with key
 `c<id>`, the VM's own number for the call. As in the coding agent, a tool that
 declares `structuredOutputSchema` resolves with its `structuredOutput`, also on an
@@ -4359,7 +4359,7 @@ calls of one script run at once, and a call waiting for a slot when the script
 has ended is not started. A script that
 received generated images and showed none gets a note in its result. The tool's
 declaration carries the Lark grammar of the script source as
-`constrainedSampling`, which pi-ai applies for models that support it.
+`constrainedSampling`, which @naveti/ai applies for models that support it.
 
 The result's \`details\` list the script's tool calls in call order
 (\`CodemodeToolDetails\`: id, name, cut arguments, status \`ok\`/\`error\`/
@@ -4433,12 +4433,12 @@ The initial implementation provides:
 | `pi.compaction` | select a transcript range, summarize, place a headed summary |
 
 Generation uses `HarnessOptions.models` without a Durable-specific model adapter. It
-resolves `models.getModel(ref.provider, ref.modelId)`, builds a pi-ai `Context`
+resolves `models.getModel(ref.provider, ref.modelId)`, builds a @naveti/ai `Context`
 from the prepared prompt/messages/tools, and calls `models.streamSimple()` with
 the task invocation's abort signal, the agent's thinking level, and the
 settings' stream options. Deferred
 continuation calls `models.fetchDeferred()` and `models.cancelDeferred()` with
-that same model and signal. Missing models and synchronous/streamed pi-ai errors
+that same model and signal. Missing models and synchronous/streamed @naveti/ai errors
 are classified into the durable generation outcomes below.
 
 Generation and tool progress are throttled document commits, deferred
@@ -4794,7 +4794,7 @@ The run's inputs live in `pi.live.run`, not in the task input.
   `contextWindow` is positive, and `compacted` is absent. The estimate starts at
   the newest assistant message in the committed model context whose entry was
   appended after the head marker (all qualify without one) and whose usage is
-  nonzero: pi-ai `calculateContextTokens()` of its usage, plus pi-ai
+  nonzero: @naveti/ai `calculateContextTokens()` of its usage, plus @naveti/ai
   `estimateMessageTokens()` of every context message after it and of the planned
   system messages. Its request included the marker, because a head is placed
   only while no request is in flight. Without such a message, every message is
@@ -4879,7 +4879,7 @@ The run's inputs live in `pi.live.run`, not in the task input.
   - `toolUse` with at least one tool call: the commit appends the assistant
     entry and starts the tool round described below, moving to `waiting` in the
     `tools` phase. A `toolUse` message without calls is classified like `stop`.
-  - `error` that pi-ai `isContextOverflow()` recognizes, while the settings'
+  - `error` that @naveti/ai `isContextOverflow()` recognizes, while the settings'
     compaction policy is enabled, `compacted` is absent, and range selection finds a cut:
     the commit appends the error entry, removes `generation`, creates a
     compaction owned by the generation with reason `overflow`, adds its status,
@@ -4936,7 +4936,7 @@ The run's inputs live in `pi.live.run`, not in the task input.
 
 A tool round starts in the commit that appends the tool-calling answer:
 
-1. The offered tools are replayed with pi-ai `getCurrentTools()` from the
+1. The offered tools are replayed with @naveti/ai `getCurrentTools()` from the
    committed model context through `cutoff`: `request` already holds it, and
    `poll` derives it again.
 2. Every call gets a `pi.tool` task owned by the generation, in call order, with
@@ -4991,7 +4991,7 @@ Below, `{ entryId }` is a model-issued call's result.
 
 - `call` reads the call with `runtime.entry()`, resolves the tool among the
   phase's agent `tools` (section 7.3), validates
-  the arguments with pi-ai
+  the arguments with @naveti/ai
   `validateToolArguments()`, runs the `beforeTool` chain, and validates again
   (section 7.3). One commit then records intent: it moves to `execute` with the
   final arguments and the tool's replay policy and sets the slot `running`. The
@@ -5187,7 +5187,7 @@ markers, and the settings' `keepRecentTokens`.
    candidates, so a kept assistant message keeps its tool results. A user entry
    is not a candidate either while a result for a call of the assistant before
    it follows it, before the next assistant (section 2.1, rule 7).
-2. Walk the non-marker entries from newest to oldest, adding pi-ai
+2. Walk the non-marker entries from newest to oldest, adding @naveti/ai
    `estimateMessageTokens()` of each contribution. At the first entry where the
    sum reaches `keepRecentTokens`, the cut is the first candidate at or after
    that entry in transcript order, or the newest candidate when none follows.
@@ -5310,7 +5310,7 @@ aborted directly (section 8.3).
 ### 9.1 Watches
 
 Durable exposes committed state only through watches: Chord's `WatchHandle`
-and its end type `WatchEnd`, exported by `@earendil-works/chord` (Durable
+and its end type `WatchEnd`, exported by `@naveti/chord` (Durable
 re-exports both):
 
 ```ts
@@ -6252,7 +6252,7 @@ These are contracts, not invitations to add defensive machinery:
   that summary still describes 10-84. Place such writes before compacting.
 - **Summary timestamps:** a queued summary's user message carries the time its
   compaction finished, not its placement. Code that judges usage staleness by
-  message timestamps, such as pi-ai `estimateContextTokens()` over view
+  message timestamps, such as @naveti/ai `estimateContextTokens()` over view
   messages, can misjudge; the Harness estimate uses entry order (section 8.3).
 - **Raw head writes into the past:** a head written directly with `tx.appendEntry()`
   that targets an entry before the conversation's active range changes model

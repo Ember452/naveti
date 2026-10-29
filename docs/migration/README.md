@@ -30,9 +30,25 @@ Biome re-sorted imports in 95 `durable` files because the new scope changes
 import order alphabetically. No statement changed; `node scripts/sync-upstream.mjs`
 lists those files and `--full` prints the patches.
 
-Package `README.md` / `CHANGELOG.md` keep the upstream scope (`@earendil-works/pi-*`)
-on purpose: `rename-scope.mjs` skips `.md` so vendored provenance stays readable.
-Use the root `NOTICE.md` / `KERNEL.md` for this repository's package names.
+## Documentation branding
+
+A one-off rewrite replaced the upstream scope and product name in Markdown only:
+`@earendil-works/*` became `@naveti/*`, standalone `pi`/`Pi` became
+`naveti`/`Naveti`. No file under `packages/*/src` or `packages/*/test` was touched.
+
+Deliberately kept:
+
+- every package `CHANGELOG.md` — it records upstream releases, and rewriting the
+  product name there would falsify history;
+- `NOTICE.md`, `KERNEL.md`, `docs/migration/**` — provenance statements;
+- lines documenting the real value of `PI_ATTRIBUTION` (`{ name: "pi", ... }`),
+  and the `pi.dev` / `radius.pi.dev` hostnames — technical facts rather than branding;
+- runtime identifiers (`pi.user`, `pi.assistant`, `pi.durable.submit`, ...) and the
+  constant `PI_ATTRIBUTION` — data formats and code symbols.
+
+Package `CHANGELOG.md` keeps the upstream scope and product name for the same
+provenance reason. Use the root `NOTICE.md` / `KERNEL.md` for this repository's
+package names.
 
 ## Verification (Windows, Node 24.14.1)
 
