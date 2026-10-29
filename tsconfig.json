@@ -9,6 +9,8 @@
 	"include": [
 		"scripts/model-catalog-protocol.ts",
 		"scripts/model-catalog-protocol.test.ts",
+		"packages/*/src/**/*",
+		"packages/*/test/**/*",
 		"packages/*/*/src/**/*",
 		"packages/*/*/test/**/*",
 		"packages/kernel/ai/catalog/**/*",

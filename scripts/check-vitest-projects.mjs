@@ -39,6 +39,7 @@ const patterns = (() => {
 
 const failures = [];
 let collected = 0;
+let totalMatches = 0;
 
 /** Normalize a path returned by glob or path.join to forward slashes. */
 function posix(path) {
@@ -47,8 +48,11 @@ function posix(path) {
 
 for (const pattern of patterns) {
 	const matches = globSync(pattern, { cwd: ROOT });
+	totalMatches += matches.length;
 	if (matches.length === 0) {
-		failures.push(`${pattern}: matched nothing, so no project runs`);
+		// A depth may legitimately have no package yet (depth 1 before the first
+		// package under `packages/<name>` appears). Only the total has to be non-zero.
+		console.log(`${pattern}: matched nothing; that depth has no package yet`);
 		continue;
 	}
 
@@ -70,6 +74,10 @@ for (const pattern of patterns) {
 		}
 		collected++;
 	}
+}
+
+if (totalMatches === 0) {
+	failures.push(`${patterns.join(", ")}: matched nothing, so no project runs`);
 }
 
 if (failures.length > 0) {

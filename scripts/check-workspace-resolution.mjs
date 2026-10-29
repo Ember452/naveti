@@ -18,7 +18,7 @@
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { findPackageDirectories } from "./package-workspaces.mjs";
+import { findWorkspacePackages } from "./package-workspaces.mjs";
 
 const ROOT = process.cwd();
 const INTERNAL_SCOPE = "@naveti/";
@@ -112,7 +112,7 @@ function checkVitestConfigs(configs) {
 	}
 }
 
-const packages = findPackageDirectories(join(ROOT, "packages"));
+const packages = findWorkspacePackages(join(ROOT, "packages"));
 for (const directory of packages) {
 	const manifestPath = join(directory, "package.json");
 	if (!existsSync(manifestPath)) continue;

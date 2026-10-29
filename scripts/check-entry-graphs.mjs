@@ -12,8 +12,9 @@
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, relative, resolve, sep } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findWorkspacePackages } from "./package-workspaces.mjs";
 
 /**
  * Repository root. `NAVETI_CHECK_ROOT` lets a test point the guard at a fixture: the
@@ -25,14 +26,12 @@ const ROOT = process.env.NAVETI_CHECK_ROOT
 	: resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Workspace package name -> its source root, so cross-package imports are followed. */
-const WORKSPACE = {
-	"@naveti/chord": "packages/kernel/chord/src",
-	"@naveti/ai": "packages/kernel/ai/src",
-	"@naveti/durable": "packages/kernel/durable/src",
-	"@naveti/codemode": "packages/kernel/codemode/src",
-	"@naveti/telemetry": "packages/kernel/telemetry/src",
-	"@naveti/mcp": "packages/kernel/mcp/src",
-};
+const WORKSPACE = Object.fromEntries(
+	findWorkspacePackages(join(ROOT, "packages")).map((directory) => {
+		const manifest = JSON.parse(readFileSync(join(directory, "package.json"), "utf8"));
+		return [manifest.name, relative(ROOT, join(directory, "src")).split(sep).join("/")];
+	}),
+);
 
 /**
  * Budgets are deliberate. Entries with no budget remain unbounded; each listed entry states the

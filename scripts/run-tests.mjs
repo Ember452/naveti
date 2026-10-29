@@ -30,14 +30,23 @@
  */
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHermeticEnvironment } from "./hermetic-env.mjs";
+import { findWorkspacePackages } from "./package-workspaces.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const ALL = ["telemetry", "ai", "chord", "codemode", "mcp", "durable"];
+const PACKAGE_DIRECTORIES = findWorkspacePackages(join(ROOT, "packages"));
+const ALL = PACKAGE_DIRECTORIES.map((directory) => basename(directory));
+/** Only these packages have probe tests that spawn a plain `node` child and load `dist`. */
+const BUILD_REQUIRED = new Set(["ai", "chord"]);
 const SERIAL = new Set(["chord"]);
 const TIMEOUT_MS = "60000";
+
+if (ALL.length === 0) {
+	console.error("No workspace packages found under packages/");
+	process.exit(1);
+}
 
 function commandOutput(command, args) {
 	try {
@@ -89,12 +98,22 @@ const vitest = join(ROOT, "node_modules", "vitest", "vitest.mjs");
 function runPerPackage(pkg, env) {
 	const args = [vitest, "--run", `--testTimeout=${TIMEOUT_MS}`];
 	if (SERIAL.has(pkg)) args.push("--no-file-parallelism");
-	return spawnVitest(args, join(ROOT, "packages", "kernel", pkg), env);
+	const directory = PACKAGE_DIRECTORIES.find((candidate) => basename(candidate) === pkg);
+	if (!directory) {
+		console.error(`Unknown package directory for ${pkg}`);
+		return Promise.resolve(2);
+	}
+	return spawnVitest(args, directory, env);
 }
 
 function runProjects(pkgs, env) {
 	const args = [vitest, "--run"];
-	for (const pkg of pkgs) args.push("--project", pkg);
+	// The default run must not filter: `--project` takes the vitest project name, and
+	// filtering by directory name silently drops packages whose names differ. The
+	// root projects glob is the one source of truth for what runs.
+	if (pkgs !== ALL) {
+		for (const pkg of pkgs) args.push("--project", pkg);
+	}
 	return spawnVitest(args, ROOT, env);
 }
 
@@ -126,7 +145,11 @@ if (unknown.length > 0) {
  * against code that no longer matches the tree. Require the build up front.
  */
 function requireBuild(pkgs) {
-	const missing = pkgs.filter((pkg) => !existsSync(join(ROOT, "packages", "kernel", pkg, "dist")));
+	const missing = pkgs.filter((pkg) => {
+		if (!BUILD_REQUIRED.has(pkg)) return false;
+		const directory = PACKAGE_DIRECTORIES.find((candidate) => basename(candidate) === pkg);
+		return !directory || !existsSync(join(directory, "dist"));
+	});
 	if (missing.length === 0) return;
 	console.error(`Missing build output for: ${missing.join(", ")}.`);
 	console.error("Run `pnpm build` first; the probe tests load dist, so a stale build would test old code.");
