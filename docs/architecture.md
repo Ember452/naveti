@@ -7,21 +7,16 @@
 
 仓库里只有内核，没有产品层。所以本文描述的是**内核已经能做的事**（每个结论都能在 `packages/kernel/*` 与 `tests/smoke/persist-resume.ts` 里找到依据），以及产品层将来**必须**接到哪里（标注 `未建`）。
 
-内核六包按依赖方向分三层：
+内核六包之间**不是一条链**，而是“一基础 + 四个并列消费者”：
 
-```
-telemetry       遥测契约与类型化 schema，谁都能用，不依赖别人
-   ↑
-ai              模型适配、模型目录、流式事件、token 计量
-   ↑
-chord           契约、复制状态、JSON 链路上的 RPC、watch/snapshot、sqlite 与内存后端
-   ↑
-codemode  mcp   沙箱执行 / MCP 客户端（并列的能力包）
-   ↑
-durable         唯一拥有"会话"的地方：日志、doc、task、工具执行、审批、装配
-```
+- `telemetry` 是唯一被其他包依赖的基础包，它自己不依赖任何一个。
+- `ai` 与 `chord` 是**并列**的：两者都只依赖 `telemetry`，`chord` 不依赖 `ai`。
+- `codemode` 与 `mcp` **完全独立**（除 typebox 等外部包外不依赖任何内部包）。
+- `durable` 消费 `chord`、`ai`、`codemode`、`telemetry`；**它不依赖 `mcp`**。
 
-`durable` 是其余五包的消费者，不是它们的底座——`ai` 不认识 `durable`。这条方向决定了改 `ai` 不会牵动会话语义，改 `durable` 会。
+完整对应关系与关键符号见 [`packages/kernel/README.md`](../packages/kernel/README.md)；那张表逐条对应各包的 `package.json`，“以 package.json 为准”这句话不必再写一遍。
+
+所以改哪里会牵动什么：改 `telemetry` 影响所有包；改 `ai` 只影响 `durable` 与产品层；改 `chord` 只影响 `durable`；改 `durable` 影响全部产品层。
 
 ## 2. 一次提交怎么走完一轮
 

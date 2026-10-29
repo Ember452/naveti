@@ -22,16 +22,28 @@
 
 ## 六包一句话
 
-| 包 | 拥有什么 |
-| --- | --- |
-| `durable` | 会话日志、doc、task 状态机与调度、工具执行、审批 hook、装配（`Harness.open`） |
-| `chord` | 契约、复制状态、JSON 链路上的 RPC、watch/snapshot、SQLite 与内存后端 |
-| `ai` | 模型适配、模型目录、流式事件、token 计量 |
-| `mcp` | Model Context Protocol 客户端 |
-| `codemode` | 沙箱内执行 JS，唯一能力是调用注入的工具 |
-| `telemetry` | 遥测契约与类型化 schema |
+| 包 | 拥有什么 | 关键符号 | 内部依赖 |
+| --- | --- | --- | --- |
+| `telemetry` | 遥测契约与类型化 schema | 契约类型、`render` | 无 |
+| `ai` | 模型适配、模型目录、流式事件、token 计量 | `createModels`、provider 导出 | `telemetry` |
+| `chord` | 契约、复制状态、JSON 链路上的 RPC、watch/snapshot | `createHost`、`defineFacet`、`local`/`remote` | `telemetry` |
+| `codemode` | 沙箱内执行 JS，唯一能力是调用注入的工具 | 沙箱入口 | 无 |
+| `mcp` | Model Context Protocol 客户端 | 客户端与传输 | 无 |
+| `durable` | 会话日志、doc、task 状态机与调度、工具执行、审批 hook、装配 | `Harness.open`、`defineExtension`、`defineTool`、`defineDoc`、`defineTask`、`hook`、`section` | `chord`、`ai`、`codemode`、`telemetry` |
 
-依赖方向：`telemetry ← ai ← chord ← durable`，`codemode`/`mcp` 与它们并列。`durable` 是其余五包的消费者，不是它们的底座。
+**内部依赖列逐条对应各包 `package.json` 的 `dependencies`，以那里为准。** 它纠正过一个常见的误写：`ai` 与 `chord` 是并列的（`chord` 不依赖 `ai`），`codemode` 不依赖 `chord`，`durable` 不依赖 `mcp`。
+
+## 阅读顺序（按任务，而不是从头读到尾）
+
+| 你要做什么 | 读这些 |
+| --- | --- |
+| 看会话怎么存、怎么恢复 | `durable/src/harness/harness.ts` → `documents.ts` → `entries.ts` |
+| 接一个工具或 hook | `durable/src/harness/define.ts` → `tool.ts` → `hooks` 的类型 |
+| 看前端订阅的那条流 | `chord/src/index.ts` 的 watch/snapshot 面 |
+| 换模型或加 provider | `ai/src/models.ts` + `catalog/` |
+| 改沙箱能力面 | `codemode/src/index.ts` |
+
+**不必读的**：`dist/`、`catalog/` 里的生成物、`test/` 里的夹具（除你要改的那个用例）、各包 CHANGELOG。
 
 ## 这里不该出现
 
