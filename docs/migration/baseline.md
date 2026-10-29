@@ -3,9 +3,14 @@
 What "green" means for this tree, so that a later failure can be classified as a
 regression or as a known platform limit.
 
-Measured on Windows with Node 24.14.1 and pnpm 11.13.0. CI runs `ubuntu-latest`
-with Node 22 and has **not** been re-measured since the pnpm migration; treat the
-first green CI run as the Ubuntu baseline and record it here.
+Measured on two platforms, in the same change:
+
+- **Windows** — Node 24.14.1, pnpm 11.13.0, the gates below, run locally.
+- **Ubuntu** — CI (`ubuntu-latest`, Node 22) on PR #3, the first run after the pnpm
+  migration. See [Ubuntu (CI)](#ubuntu-ci).
+
+The two do not report identical numbers; where they differ, the reason sits next to
+the number rather than in someone's memory.
 
 ## Gates
 
@@ -34,6 +39,23 @@ than reported.
 
 `durable` has two further lanes that the gate does **not** run: `test:store`
 (SQLite storage) and `test:workers` (workerd). See [Durable lanes](#durable-lanes).
+
+## Ubuntu (CI)
+
+Measured by `ci.yml` on PR #3, which is the Ubuntu baseline.
+
+| Job | Covers | Result |
+| --- | --- | --- |
+| `build-check` | `pnpm install --frozen-lockfile` → `pnpm build` → `pnpm check` | PASS, 1m04s |
+| `test (durable)` | `pnpm --filter @naveti/durable run test`: default suite, retention-off pass, `test:store`, `test:workers` | PASS, 3m17s |
+| `test (other)` | the other five packages through their own `test` scripts, then `test:scripts` | PASS, 3m34s |
+
+Two facts this run pins down, which were inferences before it:
+
+- **The `store` lane is green on Ubuntu** (it runs inside `test (durable)`), so the
+  `EBUSY` seen locally is a Windows host limit, not a defect in the code under test.
+- **`allowBuilds` works on a clean runner**: no `--ignore-scripts`, no interactive
+  approval, and `canvas` stays unbuilt without failing the install.
 
 ## Known limits and skips
 
@@ -89,6 +111,10 @@ Recorded, not gated:
 | --- | --- | --- |
 | storage | `pnpm --filter @naveti/durable run test:store` | FAIL on this host: `EBUSY: resource busy or locked, unlink '...\session.sqlite'` and the `-wal` file during temp teardown. Windows keeps the handle until GC; not a regression of the code under test |
 | workers | `pnpm --filter @naveti/durable run test:workers` | PASS, 33 passed in 2 files |
+
+Both are green on Ubuntu inside `test (durable)` (see [Ubuntu (CI)](#ubuntu-ci)). The
+storage failure is therefore Windows-only: the same code, the same assertions, a
+different handle lifetime.
 
 Both are documented rather than enforced because they widen the feedback loop far
 beyond the default suite and `test:workers` depends on workerd behaviour on the
