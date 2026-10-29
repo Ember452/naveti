@@ -20,7 +20,7 @@ import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PACKAGES, renameScope } from "./scope-rules.mjs";
+import { LOCAL_PACKAGE_DIRS, PACKAGES, renameScope } from "./scope-rules.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const UPSTREAM_DIR = join(ROOT, ".upstream");
@@ -140,7 +140,7 @@ mkdirSync(REPORT_DIR, { recursive: true });
 
 const sections = [];
 for (const name of packages) {
-	const local = join(ROOT, "packages", name);
+	const local = join(ROOT, "packages", LOCAL_PACKAGE_DIRS[name] ?? name);
 	const source = from ? join(resolve(from), "packages", name) : packFromRegistry(name);
 	if (!existsSync(source)) {
 		sections.push(`## ${name}\n\nUpstream source not found at \`${source}\`.\n`);
