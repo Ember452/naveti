@@ -23,8 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@0ebf4713fb083020c0825a05822f8d0a8fa277f9 # v6.0.0
+      # Same approach ci.yml already proves out: install pnpm from npm before
+      # setup-node so the cache step can shell out to it. No new action reference is
+      # introduced here - a pin nobody has run is not a pin, it is a guess.
+      - name: Install pnpm
+        run: npm install --global pnpm@11.13.0
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
