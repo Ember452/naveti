@@ -130,6 +130,7 @@ pnpm hooks:install  # 一次性把 core.hooksPath 指到 .githooks
 - 不直接跑全量 vitest。跑单个文件在包目录里：
   `node ../../../node_modules/vitest/vitest.mjs --run test/x.test.ts`
 - 新增或修改测试文件，必须自己跑通再报。
+- **`pnpm check` 绿不算绿。** 改动碰过配置、目录或依赖时，宣布完成前必须跑 `pnpm test:ci`。证据：往 `packages/kernel/` 里放一个 `README.md`，根配置的项目 glob 把它也当项目收集，六个项目的测试全部起不来，而 `check` 全绿——“静态没报错”不等于“测试还能跑”。
 - 改了测试清单（增删用例、加 skip、删测试文件）→ 跑 `pnpm run test-integrity:write`，并让 `scripts/test-integrity.json` 的 diff 出现在同一个提交里。
 - 临时脚本写到 `.verify-tmp/`（gitignored），用完删掉；不要把多行脚本塞进一条命令里。
 - 提交前钩子会跑静态检查；推送前钩子会跑 `pnpm check`。绕过（`--no-verify`）必须在提交正文里说明理由。

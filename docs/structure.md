@@ -394,12 +394,13 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 |
 | `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 |
 | `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） |
+| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败），且命中的目录必须自带 `vitest.config.ts` | 有 |
 | `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
-| `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。`docs/migration/` 不查——数数是 baseline.md 的工作 | 有 |
+| `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 |
 
 两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。守卫能用夹具驱动的前提是它不把自己的目录当根：`check-entry-graphs` 靠 `NAVETI_CHECK_ROOT`，`check-ts-relative-imports` 靠 `process.cwd()`。
 
@@ -509,6 +510,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 格式 | `biome-check.mjs` | 调 biome，`--write` 时兼作格式化 |
 | 检查 | `check-pinned-deps.mjs` / `.test.mjs` | 依赖版本钉死 |
 | 检查 | `check-runtime-deps.mjs` / `.test.mjs` | 运行时依赖闭包 |
+| 检查 | `check-vitest-projects.mjs` / `.test.mjs` | 根项目的 glob 只能收配置文件或包目录 |
 | 检查 | `check-doc-links.mjs` / `.test.mjs` | 本文档体系里的 markdown 链接必须能解析 |
 | 检查 | `check-doc-counts.mjs` / `.test.mjs` | 规则文档不携带清单数（`docs/migration/` 除外） |
 | 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |

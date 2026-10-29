@@ -55,9 +55,20 @@ test("rejects the retired 待建 marker", async (t) => {
 });
 
 test("leaves docs/migration alone: counting is its job", async (t) => {
-	const root = await workspace(t, {
-		"docs/migration/baseline.md": "现有 6 条门禁，18 个脚本，全绿。\n",
-	});
+	const root = await workspace(t, { "docs/migration/baseline.md": "现有 6 条门禁，18 个脚本，全绿。\n" });
 	const result = run(root);
 	assert.equal(result.status, 0, result.stderr);
+});
+
+test("leaves decision notes alone: they record the past, which cannot drift", async (t) => {
+	const root = await workspace(t, { ".agents/notes/implemented/x.md": "当时 64 项守卫测试全绿。\n" });
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+});
+
+test("still checks skills: they state rules", async (t) => {
+	const root = await workspace(t, { ".agents/skills/x/SKILL.md": "现有七条守卫。\n" });
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /\.agents\/skills\/x\/SKILL\.md:1/);
 });

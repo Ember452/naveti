@@ -9,13 +9,16 @@
  * leftover `[待建]` marker that `structure.md` §1 replaced with `[未建]`.
  *
  * `docs/migration/` is out of scope on purpose: baseline.md and deviations.md are
- * measurement documents, and counting is their job.
+ * measurement documents, and counting is their job. So are `.agents/notes/`: a note
+ * records what was true the moment it was written, which cannot drift — rewriting
+ * history to satisfy a linter would destroy its only use. Skills stay in scope
+ * because they state rules.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOT = process.cwd();
-const SKIP_DIRECTORIES = new Set(["node_modules", "dist", ".git", ".upstream", "coverage", "migration"]);
+const SKIP_DIRECTORIES = new Set(["node_modules", "dist", ".git", ".upstream", "coverage", "migration", "notes"]);
 /**
  * The shapes that carried a stale number in the past. Arabic digits only on purpose:
  * `一个功能一个包` is the project's own slogan, and a guard that reds on it is a
