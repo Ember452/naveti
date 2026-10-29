@@ -393,14 +393,15 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | --- | --- | --- |
 | `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 |
 | `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 |
-| `check-ts-relative-imports` | 相对导入不跨包 | **无**（见下方缺口） |
-| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） | **无**（见下方缺口） |
+| `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） |
+| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
+| `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。`docs/migration/` 不查——数数是 baseline.md 的工作 | 有 |
 
-**已知缺口，不是已完成项：** `check-ts-relative-imports` 与 `check-entry-graphs` 没有反例测试。两者都把 `ROOT` 钉在脚本目录的上一级，无法用临时夹具驱动，所以要么给它们加 root 覆盖再补测试，要么承认“这两条靠阅读保证”。在那之前，"每条守卫都有红例"**不是一个成立的说法**。
+两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。守卫能用夹具驱动的前提是它不把自己的目录当根：`check-entry-graphs` 靠 `NAVETI_CHECK_ROOT`，`check-ts-relative-imports` 靠 `process.cwd()`。
 
 ### 未建的（每条都有触发条件，不是待办清单）
 
@@ -508,8 +509,10 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 格式 | `biome-check.mjs` | 调 biome，`--write` 时兼作格式化 |
 | 检查 | `check-pinned-deps.mjs` / `.test.mjs` | 依赖版本钉死 |
 | 检查 | `check-runtime-deps.mjs` / `.test.mjs` | 运行时依赖闭包 |
-| 检查 | `check-ts-relative-imports.mjs` | 相对导入不跨包 |
-| 检查 | `check-entry-graphs.mjs` | 入口值导入图预算 |
+| 检查 | `check-doc-links.mjs` / `.test.mjs` | 本文档体系里的 markdown 链接必须能解析 |
+| 检查 | `check-doc-counts.mjs` / `.test.mjs` | 规则文档不携带清单数（`docs/migration/` 除外） |
+| 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
+| 检查 | `check-entry-graphs.mjs` / `.test.mjs` | 入口值导入图预算 |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |

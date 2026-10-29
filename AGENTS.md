@@ -23,7 +23,8 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 | 改内核 | §6 + `KERNEL.md` §2 + `docs/kernel/divergence.md`（涉及 seat 再加 `seats.md`） |
 | 动跨包 / 装配 | 上面 + `docs/architecture.md` |
 | 加顶层目录 / 改边界 | 上面 + `docs/structure.md` §15 + 在 `.agents/notes/` 写一条 |
-| 改文档 | `docs/README.md` 的四条规矩 |
+| 改文档 | `docs/README.md` 的五条规矩 |
+| 加或改一条守卫 | `.agents/skills/add-a-guard/SKILL.md` + `docs/structure.md` §13 |
 | 不知道去哪找 | `docs/README.md` 的路由表 |
 
 下面这份是按“如果全错就全读”的顺序排的清单，只在任务真的跨多个层面时使用：
