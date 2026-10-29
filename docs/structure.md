@@ -542,6 +542,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 具体的触发条件表、阶段顺序与验收 gate 都在 [`plan/master-plan.md`](./plan/master-plan.md)：它们是会变的，所以不住在本文。
 
+`deploy/`、`docker/` 不在 §16 的禁令里：第一次出安装包时，如果发布路径需要它们，按 `plan/master-plan.md` 的 P3 触发条件再建。
+
 ## 16. 明确不建
 
 | 不建 | 原因 |
@@ -551,11 +553,13 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 按能力类型横切的 `kernel/` + `capabilities/` 分组 | 那是上一版散落的来源；归属按"谁拥有"分，不按"能力像什么"分 |
 | `plugins/` 运行期插件层 | 编译期内置已由 `features/` 承载；再开一层会得到两套生命周期。§8 已写清它的真实边界 |
 | `docs/decisions/` | 决策记录的唯一落点是 `.agents/notes/` |
-| `evals/`、`profiles/`、`rfcs/`、`infra/`、`docker/`、`deploy/`、`examples/` | 没有当前消费者（`packages/durable/test/examples/` 已有可跑样例） |
+| `evals/`、`profiles/`、`rfcs/`、`infra/`、`examples/` | 没有当前消费者（`packages/durable/test/examples/` 已有可跑样例） |
 | 仓库级 `snapshots/` | 黄金文件放 `tests/golden/`，功能夹具放功能内 |
 | 每包一份 `tsconfig.build.json` | 发布期由根上单个 `tsdown` 入口按 manifest 打包（§11） |
 | `gen-paths.mjs`（生成 `paths`/alias 的脚本） | 它把"能不能正确解析"变成"有没有跑脚本"，见 §13 |
 | 任何标了 `[未建]` 的目录先建空壳 | 空目录会让“结构已完成”与“结构已规划”无法区分 |
+
+`deploy/`、`docker/` 不在这里：它们由 P3 的发布路径决定，见 §15 与 [`plan/master-plan.md`](./plan/master-plan.md)。
 
 ## 17. 权威分工
 

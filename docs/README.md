@@ -30,7 +30,7 @@
 
 ## 容量
 
-`docs/` 长期不超过 **15 个文件**（连 `diffs/` 与 `.json` 算）。超过说明有内容该回包内：包自己的契约写进包 README，测试夹具进包内 `test/`，决策进 `.agents/notes/`。
+`docs/` 长期不超过 **15 个手写文件**。`docs/migration/rename-report.json` 与 `docs/migration/diffs/*.md` 是生成物，不计入——否则撞线的原因是生成物，不是散文。超过说明有内容该回包内：包自己的契约写进包 README，测试夹具进包内 `test/`，决策进 `.agents/notes/`。
 
 每个新文件必须能回答：**它替谁省掉了什么问题？** 答不出来就不建。
 
