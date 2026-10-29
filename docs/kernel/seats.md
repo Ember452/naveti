@@ -24,22 +24,29 @@ seat 是"功能可以占的位置"，不是"功能的类型"。一个功能通�
 | `task` | `defineTask` | `@naveti/host/extend/tasks` | 已有 | 定时、主动、后台作业、长任务 |
 | `doc` | `defineDoc` / `defineDocFamily` | `@naveti/host/extend/docs` | 已有 | 功能状态（三种 scope 见 §4） |
 | `extension` | `defineExtension` + `registry.install()` | `@naveti/host/extend` | 已有 | 一次装多个贡献点；`compose.ts` 的入口形态 |
-| `config` | 设置 schema（`platform/host/settings`） | `@naveti/host/extend/settings` | 待建 | 功能开关与参数 |
-| `service` | 宿主侧服务注册（`platform/host` 的 seat 表） | `@naveti/host/extend/service` | 待建 | 功能对别的功能暴露能力（跨功能唯一合法通道） |
 
 装配顺序固定：`openHost()` 建 Harness → 逐个 `registry.install(extension)` → 启动任务调度 → 挂 transport。**引擎不做服务发现**，这也是不引入 DI 容器的原因。
 
-## 3. 客户端 seat（平台待建）
+### 候选，未采用
+
+下面两个挂点只存在于设想中，**不是 seat 清单的一部分**，也不会有 `@naveti/host/extend/*` 子路径。理由与 §8“不预留无消费者的字段”同构：先有挂点再有消费者，就是在猜形状。
+
+| 候选 | 它会是什么 | 采用条件 |
+| --- | --- | --- |
+| `config` | 设置 schema，挂在 `platform/host/settings` | 第一个需要用户开关的功能出现时 |
+| `service` | 功能向其他功能暴露能力 | 第二个功能真的需要调用第一个时（优先用事件或共享 doc 解决） |
+
+## 3. 客户端 seat（平台未建）
 
 | seat | 位置 | 状态 | 典型用途 |
 | --- | --- | --- | --- |
-| `panel` | 右栏面板 | 待建 | 文件、浏览器、终端、子 agent |
-| `nav` | 侧栏导航项 | 待建 | 设置、插件页 |
-| `settings` | 设置分区 | 待建 | 模型、工具策略、功能参数 |
-| `command` | 命令面板 / 快捷键 | 待建 | 新建、归档、导出 |
-| `composer` | 输入区扩展 | 待建 | 引用、附件、模板 |
-| `renderer` | entry kind → 视图 | 待建 | 计划卡片、审批卡片、工具结果 |
-| `status` | 顶栏状态 | 待建 | 上下文占用、计价、运行中任务 |
+| `panel` | 右栏面板 | 未建 | 文件、浏览器、终端、子 agent |
+| `nav` | 侧栏导航项 | 未建 | 设置、插件页 |
+| `settings` | 设置分区 | 未建 | 模型、工具策略、功能参数 |
+| `command` | 命令面板 / 快捷键 | 未建 | 新建、归档、导出 |
+| `composer` | 输入区扩展 | 未建 | 引用、附件、模板 |
+| `renderer` | entry kind → 视图 | 未建 | 计划卡片、审批卡片、工具结果 |
+| `status` | 顶栏状态 | 未建 | 上下文占用、计价、运行中任务 |
 
 客户端 seat 由 `@naveti/web` 声明，功能 `client/index.ts` 用 `register(slots)` 占位。**壳文件里不允许出现功能 id**，由 `check-feature-registry` 校验。
 
