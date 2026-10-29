@@ -33,16 +33,16 @@ lists those files and `--full` prints the patches.
 ## Documentation branding
 
 A one-off rewrite replaced the upstream scope and product name in Markdown only:
-`@earendil-works/*` became `@naveti/*`, standalone `pi`/`Pi` became
+The upstream scope became `@naveti/*`, and standalone `pi`/`Pi` became
 `naveti`/`Naveti`. No file under `packages/*/src` or `packages/*/test` was touched.
 
 Deliberately kept:
 
-- every package `CHANGELOG.md` — it records upstream releases, and rewriting the
-  product name there would falsify history;
+- the `0.0.1` entry in every package `CHANGELOG.md` records that the kernel is
+  vendored from the upstream snapshot; upstream release history is not reproduced here;
 - `NOTICE.md`, `KERNEL.md`, `docs/migration/**` — provenance statements;
-- lines documenting the real value of `PI_ATTRIBUTION` (`{ name: "pi", ... }`),
-  and the `pi.dev` / `radius.pi.dev` hostnames — technical facts rather than branding;
+- the default gateway and default attribution hostnames hardcoded in
+  `packages/ai/src` — technical facts, so the documentation does not spell them out;
 - runtime identifiers (`pi.user`, `pi.assistant`, `pi.durable.submit`, ...) and the
   constant `PI_ATTRIBUTION` — data formats and code symbols.
 
