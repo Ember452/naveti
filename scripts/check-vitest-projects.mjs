@@ -11,14 +11,16 @@
  * the invariant that the suite cannot report for itself: a project glob may only match
  * config files or package directories.
  *
- * It deliberately does NOT check "every package directory is collected". Measured on
- * this tree: removing a package's vitest.config.ts makes `run-tests.mjs` fail with
- * `FAIL mcp (exit 1)`, because the runner derives the project list from the manifests.
- * The hole is already covered, and a rule with no consumer is what this repository
- * spends its whole existence arguing against.
+ * The guard also holds the second invariant: every workspace package that ships
+ * tests must have a `vitest.config.ts`, and that config must be collected. An earlier
+ * version claimed `run-tests.mjs` derived the project list from manifests; it did not
+ * — the list was hardcoded. Now that the runner derives packages from disk and the
+ * default run does not filter by name, this guard makes a missing config visible at
+ * check time instead of at test time.
  */
-import { existsSync, globSync, readFileSync, statSync } from "node:fs";
-import { join, resolve, sep } from "node:path";
+import { existsSync, globSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join, relative, resolve, sep } from "node:path";
+import { findWorkspacePackages } from "./package-workspaces.mjs";
 
 const ROOT = process.env.NAVETI_CHECK_ROOT ? resolve(process.env.NAVETI_CHECK_ROOT) : process.cwd();
 const CONFIG = join(ROOT, "vitest.config.ts");
@@ -40,6 +42,9 @@ const patterns = (() => {
 const failures = [];
 let collected = 0;
 let totalMatches = 0;
+const collectedConfigs = new Set();
+const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx)$/;
+const SKIPPED_TEST_DIRECTORIES = new Set(["dist", "node_modules"]);
 
 /** Normalize a path returned by glob or path.join to forward slashes. */
 function posix(path) {
@@ -65,6 +70,7 @@ for (const pattern of patterns) {
 				failures.push(`${normalized}: collected as a project but has no vitest.config.ts (its name would be missing)`);
 				continue;
 			}
+			collectedConfigs.add(`${normalized}/vitest.config.ts`);
 			collected++;
 			continue;
 		}
@@ -72,7 +78,32 @@ for (const pattern of patterns) {
 			failures.push(`${normalized}: a project glob may only match config files or directories; vitest refuses to start`);
 			continue;
 		}
+		collectedConfigs.add(normalized);
 		collected++;
+	}
+}
+
+function hasTests(directory) {
+	for (const entry of readdirSync(directory, { withFileTypes: true })) {
+		if (entry.isDirectory()) {
+			if (SKIPPED_TEST_DIRECTORIES.has(entry.name) || entry.name.startsWith(".")) continue;
+			if (hasTests(join(directory, entry.name))) return true;
+			continue;
+		}
+		if (TEST_FILE.test(entry.name)) return true;
+	}
+	return false;
+}
+
+for (const directory of findWorkspacePackages(join(ROOT, "packages"))) {
+	if (!hasTests(directory)) continue;
+	const name = relative(ROOT, directory).split(sep).join("/");
+	if (!existsSync(join(directory, "vitest.config.ts"))) {
+		failures.push(`${name}: has tests but no vitest.config.ts, so its tests never run`);
+		continue;
+	}
+	if (!collectedConfigs.has(`${name}/vitest.config.ts`)) {
+		failures.push(`${name}: vitest.config.ts is not collected by any projects glob`);
 	}
 }
 

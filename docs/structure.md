@@ -395,7 +395,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 |
 | `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 |
 | `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） |
-| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败），且命中的目录必须自带 `vitest.config.ts` | 有 |
+| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败）；含测试的包必须自带 `vitest.config.ts` 且被某个 glob 收集 | 有 |
 | `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
