@@ -50,56 +50,22 @@ Package `CHANGELOG.md` keeps the upstream scope and product name for the same
 provenance reason. Use the root `NOTICE.md` / `KERNEL.md` for this repository's
 package names.
 
-## Verification (Windows, Node 24.14.1)
+## Verification
 
-| Gate | Result |
-| --- | --- |
-| `npm run check` (biome + pinned-deps + runtime-deps + ts-imports + entry-graphs + `tsc --noEmit`) | PASS |
-| `npm run build` (six packages, dependency order) | PASS |
-| `telemetry` | 47/47 |
-| `ai` | 1596 passed, 0 failed, 866 skipped (credential gated) |
-| `codemode` | 223 passed, 3 skipped |
-| `mcp` | 45 passed, 1 skipped |
-| `chord` | 2434/2434 on the last run (one upstream 20ms test is timing-flaky) |
-| `durable` | 1695/1707 |
-| `tests/smoke/persist-resume.ts` | 4/4 PASS (submit+answer, reopen keeps transcript, resume+continue, interrupted run resumes) |
-
-### Known platform limits (not migration defects)
-
-1. **5 durable tests create file symlinks.** Windows returns `EPERM` without
-   Developer Mode or elevation; this machine has neither. They pass on Linux,
-   where upstream CI runs.
-2. **`chord` `routines.test.ts` waits a fixed 20ms** for an async chain to
-   converge; occasionally only 3 of 4 calls land. Flaky by construction
-   (2 of 3 runs failed, 1 passed), independent of the rename.
-3. **`chord` `table-migration.test.ts` spies the global `setTimeout`**, so
-   parallel test files pollute each other. It passes with
-   `--no-file-parallelism`, which `run-tests.mjs` uses for `chord`.
-4. **`durable` heap tests sit just above the 5s default timeout** (one measured
-   5024ms). `run-tests.mjs` passes `--testTimeout=60000`; the same file reports
-   13/13 with the larger budget.
-
-Upstream runs its whole suite on `ubuntu-latest` (`.github/workflows/ci.yml`),
-which is why none of the above was caught there. The vendored `ci.yml` therefore
-passes `--testTimeout=60000` to `durable` and `--no-file-parallelism` to `chord`,
-so the Ubuntu run does not re-discover these two upstream weaknesses.
-
-### Fixed during review
-
-`run-tests.mjs` originally wrote `env.PATH` onto a spread copy of `process.env`.
-Windows exposes the variable as `Path`, so the child process lost its inherited
-PATH (System32 included) and 34 extra tests failed with `No bash shell found`
-and `spawn powershell ENOENT`. It now mutates whichever key is actually present;
-`durable` returns to 5 failures, all `EPERM` symlinks.
+Measured gate results, per-package counts, known platform limits and the commands to
+re-measure them all live in [`baseline.md`](./baseline.md). This file keeps only the
+provenance record: duplicating the numbers here is how they drifted the first time.
 
 ## Commands
 
 ```bash
-npm run check                 # the CI gate, cross-platform
-npm run build                 # all six packages, dependency order
-npm test                      # every workspace with its own config
-npm run test:ci               # Windows-friendly bootstrap (bash on PATH, longer timeout, chord serial)
+pnpm check                    # the CI gate, cross-platform
+pnpm build                    # six packages, dependency order, no network access
+pnpm build:catalog            # refresh the model catalog (network); review the diff
+pnpm test:ci                  # gate: single process, hermetic environment, needs a build
+pnpm test:ci:local            # same run, inherits the local environment
 node scripts/rename-scope.mjs # re-apply the scope mapping; idempotent
 node scripts/sync-upstream.mjs --from ../pi-main [pkg ...] [--full]
 node --conditions=source tests/smoke/persist-resume.ts
 ```
+
