@@ -12,7 +12,8 @@ import {
 } from "typescript/unstable/ast/is";
 import { API } from "typescript/unstable/sync";
 
-const ignoredDirectories = new Set([".git", "coverage", "dist", "node_modules"]);
+// `.upstream` and `.verify-tmp` are local caches/scratch rooms, not repository source.
+const ignoredDirectories = new Set([".git", ".upstream", ".verify-tmp", "coverage", "dist", "node_modules"]);
 const files = [];
 
 function collectTypescriptFiles(directory) {

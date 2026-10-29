@@ -255,3 +255,12 @@ makes a 247,000-line vendored tree reviewable.
   `.gitattributes` rule) will never surface. Re-run the root comparison by hand
   when taking a new snapshot; `packages/` parity does not imply repository parity.
 
+## D16 — The hermetic harness no longer sets `PI_NO_LOCAL_LLM`
+
+- **What:** `scripts/hermetic-env.mjs` dropped `PI_NO_LOCAL_LLM: "1"`.
+- **Why:** no vendored code reads it. `git grep PI_NO_LOCAL_LLM` returned only that
+  line; greps for `NO_LOCAL`, `ollama` and `11434` returned nothing. It looked like
+  a local-LLM guard and guarded nothing.
+- **Risk:** none. The variable was never read, so removing it cannot change
+  behaviour.
+

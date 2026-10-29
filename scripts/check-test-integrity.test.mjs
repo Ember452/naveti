@@ -118,3 +118,14 @@ test("reports what changed when the baseline is regenerated", async (t) => {
 	assert.equal(result.status, 0);
 	assert.match(result.stdout, /skips 0 -> 1/);
 });
+
+test("scans tests/ for .only", async (t) => {
+	const { root } = await workspace(t);
+	assert.equal(run(root, "--write").status, 0);
+	const directory = join(root, "tests", "golden");
+	await mkdir(directory, { recursive: true });
+	await writeFile(join(directory, "a.test.ts"), 'import { it } from "vitest";\nit.only("x", () => {});\n');
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /tests\/golden\/a\.test\.ts: uses \.only/);
+});

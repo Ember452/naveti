@@ -63,3 +63,14 @@ test("ignores bare specifiers that end in .js", async (t) => {
 	const result = run(root);
 	assert.equal(result.status, 0, result.stderr);
 });
+
+test("ignores .verify-tmp and .upstream scratch trees", async (t) => {
+	const root = await workspace(t, {
+		".verify-tmp/broken.ts": 'import "./x.js";\n',
+		".upstream/broken.ts": 'import "./y.js";\n',
+		"a.ts": 'import "./b.ts";\n',
+		"b.ts": "export {};\n",
+	});
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+});

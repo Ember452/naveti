@@ -28,7 +28,9 @@ function ownedMarkdown() {
 	const files = readdirSync(ROOT, { withFileTypes: true })
 		.filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
 		.map((entry) => join(ROOT, entry.name));
-	for (const directory of ["docs", ".agents"]) collectMarkdown(join(ROOT, directory), files);
+	for (const directory of ["docs", ".agents", "packages/features", "packages/contracts", "packages/platform", "packages/providers", "apps"]) {
+		collectMarkdown(join(ROOT, ...directory.split("/")), files);
+	}
 	const kernelReadme = join(ROOT, "packages", "kernel", "README.md");
 	if (existsSync(kernelReadme)) files.push(kernelReadme);
 	return files;
