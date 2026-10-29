@@ -1,0 +1,38 @@
+name: deps audit
+
+on:
+  schedule:
+    - cron: '37 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0ebf4713fb083020c0825a05822f8d0a8fa277f9 # v6.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # The lockfile decides versions, so no lifecycle scripts beyond the ones
+      # pnpm-workspace.yaml allows. This is the same posture as CI.
+      - name: Install production dependencies
+        run: pnpm install --frozen-lockfile --prod
+
+      - name: Audit production vulnerabilities
+        run: node scripts/deps-audit.mjs
+
+      # Upstream's `npm audit signatures` step is gone on purpose. pnpm exposes no
+      # equivalent subcommand; what remains is that `--frozen-lockfile` refuses any
+      # package whose resolved integrity differs from the lockfile, which is checked
+      # on every install and on every CI run, not only here.
