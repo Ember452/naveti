@@ -71,20 +71,19 @@ jobs:
           SUITE: ${{ matrix.name }}
         run: |
           if [ "$SUITE" != other ]; then
-            # The heap-measuring tests sit just above the default 5s budget.
-            pnpm --filter "@naveti/$SUITE" run test -- --testTimeout=60000
+            # `durable`'s test script runs the default suite, the retention-off pass,
+            # test:store and test:workers. Timeouts and serial settings come from each
+            # project's vitest config, not from flags: pnpm appends extra args to the
+            # end of a multi-command script, where they would land on the wrong one.
+            pnpm --filter "@naveti/$SUITE" run test
             exit 0
           fi
           # Every other workspace, so new packages are tested without editing this workflow.
+          # `chord` runs without file parallelism because its project config says so.
           for dir in packages/kernel/*/; do
             repo="${dir%/}"
             package="${repo##*/}"
             if [ "$package" = "durable" ]; then continue; fi
-            if [ "$package" = "chord" ]; then
-              # One test spies the global setTimeout, which is unsafe while files share a process.
-              pnpm --filter "@naveti/$package" run test -- --no-file-parallelism
-            else
-              pnpm --filter "@naveti/$package" run test
-            fi
+            pnpm --filter "@naveti/$package" run test
           done
           pnpm run test:scripts

@@ -14,6 +14,20 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 ## 2. 先读什么
 
+按任务读最小集，读够用为止。**不要一次读完下面所有文档**：八篇合计超过 70 KB。
+
+| 你要做什么 | 最少读这些 |
+| --- | --- |
+| 修一个红的测试 | §9 命令 + `docs/migration/baseline.md` 里对应包那一段 |
+| 加功能 | §3 + §4 + §5 + `docs/structure.md` §7 + `docs/kernel/seats.md` |
+| 改内核 | §6 + `KERNEL.md` §2 + `docs/kernel/divergence.md`（涉及 seat 再加 `seats.md`） |
+| 动跨包 / 装配 | 上面 + `docs/architecture.md` |
+| 加顶层目录 / 改边界 | 上面 + `docs/structure.md` §15 + 在 `.agents/notes/` 写一条 |
+| 改文档 | `docs/README.md` 的四条规矩 |
+| 不知道去哪找 | `docs/README.md` 的路由表 |
+
+下面这份是按“如果全错就全读”的顺序排的清单，只在任务真的跨多个层面时使用：
+
 1. [`docs/README.md`](docs/README.md) —— 四类文档分别回答什么，先看它决定读哪一篇。
 2. `docs/structure.md` —— 什么文件放哪、什么还不该建。
 3. `KERNEL.md` —— 内核能不能改、按哪一档改。

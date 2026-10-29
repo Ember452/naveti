@@ -1,4 +1,4 @@
-# KERNEL
+﻿# KERNEL
 
 `packages/kernel/` 是从 pi 1.4.0 派生的**自有内核**（来源见 [`NOTICE.md`](./NOTICE.md)）。
 它不是"不可触碰的第三方依赖"，也不是"随时可以魔改的私有代码"：它是本项目的底层运行时，**允许改，但要按档位改、要留下记录**。
@@ -71,9 +71,11 @@
 
 ```
 pnpm check      # biome + 依赖钉版 + 运行时依赖闭包 + ts 相对导入 + 入口图 + 六条结构守卫 + tsc --noEmit
-pnpm test       # 逐包测试
+pnpm test:ci    # 门禁测试：单进程 + 密封环境（先 pnpm build）
 node --test scripts/*.test.mjs scripts/*.test.ts
 ```
+
+不要用 `pnpm test`（逐包脚本）：它在 Windows 上不注入 Git 的 `bin`，shell 一致性用例会 `ENOENT bash.exe`。原因与对比见 `AGENTS.md` §9。
 
 按档位追加：
 

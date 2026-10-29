@@ -116,6 +116,11 @@ Both are green on Ubuntu inside `test (durable)` (see [Ubuntu (CI)](#ubuntu-ci))
 storage failure is therefore Windows-only: the same code, the same assertions, a
 different handle lifetime.
 
+Naming trap: **CI does run both lanes** (they are inside `durable`'s `test` script,
+which `test (durable)` calls), while the local gate `pnpm test:ci` does **not** — it
+runs the default suite only. "Recorded, not gated" below describes the local gate; it
+is not a statement about CI.
+
 Both are documented rather than enforced because they widen the feedback loop far
 beyond the default suite and `test:workers` depends on workerd behaviour on the
 host platform. A red there is not a regression in the default gate.
