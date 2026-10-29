@@ -86,6 +86,7 @@ naveti/
 │   ├── structure.md                     本文，空间轴权威
 │   ├── architecture.md                  系统怎么运转
 │   ├── plan/master-plan.md              阶段、出现时机、待决
+│   ├── plan/parked.md                   现在不做、到点必须重新判断的事（带触发条件与前提）
 │   ├── kernel/
 │   │   ├── seats.md                     扩展点权威表
 │   │   └── divergence.md                与 pi 1.4.0 的分歧账本
@@ -401,6 +402,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
 | `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 |
+| `check-parked-triggers` | `docs/plan/parked.md` 每条推迟的事都必须带**触发条件 + 复核日期 + 前提**；条件成立或日期到期就红，红则必须在同一改动里做/改条件/作废 | 有 |
 
 两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。守卫能用夹具驱动的前提是它不把自己的目录当根：`check-entry-graphs` 靠 `NAVETI_CHECK_ROOT`，`check-ts-relative-imports` 靠 `process.cwd()`。
 
@@ -513,6 +515,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-vitest-projects.mjs` / `.test.mjs` | 根项目的 glob 只能收配置文件或包目录 |
 | 检查 | `check-doc-links.mjs` / `.test.mjs` | 本文档体系里的 markdown 链接必须能解析 |
 | 检查 | `check-doc-counts.mjs` / `.test.mjs` | 规则文档不携带清单数（`docs/migration/` 除外） |
+| 检查 | `check-parked-triggers.mjs` / `.test.mjs` | 推迟的点子必须可被叫醒，且带可推翻的前提 |
 | 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
 | 检查 | `check-entry-graphs.mjs` / `.test.mjs` | 入口值导入图预算 |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
@@ -565,6 +568,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `docs/structure.md`（本文） | 文件放哪、什么不该建 |
 | `docs/architecture.md` | 运行时怎么运转（分层、一次提交的路径、信任边界） |
 | `docs/plan/master-plan.md` | 阶段、目录出现时机、待决项 |
+| `docs/plan/parked.md` | 推迟的事：它们的触发条件、复核日期与当时依赖的前提 |
 | `packages/features/*/naveti.feature.json` | 该功能提供什么 |
 | `apps/server/src/compose.ts` | 系统里到底装了哪些功能 |
 | `packages/features/*/README.md` | 该功能的唯一契约说明 |

@@ -11,7 +11,7 @@
 		"clean": "pnpm -r run clean",
 		"build": "pnpm -r --filter \"./packages/kernel/*\" run build",
 		"build:catalog": "pnpm --filter @naveti/ai run build:catalog",
-		"check": "node scripts/biome-check.mjs --write && pnpm run check:pinned-deps && pnpm run check:runtime-deps && pnpm run check:ts-imports && pnpm run check:vitest-projects && pnpm run check:entry-graphs && pnpm run check:workspace-resolution && pnpm run check:lockfile-commit && pnpm run check:test-integrity && pnpm run check:doc-links && pnpm run check:doc-counts && pnpm run test:scripts && tsc --noEmit",
+		"check": "node scripts/biome-check.mjs --write && pnpm run check:pinned-deps && pnpm run check:runtime-deps && pnpm run check:ts-imports && pnpm run check:vitest-projects && pnpm run check:entry-graphs && pnpm run check:workspace-resolution && pnpm run check:lockfile-commit && pnpm run check:test-integrity && pnpm run check:doc-links && pnpm run check:doc-counts && pnpm run check:parked && pnpm run test:scripts && tsc --noEmit",
 		"check:pinned-deps": "node scripts/check-pinned-deps.mjs",
 		"check:runtime-deps": "node scripts/check-runtime-deps.mjs",
 		"check:ts-imports": "node scripts/check-ts-relative-imports.mjs",
@@ -28,7 +28,8 @@
 		"rename:scope": "node scripts/rename-scope.mjs",
 		"check:doc-links": "node scripts/check-doc-links.mjs",
 		"check:doc-counts": "node scripts/check-doc-counts.mjs",
-		"check:vitest-projects": "node scripts/check-vitest-projects.mjs"
+		"check:vitest-projects": "node scripts/check-vitest-projects.mjs",
+		"check:parked": "node scripts/check-parked-triggers.mjs"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.5",

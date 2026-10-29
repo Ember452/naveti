@@ -25,6 +25,7 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 | 加顶层目录 / 改边界 | 上面 + `docs/structure.md` §15 + 在 `.agents/notes/` 写一条 |
 | 改文档 | `docs/README.md` 的五条规矩 |
 | 加或改一条守卫 | `.agents/skills/add-a-guard/SKILL.md` + `docs/structure.md` §13 |
+| 想把一件事推到将来 | `docs/plan/parked.md`：必须同时写下触发条件、`review_by` 日期、以及**当时依赖的前提** |
 | 不知道去哪找 | `docs/README.md` 的路由表 |
 
 下面这份是按“如果全错就全读”的顺序排的清单，只在任务真的跨多个层面时使用：
@@ -178,6 +179,8 @@ pnpm hooks:install  # 一次性把 core.hooksPath 指到 .githooks
 - 不提交 `dist/`、`.upstream/`、`.verify-tmp/`、本地日志、`.env*`。
 
 ## 15. 文档纪律
+
+- 推迟不等于删除：写进 `docs/plan/parked.md`，并留下三件事——触发条件、复核日期、当时依赖的前提。**前提必须写成可被现实推翻的句子**；到点时先检验前提，再决定做/改条件/作废，“以后再讲”不算一个选项。`check-parked-triggers` 会拦住缺字段与已到期的条目。
 
 - 一个事实只有一处权威，权威分工见 `docs/structure.md` §17。
 - 改了边界、改了内核语义、新增 seat、新增守卫、新增根配置 → 在 `.agents/notes/<state>/<date>-<slug>.md` 记一条（背景 / 决定 / 被拒绝的替代方案 / 后果）。
