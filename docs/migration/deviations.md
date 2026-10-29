@@ -126,7 +126,8 @@ makes a 247,000-line vendored tree reviewable.
 
 - **What:** `scripts/scope-rules.mjs`, `scripts/rename-scope.mjs`,
   `scripts/sync-upstream.mjs`, `scripts/run-tests.mjs`, plus the retained upstream
-  scripts `npm-audit.mjs`, `release-packages.mjs`, `package-workspaces.mjs` that
+  scripts `npm-audit.mjs` (ported to `deps-audit.mjs` on 2026-10-29 when the audit
+  workflow moved to pnpm), `release-packages.mjs`, `package-workspaces.mjs` that
   the kept checks import. `tests/smoke/persist-resume.ts` is local, not upstream.
 - **Why:** scope renaming, upstream diffing, Windows test bootstrap.
 - **Risk:** `run-tests.mjs` carries platform workarounds that upstream does not
