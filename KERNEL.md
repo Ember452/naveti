@@ -55,7 +55,7 @@
 
 1. 加一个上游 remote 并 fetch 版本 tag。即使历史无关，`git diff upstream/v1.4.0 -- packages/kernel/durable` 也能做**文件级**对照，比文本比对强一个量级。
 2. 回补策略从"只摘取补丁"改为**"没改过的文件可整体替换，改过的走账本"**：账本说某文件从未偏离 → 直接取上游版本；账本说有偏离 → 三路合并并在账本记新条目。
-3. `node scripts/sync-upstream.mjs` 保留，用于生成规范化对照与记录（`.upstream/` 缓存、`docs/migration/upstream-diff-<date>.md`）。它**不修改** `packages/`。
+3. `node scripts/sync-upstream.mjs` 保留，用于生成规范化对照与记录（`.upstream/` 缓存、`docs/migration/diffs/upstream-diff-<date>.md`）。它**不修改** `packages/`。
 
 什么时候回补（任一）：
 

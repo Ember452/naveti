@@ -18,7 +18,7 @@ dependencies. No vendored source imports a package that was left out.
 
 | # | Change | Why |
 | --- | --- | --- |
-| 1 | Scope renamed to `@naveti/*` (per-package counts in `upstream-diff-*.md`) | `scripts/rename-scope.mjs`, idempotent |
+| 1 | Scope renamed to `@naveti/*` (per-package counts in `diffs/upstream-diff-*.md`) | `scripts/rename-scope.mjs`, idempotent |
 | 2 | `packages/ai/src/providers/data/*.json` generated | gitignored upstream and absent from the snapshot, but every `*.models.ts` imports it |
 | 3 | `packages/ai/test/codex-websocket-cached-probe.ts` removed | manual live probe importing the unvendored `coding-agent`; no test referenced it |
 | 4 | `packages/chord/test/boundary.test.ts` compares paths with `sep`; `packages/chord/src/host.ts` re-wrapped by biome | the check assumed `/` and rejected every relative import on Windows; the message fits 120 columns after the shorter scope |

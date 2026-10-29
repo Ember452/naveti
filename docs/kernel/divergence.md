@@ -41,6 +41,6 @@
 
 1. `git remote add upstream <pi 仓库>` 并 fetch 版本 tag，之后可做文件级对照：
    `git diff upstream/v1.4.0 -- packages/kernel/durable`
-2. `node scripts/sync-upstream.mjs --from ../pi-main --full`，生成规范化文本对照与 `docs/migration/upstream-diff-<date>.md`。它**不修改** `packages/`。
+2. `node scripts/sync-upstream.mjs --from ../pi-main --full`，生成规范化文本对照与 `docs/migration/diffs/upstream-diff-<date>.md`。它**不修改** `packages/`。
 
 回补策略（`KERNEL.md` §5）：账本里从未偏离的文件 → 可整体替换为上游版本；有偏离的文件 → 三路合并并在本文记新条目。**不做半跟随**：`durable` 与 `chord` 必须成对处理。

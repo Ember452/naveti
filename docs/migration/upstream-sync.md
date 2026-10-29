@@ -36,7 +36,7 @@ take anything at all, useless for auditing what this repository changed.
 | Path | Committed | Purpose |
 | --- | --- | --- |
 | `.upstream/<pkg>-normalized/` | no (gitignored) | the normalised upstream tree, for browsing and diffing by hand |
-| `docs/migration/upstream-diff-<date>.md` | yes | the record of that comparison |
+| `docs/migration/diffs/upstream-diff-<date>.md` | yes | the record of that comparison |
 
 The `.upstream/` cache is **not in the repository**. Losing it costs nothing (the
 script rebuilds it), but losing `../pi-main` means the `1.4.0` baseline is only
