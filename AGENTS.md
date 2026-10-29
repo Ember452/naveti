@@ -2,19 +2,27 @@
 
 agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE.md` 只是指针。
 
-## 1. 先读什么
+上游 `pi` 有一份 140 行的同类文档，这里的规则是它的翻译加裁剪：路径改成 `packages/kernel/*`，包管理器改成 pnpm，删掉属于未 vendor 的 `coding-agent` 与 `tui` 的部分。
 
-按顺序，读够用为止：
+## 1. 交流方式
 
-1. `docs/structure.md`——仓库里有什么、什么该放哪、什么不该建。
-2. `KERNEL.md`——内核能不能改、按哪一档改。
-3. `docs/kernel/seats.md`——扩展点清单（封闭枚举）。
-4. `docs/kernel/divergence.md`——内核已被改过哪些地方。
-5. `docs/migration/baseline.md`——什么算绿。
+- 简短直接，不写填充语，不用 emoji。
+- 用户提问时**先回答**，再动手改代码。
+- 回应别人的分析时，**先明确说赞成还是反对**，再说你改了什么。
+- 术语先定义再用；非平凡的设计按"问题 → 具体例子或短跟踪 → 方案"讲，并说明为什么它是必需的、哪些只是可选复杂度。
+- 用具体行为和短例子，不用抽象汇总、密集术语或罗列改动清单。
 
-不要凭记忆判断"这个文件该放哪"，读文档。文档与代码冲突时，先报告冲突，不要自行选一个。
+## 2. 先读什么
 
-## 2. 六类位置，别放错
+1. `docs/structure.md` —— 仓库里有什么、什么该放哪、什么不该建。
+2. `KERNEL.md` —— 内核能不能改、按哪一档改。
+3. `docs/kernel/seats.md` —— 扩展点清单（封闭枚举）。
+4. `docs/kernel/divergence.md` —— 内核已被改过哪些地方。
+5. `docs/migration/baseline.md` —— 什么算绿、哪些是平台限制。
+
+不要凭记忆判断"这个文件该放哪"。文档与代码冲突时，先报告冲突，不要自行选一个。
+
+## 3. 六类位置
 
 | 你想加的东西 | 放哪 |
 | --- | --- |
@@ -28,17 +36,17 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 新增顶层目录是结构变更，先写决策记录，不要直接建。
 
-## 3. 依赖方向（违反即红，别绕过）
+## 4. 依赖方向
 
-- `kernel` 不 import 产品层。
-- `feature` 不 import `@naveti/{ai,chord,codemode,durable,mcp,telemetry}`；**只用 `@naveti/host/extend/*` 门面、`@naveti/contracts`、`@naveti/web`**。
+- `kernel` 不 import 产品层；`contracts` 不 import `platform`/`features`；`platform` 不 import `features`。
+- `feature` 不 import `@naveti/{ai,chord,codemode,durable,mcp,telemetry}`；只用 `@naveti/host/extend/*` 门面、`@naveti/contracts`、`@naveti/web`。
 - 功能之间只允许 `@naveti/feature-<x>/contract`，且必须在 `package.json` 里声明依赖。
 - `client` 面不 import `node:*`、不 import `platform/host`、不 import 同包 `src/host/**`。
 - `platform/host` 不自己算数据目录；`dataDir` / `cacheDir` / `webAssetsDir` 由 `apps/*` 注入。
 - 包之间不用相对路径跨界 import；一律走包名 + `exports`。
-- **不为模块解析加 `tsconfig` 的 `paths` 或 vitest alias**：跨包依赖写 `workspace:*`，入口靠 `exports` 的 `source` 条件 + `customConditions`。白名单（`typebox` 这类 node_modules 重定向）之外新增一条要走决策记录。
+- **不为模块解析加 `tsconfig` 的 `paths` 或 vitest alias**：跨包依赖写 `workspace:*`，入口靠 `exports` 的 `source` 条件 + `customConditions`。
 
-## 4. 加一个功能的固定流程
+## 5. 加一个功能的固定流程
 
 1. 建 `packages/features/<id>/`，包名 `@naveti/feature-<id>`，`exports` 四出口（`.` / `./contract` / `./client` / `./manifest`）。
 2. 写 `naveti.feature.json`：`id`、`contract`、`seats`、`requires`、`provides`。
@@ -47,11 +55,11 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 5. `host/index.ts` 默认导出 `defineFeature(...)`，一个贡献点一个文件。
 6. `client/index.ts` 只 `register(slots)`；壳文件里不出现功能 id。
 7. 加 `test/host.spec.ts`（有界面再加 `client.spec.tsx`），夹具放包内 `test/fixtures/`。不要给包单独配 runner——根上 `test.projects` 统一调度。
-8. `compose.ts` 加一行，然后跑 `pnpm check && pnpm test`。
+8. `compose.ts` 加一行，然后跑 `pnpm check && pnpm test:ci`。
 
 **自查判据：删掉这个功能，是否只需删包 + 删 `compose.ts` 一行？** 需要动别处，说明放错了。
 
-## 5. 改内核的固定流程
+## 6. 改内核的固定流程
 
 1. 定档：A 加扩展点 / B 改语义 / C 结构手术（`KERNEL.md` §2）。不确定时按高一档处理。
 2. 先问：能不能只在 `platform/host/src/extend/` 门面吸收？能就不进内核。
@@ -60,34 +68,103 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 5. B 档必须额外有：ADR（`.agents/notes/`）、迁移脚本、`tests/golden/` 更新。
 6. 全绿再提交。红了先修，不加豁免、不注释断言。
 
-## 6. 禁止事项
+## 7. 代码质量
+
+- 大范围改动前**整文件读完**；不要靠搜索片段改你没看全的文件。
+- 不用 `any`，除非确实无法表达。
+- 只有一个调用点的单行 helper 内联掉。
+- 外部 API 的类型去 `node_modules` 里查，不要猜。
+- **不用内联 import**（`await import()`、`import("pkg").Type`）；一律顶层 import。
+- 不为了让类型错误消失而降级或删除代码；升级依赖。
+- 只用**可擦除 TypeScript 语法**（`erasableSyntaxOnly: true`）：不要 `enum`、`namespace`/`module`、参数属性、`import =`、`export =`。字段显式声明 + 构造函数赋值。
+- 删除看起来有意的代码前先问用户。
+- 用户没要求就不做向后兼容。
+- 不硬编码单点检查（例如按键判断）；加进默认表，保持可配置。
+- **永不手改** `packages/kernel/ai/src/providers/data/*`。改 `packages/kernel/ai/catalog/` 后跑 `pnpm build:catalog` 重新生成；那份 diff 单独成一个提交。
+
+## 8. 内核代码风格
+
+修改 `packages/kernel/{chord,durable}` 时生效：
+
+- 一文件一概念，文件名就是概念名；首行注释说明这个文件是干什么的。顺序：imports → 导出类型 → 公共入口 → 按使用顺序排列的 helper；常量放在第一个使用者上方。按概念拆文件，不按行数拆（单概念 1000 行以内可以很长）。
+- 每个导出有一行 doc，说明它做什么或保证什么；行内注释解释"为什么"（成本、竞态、已定规则），不解释"下一行做了什么"。
+- 函数单一职责（约 40 行需要理由）；不用布尔开关参数来切换行为，改两个函数或用 tagged value；同样的几行不要写两遍。
+- 参数顺序：必填 → `context`/`ctx` → 可选。上下文永远必填，只有错误上报路径可以省。
+- 状态与结果一律 tagged union；cast 只在 TypeScript 无法表达已定不变量时使用，并附一行理由。
+- 热路径不做没人要求的 walk / copy / compile / 每次调用分配；缓存用按所有者做键的 `WeakMap`，每个缓存配一条 GC 测试；不要模块级强引用缓存。
+- 测试：一源文件一个测试文件，一个机制一个 `describe`；缓存必须有 GC 测试；只有内部实现的用例没有价值。
+- 报告前：把自己的改动当陌生人从头读一遍，每个文件要能独立看懂。
+
+## 9. 命令
+
+```bash
+pnpm check          # biome + 依赖钉版 + 运行时依赖闭包 + 相对导入 + 入口图 + 工作区解析 + 锁文件一致性 + 测试清单棘轮 + 守卫红例 + tsc
+pnpm build          # 六包构建，不联网；模型目录只校验不刷新
+pnpm build:catalog  # 显式刷新模型目录（联网），它的 diff 必须单独提交并说明
+pnpm test:ci        # 门禁：单进程 projects + 密封环境（无 API key、临时 HOME、TZ/LANG 固定）
+pnpm test:ci:local  # 同上但继承本机环境，只在需要带凭证调试时用
+pnpm hooks:install  # 一次性把 core.hooksPath 指到 .githooks
+```
+
+- 改代码后跑 `pnpm check`，**贴完整输出**，不截尾；错误、警告全部修完再提交。
+- 需要 `dist` 时（导入构建产物、`durable` 的 workerd 套件）才跑 `pnpm build`；**永不拿它做类型检查**。
+- 默认**不要跑** `pnpm test`：逐包脚本不是 Windows 门禁（不注入 Git `bin`，shell 一致性用例会 `ENOENT bash.exe`），用户没要求就别跑。
+- 不直接跑全量 vitest。跑单个文件在包目录里：
+  `node ../../../node_modules/vitest/vitest.mjs --run test/x.test.ts`
+- 新增或修改测试文件，必须自己跑通再报。
+- 改了测试清单（增删用例、加 skip、删测试文件）→ 跑 `pnpm run test-integrity:write`，并让 `scripts/test-integrity.json` 的 diff 出现在同一个提交里。
+- 临时脚本写到 `.verify-tmp/`（gitignored），用完删掉；不要把多行脚本塞进一条命令里。
+- 提交前钩子会跑静态检查；推送前钩子会跑 `pnpm check`。绕过（`--no-verify`）必须在提交正文里说明理由。
+- 除用户明确要求，**不要 commit**。
+
+## 10. 依赖与安装安全
+
+- 依赖与锁文件的改动当作需要 review 的代码；直接依赖钉死精确版本（`check-pinned-deps` 会拦浮动范围）。
+- 本地 `pnpm install`；干净环境与 CI 用 `pnpm install --frozen-lockfile`。
+- `allowBuilds` 是显式清单。新增一条需要一次有意的决定，不要为了装上去随手加。
+- 依赖段变了，`pnpm-lock.yaml` 必须在同一提交里更新；只想动锁文件（例如 `pnpm update`）时设 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` 并说明。
+- 升级依赖后跑 `pnpm check && pnpm test:ci`。
+
+## 11. Git
+
+- 只提交**本次会话自己改的**文件；用显式路径，不用 `git add -A` / `git add .`。
+- 提交前跑 `git status`，确认暂存范围就是你要的那些。
+- 消息格式：`type(scope): 摘要`，正文写**为什么**（成本、踩过的坑、被拒绝的方案），不只写做了什么。
+- 禁用：`git reset --hard`、`git checkout .`、`git clean -fd`、`git stash`、`git commit --no-verify`（除非用户要求）。
+- 冲突只解决自己改的文件；冲突在别人的文件里就停下来问。不做 force push。
+- 用户要求才 commit / push。
+
+## 12. Issue 与 PR
+
+- 评审 PR 时不要切分支（`gh pr checkout`、`git switch`）；用 `gh pr view`、`gh pr diff`、`git show <ref>:<path>` 看内容。
+- 评论写到临时文件，用 `gh issue comment --body-file` / `gh pr comment --body-file` 发，不要多行 `--body`。
+- 提交关闭 issue 时用 `closes #N`；多个 issue 要逐个重复关键字。
+- PR 的绿灯是三个 job：`build-check`、`test (durable)`、`test (other)`。
+
+## 13. Changelog
+
+- 位置：`packages/kernel/*/CHANGELOG.md`。
+- 新条目一律进 `## [Unreleased]` 的 `### Breaking Changes` / `### Added` / `### Changed` / `### Fixed` / `### Removed`；先读全文再追加，不要新建重复小节。
+- 已发布的版本段落（如 `## [0.12.2]`）不可修改。
+- 目标分支不是 `main` 时不写 changelog。
+
+## 14. 禁止事项
 
 - 不新建与 `packages/` 并列的第三种顶层目录。
 - 不在功能包内深引内核 `src/*`。
 - 不在壳文件（`app-frame.tsx`、`sidebar.tsx`、`chat-view.tsx`）里写功能 id 或功能分支。
 - 不用 `localStorage` 存功能状态（只允许纯视图偏好）；功能状态住 durable doc。
 - 不复制文档正文到另一份文档；引用写"见 X"。
-- 不为了让测试变绿而跳过、弱化断言或加例外；Windows 上无法建符号链接的测试用 `skipIf`，不用永久 `skip`。
-- 不用 `.only`、不用 `describe.skip`、不为变绿删测试。确实需要新增 skip 时，只能跑 `pnpm run test-integrity:write` 并让 `scripts/test-integrity.json` 的 diff 出现在同一个提交里（`helperSkips 2 -> 5` 就是给审查者看的东西）。删测试文件同理：基线必须同步。
-- 不提交 `dist/`、`.upstream/`、本地日志。
+- 不用 `.only`、不用 `describe.skip`、不为变绿删测试或弱化断言。
+- 不提交 `dist/`、`.upstream/`、`.verify-tmp/`、本地日志、`.env*`。
 
-## 7. 验收命令
-
-```bash
-pnpm check          # biome + 依赖钉版 + 运行时依赖闭包 + ts 相对导入 + 入口图 + 工作区解析 + 锁文件一致性 + 测试清单棘轮 + 守卫红例 + tsc --noEmit
-pnpm build          # 六包构建，不联网；模型目录只校验不刷新
-pnpm build:catalog  # 显式刷新模型目录（联网），它的 diff 必须单独提交并说明原因
-pnpm test:ci        # 门禁：单进程 projects + 密封环境（无 API key、临时 HOME、TZ/LANG 固定）
-pnpm test:ci:local  # 同上但继承本机环境，只在需要带凭证调试时用
-```
-
-`pnpm test`（逐包脚本）**不是** Windows 门禁：它不注入 Git 的 `bin`，shell 一致性用例会 `ENOENT bash.exe`。判断“绿”只认 `pnpm check` 与 `pnpm test:ci`，且必须看 summary 的用例数，不接受“0 个用例 exit 0”。
-
-只跑改动相关的测试不算完成；提交前跑全量。守卫改动必须带**反例测试**（证明它会变红）。
-
-## 8. 文档纪律
+## 15. 文档纪律
 
 - 一个事实只有一处权威，权威分工见 `docs/structure.md` §17。
-- 改了边界、改了内核语义、新增 seat、新增守卫 → 在 `.agents/notes/<state>/<date>-<slug>.md` 记一条（背景 / 决定 / 被拒绝的替代方案 / 后果）。
+- 改了边界、改了内核语义、新增 seat、新增守卫、新增根配置 → 在 `.agents/notes/<state>/<date>-<slug>.md` 记一条（背景 / 决定 / 被拒绝的替代方案 / 后果）。
 - 普通功能设计不进 notes，写功能 README。
 - 代码与文档在同一次改动里更新，不"以后再补"。
+
+## 16. 用户优先
+
+用户的指令与本文冲突时，先请求显式确认再执行；不要默默覆盖规则。
