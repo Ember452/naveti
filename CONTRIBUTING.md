@@ -19,8 +19,8 @@
 | Job | 覆盖 |
 | --- | --- |
 | `build-check` | `pnpm install --frozen-lockfile` → `pnpm build` → `pnpm check` |
-| `test (durable)` | `durable` 的默认套件 + retention-off 第二遍 + `test:store` + `test:workers` |
-| `test (other)` | 其余五个包各自的 `test` 脚本 + `test:scripts` |
+| `test-ci` | `pnpm test:ci`：单进程、全部 project、密封环境，与本地同源 |
+| `durable-lanes` | `test:retention0` + `test:store` + `test:workers`（`test:ci` 不跑的三条） |
 
 本地等价命令：
 
