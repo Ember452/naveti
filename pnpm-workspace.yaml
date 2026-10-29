@@ -19,3 +19,15 @@ allowBuilds:
 # Same intent as the removed npm `min-release-age`: do not resolve versions
 # published moments ago.
 minimumReleaseAge: 2
+
+# Patched transitive versions, forced only inside the two SDK subtrees.
+# `pnpm audit --prod` reported 5 high / 4 moderate advisories, all reachable through
+# openai and @anthropic-ai/sdk, and nobody declares zod or undici directly — they
+# arrive as auto-installed peer dependencies. The patched versions sit inside the
+# ranges those SDKs declare (`undici >=5 <9`, `zod ^3.25 || ^4`), so this is a real
+# fix, not a suppression: no range is violated and no advisory is excused.
+# Scope is per-parent on purpose: a global `zod: ^4` would force every package.
+overrides:
+  openai>undici: ^7.30.1
+  openai>zod: ^4.6.6
+  "@anthropic-ai/sdk>zod": ^4.6.6
