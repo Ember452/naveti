@@ -13,6 +13,10 @@
  * records what was true the moment it was written, which cannot drift — rewriting
  * history to satisfy a linter would destroy its only use. Skills stay in scope
  * because they state rules.
+ *
+ * The boundary is not symmetry with `check-doc-links`, which does scan notes: a count
+ * in a record is a statement about the past and stays true, while a link is a pointer
+ * that either resolves today or misleads the reader today.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
