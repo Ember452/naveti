@@ -5,7 +5,7 @@
 
 ## 目录
 
-1. [现状与这次要解决的问题](#1-现状与这次要解决的问题)
+1. [这份文档管什么](#1-这份文档管什么)
 2. [四层目标与结构手段](#2-四层目标与结构手段)
 3. [根目录全景](#3-根目录全景)
 4. [内核六包](#4-内核六包)
@@ -17,34 +17,38 @@
 10. [seat 目录](#10-seat-目录)
 11. [发布形态、模块解析与打包](#11-发布形态一个打包入口不给每包写构建配置)
 12. [防散落规则](#12-防散落规则)
-13. [守卫与生成器](#13-守卫与生成器)
+13. [守卫](#13-守卫)
 14. [仓库级基础设施](#14-仓库级基础设施)
-15. [目录出现时机与落地顺序](#15-目录出现时机与落地顺序)
+15. [目录出现时机](#15-目录出现时机)
 16. [明确不建](#16-明确不建)
 17. [权威分工](#17-权威分工)
 18. [待决项](#18-待决项)
 
-## 1. 现状与这次要解决的问题
+## 1. 这份文档管什么
 
-| 事实 | 状态 |
-| --- | --- |
-| `packages/` 下六个内核包（`telemetry` `ai` `chord` `codemode` `mcp` `durable`），来自 pi 1.4.0 快照，已改名为 `@naveti/*`，持久化 kind 已定为 `naveti.*` | 已有（`docs/migration/deviations.md` D1 / D11） |
-| 产品层（`contracts` `platform` `providers` `features` `apps`） | **未建** |
-| `.github/workflows/` 七个工作流 | 已有，上游裁剪版（D8），只覆盖内核包 |
-| 根 `AGENTS.md`、`CLAUDE.md` | 已有（与本文同批落地） |
-| `.agents/` | **未建**（规则已写在 §14，目录随第一条决策出现） |
-| 根配置 | 已无手工枚举：`tsconfig.json` 不再有 `paths`（靠 `exports` 的 `source` 条件 + `customConditions`），`vitest.base.ts` 只剩共享默认值，根 `build` 是 `pnpm -r --filter` |
-| 包管理器 | pnpm 11.13.0，隔离式 `node_modules`；包间依赖写作 `workspace:*`，`allowBuilds` 只放行五个已知包 |
-| 测试运行 | 根 `vitest.config.ts` 的 `test.projects` 收集 `packages/kernel/*`：单进程、文件级并行；`run-tests.mjs` 保留逐包回退模式 |
-| 提交基线 | 2026-10-29，`check` 与 `test` 全绿 |
+本文只写**规则**：什么放哪、什么不许出现、什么还不该建。
 
-**这次结构要解决的不是"怎么放文件"，而是三件会随时间恶化的事：**
+**状态不写在这里。** 有几个包、几条守卫、某个目录是否存在，用命令问，不问文档：
 
-1. **包数从 6 涨到 30+ 之后，上面那几处手工枚举必然漂移。** 解法是先做分组目录、把模块解析交给 pnpm 的 symlink 与包的 `exports` 条件（§11.1），再加包——而不是维护一份更大的枚举表。顺序反了，就是每加一个功能改四处配置。
-2. **功能会散落。** 判据是"改一个功能要开几个目录"。答案是竖切成包：一个功能一个 workspace 包，删功能 = 删目录 + 一行登记。
-3. **内核要改，但没有落点。** 原策略是"冻结 + 只摘取上游补丁"，它把改动定性为例外事件。改成"三档变更 + 门面吸收 + 分歧账本"（见 `KERNEL.md`），改动才有地方发生、有地方记录。
+```bash
+git ls-files 'packages/**/package.json'   # 有哪些包
+ls scripts/check-*.mjs                    # 有哪些守卫
+pnpm run check                            # 现在是不是绿
+```
 
-**交付形态决定 `apps/` 的形状：** 现在出 Windows 安装包（用户下载 exe 使用），将来支持手机远程控制。本机与远程共用同一个运行时与同一份前端产物，`apps/desktop` 不是第二个运行时。
+写进文档的状态每提交一次就漂移一次；这个仓库已经因此漂了八处（目录树重复写 `pnpm-workspace.yaml`、把已建好的守卫列为“待建”、列出一个不存在的 `docs/archived/` 等）。那些都不是笔误，是“把状态写进规则文档”的必然结果。
+
+唯一保留“存在性”的地方是 §3 的目录树：树不可能不表达存在与否，所以它的规矩是**每一条要么真实存在，要么带 `[未建]`**。除树之外，本文不出现任何数量断言，也不重复写同一个文件两次。
+
+三条要解决的问题（它们是规则，不会过期）：
+
+1. **包数从 6 涨到 30+ 之后，手工枚举必然漂移。** 解法是分组目录 + 把模块解析交给 pnpm 的 symlink 与包的 `exports` 条件（§11.1），而不是维护一份更大的枚举表。
+2. **功能会散落。** 判据是“改一个功能要开几个目录”。答案是竖切成包：一个功能一个 workspace 包，删功能 = 删目录 + 一行登记。
+3. **内核要改，但没有落点。** 原策略是“冻结 + 只摘取上游补丁”，它把改动定性为例外事件。改成“三档变更 + 门面吸收 + 分歧账本”（见 `KERNEL.md`），改动才有地方发生、有地方记录。
+
+**交付形态决定 `apps/` 的形状：** 现在出 Windows 安装包，将来支持手机远程控制。本机与远程共用同一个运行时与同一份前端产物，`apps/desktop` 不是第二个运行时。
+
+**现在做到哪一步、按什么顺序继续：** 见 [`plan/master-plan.md`](./plan/master-plan.md)。本文不写阶段状态。
 
 ## 2. 四层目标与结构手段
 
@@ -68,72 +72,43 @@ naveti/
 │   │   ├── mcp/                         @naveti/mcp
 │   │   ├── durable/                     @naveti/durable
 │   │   └── README.md                    所有权、变更分级、扩展点索引
-│   ├── contracts/                       L1 @naveti/contracts：wire 类型 + 自研 seam 声明（纯类型，零运行时）
-│   │   └── src/{transport,auth,ids,view,error}.ts     一个域一个文件
-│   ├── platform/
-│   │   ├── host/                        L2 @naveti/host
-│   │   │   └── src/
-│   │   │       ├── extend/              ★ 内核门面：功能唯一可见的内核 API
-│   │   │       ├── boot.ts              openHost()：建 Harness、装 extension、起调度、挂 transport
-│   │   │       ├── seats.ts             seat 表（封闭枚举，与 docs/kernel/seats.md 一致）
-│   │   │       ├── paths.ts             接收注入的 dataDir / cacheDir / webAssetsDir
-│   │   │       ├── storage/             存储 provider 选择（不重写内核 Storage 接口）
-│   │   │       ├── settings/            设置 schema 与持久化
-│   │   │       ├── credentials/         凭据读取（不落明文）
-│   │   │       ├── approval/            审批与审计策略挂接
-│   │   │       ├── transport/           loopback（现在）/ remote（将来）
-│   │   │       └── services/            宿主侧服务注册表（跨功能唯一合法通道）
-│   │   └── web/                         L2 @naveti/web
-│   │       └── src/
-│   │           ├── app-frame.tsx        三栏壳（壳文件：不得出现任何功能 id）
-│   │           ├── connection/          baseUrl + token、重连、断点续传
-│   │           ├── slots/               panel / nav / settings / command / composer / renderer / status
-│   │           ├── theme/               设计 token
-│   │           └── atoms/               共享基础组件
-│   ├── providers/                       L2.5 可替换实现（按需出现，见 §9）
-│   │   └── <seam>-<impl>/               例：storage-sqlite、llm-<vendor>、browser-<x>
-│   └── features/                        L3 一个功能一个包（见 §7）
-│       └── <id>/
-├── apps/                                L4 组合根，只启动不讲业务
-│   ├── server/                          唯一运行时
-│   │   └── src/{main.ts,compose.ts}     main：读 paths → openHost() → install(compose) → 挂 HTTP/WS
-│   ├── web/                             唯一 SPA（桌面内嵌 / 手机远程 / 开发浏览器共用）
-│   ├── desktop/                         Electron 主进程 + 打包签名 + 自动更新，无业务
-│   │   ├── src/main.ts                  spawn server → 开窗口指向 127.0.0.1
-│   │   └── packaging/                   安装器、签名、更新通道脚本
-│   └── cli/                             冒烟与运维入口（同一装配的第二个消费者）
-├── scripts/                             13 个脚本 + 3 个同名测试 + 待建 6 守卫 1 生成器（§13、§14）
+│   ├── contracts/                       [未建] L1 纯类型：wire + 自研 seam 声明
+│   ├── platform/                        [未建] L2 host（装配/seat/路径/transport/凭据）+ web（壳/slot）
+│   ├── providers/                       [未建] L2.5 可替换实现，按 seam 分，不进功能清单
+│   └── features/                        [未建] L3 一个功能一个包（§7）
+├── apps/                                [全部未建] L4 组合根：server / web / desktop / cli
+├── scripts/                             守卫与编排脚本，清单见 §14（不在这里数个数）
 ├── tests/
 │   ├── smoke/persist-resume.ts          现有：持久化与恢复冒烟
-│   └── golden/                          [待建] 首次内核改动或回补时的请求体与会话黄金文件
+│   └── golden/                          [未建] 首次内核改动或回补时的请求体与会话黄金文件
 ├── docs/
+│   ├── README.md                        导航：谁回答什么
 │   ├── structure.md                     本文，空间轴权威
+│   ├── architecture.md                  系统怎么运转
+│   ├── plan/master-plan.md              阶段、出现时机、待决
+│   ├── plan/parked.md                   现在不做、到点必须重新判断的事（带触发条件与前提）
 │   ├── kernel/
 │   │   ├── seats.md                     扩展点权威表
 │   │   └── divergence.md                与 pi 1.4.0 的分歧账本
-│   ├── migration/                       README / baseline / deviations / upstream-sync / upstream-diff-*
-│   └── archived/                        pi-main 的原始文档归档（只读）
-├── .agents/                             [待建] agent 资产（§14）
-│   ├── notes/{proposed,implemented,archived,rejected}/
-│   └── skills/<name>/SKILL.md
+│   └── migration/                       README / baseline / deviations / upstream-sync / diffs/
+├── .agents/
+│   ├── notes/{proposed,implemented,archived,rejected}/   决策记录（§14）
+│   └── skills/<name>/SKILL.md          [未建] 仓库级 agent skill
 ├── .github/
-│   ├── workflows/                       7 个（§14）
+│   ├── workflows/                       见 §14
 │   ├── ISSUE_TEMPLATE/                  bug / config / contribution / package-report
 │   └── APPROVED_CONTRIBUTORS            贡献者准入名单（approve-contributor.yml 读）
-├── .githooks/                            pre-commit（静态检查）/ pre-push（pnpm check），用 hooks:install 装
-├── .claude/skills                       [待建] 符号链接 → ../.agents/skills（不做第二份）
+├── .githooks/                           pre-commit（静态检查）/ pre-push（pnpm check），用 hooks:install 装
+├── .claude/skills                       [未建] 符号链接 → ../.agents/skills（不做第二份）
 ├── .upstream/                           gitignored，sync-upstream 的规范化缓存
 ├── AGENTS.md                            agent 硬约束（不是本文副本）
 ├── CLAUDE.md                            指针：规则见 AGENTS.md
 ├── KERNEL.md  NOTICE.md  README.md  LICENSE  CONTRIBUTING.md  SECURITY.md
-├── pnpm-workspace.yaml                  [待建] 分组 globs
-├── vitest.config.ts                     [待建] 根测试入口（test.projects，见 §13.1）
-├── tsdown.config.ts                     [待建] 发布期唯一打包入口（§11）
-├── pnpm-lock.yaml                       现有，取代 package-lock.json
-├── pnpm-workspace.yaml                  现有：分组 globs 与 allowBuilds
-├── vitest.base.ts                       现有：各包 mergeConfig 的共享默认值（§13.1）
-├── biome.json  tsconfig.json  tsconfig.base.json  vitest.base.ts  package.json   现有，随加层必改
-└── .npmrc  .gitignore
+├── pnpm-workspace.yaml  pnpm-lock.yaml  分组 globs、allowBuilds、锁文件
+├── vitest.config.ts  vitest.base.ts     根 projects 入口、各包 mergeConfig 的共享默认值
+├── tsdown.config.ts                     [未建] 发布期唯一打包入口（§11）
+├── biome.json  tsconfig.json  tsconfig.base.json  package.json
+└── .npmrc  .gitignore  .gitattributes
 ```
 
 ## 4. 内核六包
@@ -158,7 +133,7 @@ naveti/
 | 类 | 例子 | 可以 import | 有界面 | 用户可见 | 变更频率 |
 | --- | --- | --- | --- | --- | --- |
 | **kernel** | `@naveti/durable` | 只 import 其他 kernel | 否 | 否 | 慢，但**允许改**（`KERNEL.md` §2） |
-| **contracts** | `@naveti/contracts` | 无（纯类型，可 import kernel 的类型） | 否 | 否 | 稳定，破坏性改升版本 |
+| **contracts** | `@naveti/contracts` | 无（零运行时：只有类型、常量与纯函数，无 I/O、无状态、无注册表） | 否 | 否 | 稳定，破坏性改升版本 |
 | **platform** | `@naveti/host`、`@naveti/web` | kernel、contracts | host 否 / web 是 | 否 | 中 |
 | **provider** | `@naveti/storage-sqlite` | kernel、contracts、platform/host | 否 | **否** | 跟随上游生态 |
 | **feature** | `@naveti/feature-memory` | contracts、host、web、其他 feature 的 `./contract` | 可选 | **是** | 高频 |
@@ -326,13 +301,13 @@ export const features = [
 | --- | --- | --- |
 | 存储 | 内核已有（durable `Storage`）→ **不要重新声明** | `providers/storage-sqlite` |
 | 模型 | 内核已有（`ai` 的 adapter） | `providers/llm-<vendor>` |
-| 浏览器 / 沙箱 / 搜索 | 自研 → `packages/contracts/seams/<name>.ts` | `providers/browser-<x>` |
+| 浏览器 / 沙箱 / 搜索 | 自研 → `packages/contracts/seams/<name>.ts`（只声明，不含注册表） | `providers/browser-<x>` |
 | 连接器 | 内核已有（`mcp`） | `providers/mcp-<x>` |
 | 功能的对外服务 | 功能自己的 `./contract` | 同包默认实现 |
 
 两条纪律：
 
-1. **内核已声明过的 seam，不在我们这边重写一份。** provider 直接实现内核接口，只额外加一个"按配置选中"的注册表。重写 = 两处真相，内核一改就对不上。
+1. **内核已声明过的 seam，不在我们这边重写一份。** provider 直接实现内核接口；自研 seam 的声明放 `contracts`（零运行时），而“当前选中哪个实现”的注册表与选择逻辑放 `platform/host`——选中是装配决策，不是类型。重写 = 两处真相，内核一改就对不上。
 2. **Definition 跟着当前消费者走。** 没有第二个实现、没有第二个使用方，就不抽 interface（否则得到一层空抽象）。
 
 `providers/` 目录**按需出现**：出现"同一个 seam 的第二个实现"时才建对应包。第一个实现如果已在内核里，不搬到 `providers/`。
@@ -409,39 +384,45 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 9 | **删得掉**：删功能 = 删包 + 删 `compose.ts` 一行，不留孤儿夹具、孤儿设置键、孤儿 seat | 仓库里堆着没人敢删的死代码 |
 | 10 | 同一个事实只有一处权威；要引用就写"见 X"，不复制正文 | 复制的那一刻就开始漂移 |
 
-## 13. 守卫与生成器
+## 13. 守卫
 
-现有五条，覆盖依赖与图（`check-lockfile-commit` 从上游移植，判据改成了 pnpm 语义）：
+守卫清单不在这里数个数：`ls scripts/check-*.mjs` 就是当前全集，`package.json` 的 `check` 链决定谁在跑。本节只写**每条守卫守什么**、**哪些还没建**、**为什么**。
 
-| 脚本 | 判据 |
-| --- | --- |
-| `check-pinned-deps.mjs` | 依赖版本钉死，不允许浮动范围 |
-| `check-runtime-deps.mjs` | 运行时依赖闭包完整（不漏声明） |
-| `check-ts-relative-imports.mjs` | 相对导入不跨包 |
-| `check-entry-graphs.mjs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） |
-| `check-lockfile-commit.mjs` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` |
+### 已建的
 
-新增七条，都读 `package.json`、走 import 图或读测试源码，不用正则凑字符串猜测：
-
-| 守卫 | 判据 | 覆盖 |
+| 守卫 | 判据 | 反例测试 |
 | --- | --- | --- |
-| `check-package-layers.mjs` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | §5 第 1、2、5、6 条 |
-| `check-kernel-facade.mjs` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力；深路径即失败 | §6 |
-| `check-feature-registry.mjs` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；`requires` 不悬空；壳文件无功能 id | §8、§12 第 1、6、9 条 |
-| `check-client-face.mjs` | 从 `src/client/index.ts` 走值导入图，命中 `node:*`、`platform/host`、同包 `src/host/**` 即失败 | §5 第 5 条、§12 第 5 条 |
-| `check-kernel-divergence.mjs` | 与基线 hash 不同的内核文件必须在 `docs/kernel/divergence.md` 有条目 | `KERNEL.md` §4 |
-| `check-workspace-resolution.mjs` | 跨包依赖必须是 `workspace:*`；每个包 `exports` 带 `source` 条件；`tsconfig` 有 `customConditions`；`tsconfig.json` 的 `paths` 只含白名单键；`vitest.base.ts` 不含 `@naveti/*` alias | §11.1 |
-| `check-test-integrity.mjs` | `.only` 与 `describe.skip` 直接红；每个测试文件的声明数不得减少、各类 skip 不得增加（对 `scripts/test-integrity.json` 棘轮）；基线条目不得无故消失 | §13.2 |
+| `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 |
+| `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 |
+| `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） |
+| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败），且命中的目录必须自带 `vitest.config.ts` | 有 |
+| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
+| `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
+| `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
+| `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
+| `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
+| `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 |
+| `check-parked-triggers` | `docs/plan/parked.md` 每条推迟的事都必须带**触发条件 + 复核日期 + 前提**；条件成立或日期到期就红，红则必须在同一改动里做/改条件/作废 | 有 |
 
-生成器只有一个，而且它不是在补解析的窟窿：
+两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。守卫能用夹具驱动的前提是它不把自己的目录当根：`check-entry-graphs` 靠 `NAVETI_CHECK_ROOT`，`check-ts-relative-imports` 靠 `process.cwd()`。
 
-| 生成器 | 产物 | 出现时机 |
+### 未建的（每条都有触发条件，不是待办清单）
+
+| 守卫 | 判据 | 建它的触发条件 |
 | --- | --- | --- |
-| `gen-feature-index.mjs` | `apps/server/src/compose.ts` | 功能数超过约 20，或重复登记已经出过事故。它解决"登记重复"，不解决"解析漂移" |
+| `check-package-layers` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | 第一个 `packages/features/*` 出现时 |
+| `check-kernel-facade` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力 | `platform/host/extend/` 建起来后 |
+| `check-feature-registry` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；壳文件无功能 id | 第二个功能出现时 |
+| `check-client-face` | 从 `src/client/index.ts` 走值导入图，命中 `node:*` / `platform/host` / 同包 `src/host/**` 即失败 | 第一个带界面的功能出现时 |
+| `check-kernel-divergence` | 与基线 hash 不同的内核文件必须在 `docs/kernel/divergence.md` 有条目 | 第一次真改内核前（需先生成 baseline hash 表） |
+
+两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。
+
+### 不要生成器
 
 **明确不要 `gen-paths.mjs`。** 生成 `tsconfig` 的 `paths` 与 vitest alias 有两个副作用：一是"加包后必须跑脚本才不飘红"，把 IDE 响应速度绑在脚本上；二是生成物与真实解析不一致时，红的是脚本而不是代码。解析问题的正确解法在 §11.1，守卫负责守住它。
 
-两条纪律：守卫必须带同名 `.test.mjs`，**且测试要证明守卫会变红**（只写绿例的守卫等于没有）；`gen-feature-index.mjs` 必须支持 `--check` 并在 CI 里跑。守卫的红例已经进 `check` 链（`pnpm run test:scripts`），否则反向校验只会在 CI 的某条车道里跑，门禁本身永远看不到红。
+唯一的生成器是 `gen-feature-index.mjs`（把 `compose.ts` 从 manifest 生成），出现条件是功能数超过约 20 或重复登记出过事故。它解决"登记重复"，不解决"解析漂移"。
 
 ### 13.1 测试位置与测试运行是两件事
 
@@ -467,7 +448,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 这一层和 `packages/` 同等重要：它决定"人和 agent 进仓库后按什么规则干活"。
 
-### `.github/workflows/`（现有 7 个）
+### `.github/workflows/`
 
 | 文件 | 负责 | 需要改什么 |
 | --- | --- | --- |
@@ -493,7 +474,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 两个坑：钩子必须在索引里是 `100755`，否则 Linux/macOS 上静默不执行（Git for Windows 不看这个位，本机测不出来）；`pre-commit` 里**不能**用 `biome --write`，它会改文件，改完就提交等于提交了没审查过的内容。
 
-### `.agents/`（待建）
+### `.agents/`
 
 | 路径 | 负责 | 出现时机 |
 | --- | --- | --- |
@@ -520,17 +501,23 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 ### `docs/`
 
-只放长期权威文档（本文、`KERNEL.md`、`docs/kernel/*`、`docs/migration/*`、`docs/archived/*`）。临时分析、方案草稿、会议结论不放这里——它们属于 `.agents/notes/` 或直接消失。
+只放长期权威文档（`README.md`、本文、`architecture.md`、`plan/`、`kernel/*`、`migration/*`）。临时分析、方案草稿、会议结论不放这里——它们属于 `.agents/notes/` 或直接消失。文件数与新文件的门槛见 [`docs/README.md`](./README.md)。
 
-### `scripts/`（现有 18 个 + 6 个测试）
+### `scripts/`
+
+清单用 `ls scripts/` 看，本节只记分类与纪律（不在这里数个数）。
 
 | 类 | 脚本 | 职责 |
 | --- | --- | --- |
 | 格式 | `biome-check.mjs` | 调 biome，`--write` 时兼作格式化 |
 | 检查 | `check-pinned-deps.mjs` / `.test.mjs` | 依赖版本钉死 |
 | 检查 | `check-runtime-deps.mjs` / `.test.mjs` | 运行时依赖闭包 |
-| 检查 | `check-ts-relative-imports.mjs` | 相对导入不跨包 |
-| 检查 | `check-entry-graphs.mjs` | 入口值导入图预算 |
+| 检查 | `check-vitest-projects.mjs` / `.test.mjs` | 根项目的 glob 只能收配置文件或包目录 |
+| 检查 | `check-doc-links.mjs` / `.test.mjs` | 本文档体系里的 markdown 链接必须能解析 |
+| 检查 | `check-doc-counts.mjs` / `.test.mjs` | 规则文档不携带清单数（`docs/migration/` 除外） |
+| 检查 | `check-parked-triggers.mjs` / `.test.mjs` | 推迟的点子必须可被叫醒，且带可推翻的前提 |
+| 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
+| 检查 | `check-entry-graphs.mjs` / `.test.mjs` | 入口值导入图预算 |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
@@ -547,34 +534,11 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 只放跨包的公共资产：`smoke/`（现有）+ `golden/`（首次内核改动或回补时）。功能自己的夹具留在功能包内。
 
-## 15. 目录出现时机与落地顺序
+## 15. 目录出现时机
 
 判据不是版本号，是**第一个消费者出现**。没有消费者就建 = 空壳。
 
-| 触发条件 | 新增 |
-| --- | --- |
-| 换 pnpm（现在做，成本最低） | `pnpm-workspace.yaml`、删 `package-lock.json`、六处 `0.0.1` → `workspace:*`、根 build 改拓扑串联 |
-| 出现第一个跨 web/server 的 wire 类型 | `packages/contracts/` |
-| 第一个功能同时需要宿主面和界面面 | `packages/features/<id>/`（竖切，不拆两半） |
-| 需要替换一个 seam 的第二个实现 | `packages/providers/<seam>-<impl>/` |
-| 第二个功能出现 | 显式 seat 表 + 打开 `check-feature-registry` |
-| 第一次出安装包 | `apps/desktop`、`tsdown.config.ts`、`desktop-release.yml` |
-| 第一次要手机连本机 | `platform/host/src/transport/remote` + `contracts/auth.ts` 落地 |
-| 同一步骤被手工做 3 次 | `.agents/skills/<name>/` |
-| 首次改动内核 | `tests/golden/` + `docs/kernel/divergence.md` 条目 |
-| 一条决定改了边界 | `.agents/notes/<state>/<date>-<slug>.md` |
-| 功能数超过约 20，或重复登记出过事故 | `gen-feature-index.mjs` 接管 `compose.ts` |
-
-落地顺序（依赖顺序，不是版本号）：
-
-| 阶段 | 内容 | Gate |
-| --- | --- | --- |
-| **P0 机械层** | 分组目录（`packages/kernel/*` 等）+ pnpm + 删手写 `paths`/alias（靠 §11.1 条件解析）+ `check-workspace-resolution` + 根 `vitest.config.ts` 的 `test.projects` + CI 改串联 | `pnpm check` 与 `pnpm test` 全绿，**业务代码零改动** |
-| **P1 规则层** | `docs/kernel/{seats,divergence}.md`（已落）+ 六条守卫（带反例测试）+ 上游 remote | 守卫能在反例上变红 |
-| **P2 主干** | `contracts` → `platform/host`（paths 注入 + transport loopback + seat 表）→ `apps/server` → 第一个功能 `chat`（含 client 面） | 端到端跑通；删该功能 = 删包 + 两行 |
-| **P3 出包** | `platform/web` → `apps/web` → `apps/desktop` + `tsdown.config.ts` | 出一个能装能跑、数据落在 `userData` 的安装包 |
-| **P4 第二个功能** | 抽 seat 表、打开 `check-feature-registry`、加 `check-client-face` | 两个功能并行不互相 import |
-| **P5 将来** | 远程 transport、`compose.ts` 生成化；运行期加载**只做宿主侧** spike（§8），界面侧不承诺 | — |
+具体的触发条件表、阶段顺序与验收 gate 都在 [`plan/master-plan.md`](./plan/master-plan.md)：它们是会变的，所以不住在本文。
 
 ## 16. 明确不建
 
@@ -589,7 +553,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 仓库级 `snapshots/` | 黄金文件放 `tests/golden/`，功能夹具放功能内 |
 | 每包一份 `tsconfig.build.json` | 发布期由根上单个 `tsdown` 入口按 manifest 打包（§11） |
 | `gen-paths.mjs`（生成 `paths`/alias 的脚本） | 它把"能不能正确解析"变成"有没有跑脚本"，见 §13 |
-| 任何 `[待建]` 目录的空壳 | 空目录会让"结构已完成"与"结构已规划"无法区分 |
+| 任何标了 `[未建]` 的目录先建空壳 | 空目录会让“结构已完成”与“结构已规划”无法区分 |
 
 ## 17. 权威分工
 
@@ -600,21 +564,20 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `docs/kernel/divergence.md` | 我们改了内核哪些地方、为什么 |
 | `NOTICE.md` | 许可与来源 |
 | `docs/migration/*` | 来源、偏离清单、什么算绿、回补怎么跑 |
-| `docs/structure.md`（本文） | 有什么、放哪、何时出现 |
+| `docs/README.md` | 哪类问题去问哪篇文档（导航） |
+| `docs/structure.md`（本文） | 文件放哪、什么不该建 |
+| `docs/architecture.md` | 运行时怎么运转（分层、一次提交的路径、信任边界） |
+| `docs/plan/master-plan.md` | 阶段、目录出现时机、待决项 |
+| `docs/plan/parked.md` | 推迟的事：它们的触发条件、复核日期与当时依赖的前提 |
 | `packages/features/*/naveti.feature.json` | 该功能提供什么 |
 | `apps/server/src/compose.ts` | 系统里到底装了哪些功能 |
 | `packages/features/*/README.md` | 该功能的唯一契约说明 |
 | `AGENTS.md` | agent 在本仓库必须遵守的硬约束 |
+| `.agents/notes/README.md` | 决策记录的写法与四态规则 |
 | `README.md` | 一句话定位 |
 
 ## 18. 待决项
 
-| # | 待决 | 当前倾向 | 决定前需要的证据 |
-| --- | --- | --- | --- |
-| 1 | 桌面外壳：Electron / Tauri / 自打包 Node + WebView | Electron（Node 内置、`node:sqlite` 大概率可用；窗口只是一个指向 `127.0.0.1` 的浏览器） | 一次 spike：Electron 当前版本里 `node:sqlite` 是否可用；包体积与启动耗时可接受 |
-| 2 | `node:sqlite` 在桌面端不可用时的退路 | `storage` 提前做第二个 provider（WASM / 文件存储），不在 `platform/host` 写死一种 | 同上 spike 结论 |
-| 3 | 桌面是"主进程内跑 server"还是"spawn 子进程" | spawn 子进程：与服务器形态解耦，将来搬上服务器几乎不改 | 进程管理、日志归属、退出清理的成本 |
-| 4 | 手机远程的鉴权模型 | 设备配对 + 能力 token，`contracts/auth.ts` 先定型 | 是否要暴露到公网（决定 TLS、撤销、审计的最低要求） |
-| 5 | `compose.ts` 何时改为生成物 | 功能数超过约 20，或重复登记出过事故 | 手工登记的漏登记次数。注意：生成 `compose.ts` 只解决"登记重复"，**不等于**运行期热插拔（§8） |
-| 6 | 内核是否分拆（`durable` 单包体量最大） | 暂不拆；先靠门面 + 账本控制改动半径 | 连续若干次改动都只落在同一个子目录 |
-| 7 | Windows 上 5 个 symlink 测试 | 改成 `skipIf(不能建符号链接)` | 现在本机永远不全绿，红失去意义 |
+技术选型的待决（桌面外壳、`node:sqlite` 退路、远程鉴权、`compose.ts` 生成化时机等）全部在 [`plan/master-plan.md`](./plan/master-plan.md) 的「待决」表；本文不重复，因为那些是会变的。
+
+唯一属于“结构规则”且尚未闭合的一条：**内核是否拆包**。判据是“连续若干次改动都只落在 `durable` 的同一个子目录”，满足才拆，不拆就先靠门面与账本控制半径。

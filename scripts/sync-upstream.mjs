@@ -13,7 +13,7 @@
  *
  * Add `--full` to include a unified patch for every changed file.
  *
- * Output: docs/migration/upstream-diff-<date>.md, plus the normalized tree under
+ * Output: docs/migration/diffs/upstream-diff-<date>.md, plus the normalized tree under
  * .upstream/ for browsing. Nothing under packages/ is modified.
  */
 import { execFileSync } from "node:child_process";
@@ -24,7 +24,7 @@ import { LOCAL_PACKAGE_DIRS, PACKAGES, renameScope } from "./scope-rules.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const UPSTREAM_DIR = join(ROOT, ".upstream");
-const REPORT_DIR = join(ROOT, "docs", "migration");
+const REPORT_DIR = join(ROOT, "docs", "migration", "diffs");
 const SKIP_DIRS = new Set(["node_modules", "dist"]);
 const TEXT_EXTENSIONS = new Set([".ts", ".mts", ".js", ".mjs", ".json"]);
 

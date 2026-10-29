@@ -15,7 +15,14 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+/**
+ * Repository root. `NAVETI_CHECK_ROOT` lets a test point the guard at a fixture: the
+ * budgets and the workspace map are written in repo-relative paths, so a fixture only
+ * has to create the same paths under its own root.
+ */
+const ROOT = process.env.NAVETI_CHECK_ROOT
+	? resolve(process.env.NAVETI_CHECK_ROOT)
+	: resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Workspace package name -> its source root, so cross-package imports are followed. */
 const WORKSPACE = {

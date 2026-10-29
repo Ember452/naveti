@@ -1,6 +1,6 @@
 # 内核分歧账本
 
-记录**我们主动改过内核的哪些地方**。政策见 [`KERNEL.md`](../KERNEL.md) §4，本文只负责记录。
+记录**我们主动改过内核的哪些地方**。政策见 [`KERNEL.md`](../../KERNEL.md) §4，本文只负责记录。
 
 基线：`pi 1.4.0` 源码快照，导入日 2026-10-29。
 迁移期的偏离（作用域改名、生成数据、标识符改名、测试与工具修补）记在 [`docs/migration/deviations.md`](../migration/deviations.md)，本文不重复；本文只记**那之后持续发生的功能性改动**。
@@ -41,6 +41,6 @@
 
 1. `git remote add upstream <pi 仓库>` 并 fetch 版本 tag，之后可做文件级对照：
    `git diff upstream/v1.4.0 -- packages/kernel/durable`
-2. `node scripts/sync-upstream.mjs --from ../pi-main --full`，生成规范化文本对照与 `docs/migration/upstream-diff-<date>.md`。它**不修改** `packages/`。
+2. `node scripts/sync-upstream.mjs --from ../pi-main --full`，生成规范化文本对照与 `docs/migration/diffs/upstream-diff-<date>.md`。它**不修改** `packages/`。
 
 回补策略（`KERNEL.md` §5）：账本里从未偏离的文件 → 可整体替换为上游版本；有偏离的文件 → 三路合并并在本文记新条目。**不做半跟随**：`durable` 与 `chord` 必须成对处理。

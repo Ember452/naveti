@@ -14,11 +14,30 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 ## 2. 先读什么
 
-1. `docs/structure.md` —— 仓库里有什么、什么该放哪、什么不该建。
-2. `KERNEL.md` —— 内核能不能改、按哪一档改。
-3. `docs/kernel/seats.md` —— 扩展点清单（封闭枚举）。
-4. `docs/kernel/divergence.md` —— 内核已被改过哪些地方。
-5. `docs/migration/baseline.md` —— 什么算绿、哪些是平台限制。
+按任务读最小集，读够用为止。**不要一次读完下面所有文档**：八篇合计超过 70 KB。
+
+| 你要做什么 | 最少读这些 |
+| --- | --- |
+| 修一个红的测试 | §9 命令 + `docs/migration/baseline.md` 里对应包那一段 |
+| 加功能 | §3 + §4 + §5 + `docs/structure.md` §7 + `docs/kernel/seats.md` |
+| 改内核 | §6 + `KERNEL.md` §2 + `docs/kernel/divergence.md`（涉及 seat 再加 `seats.md`） |
+| 动跨包 / 装配 | 上面 + `docs/architecture.md` |
+| 加顶层目录 / 改边界 | 上面 + `docs/structure.md` §15 + 在 `.agents/notes/` 写一条 |
+| 改文档 | `docs/README.md` 的五条规矩 |
+| 加或改一条守卫 | `.agents/skills/add-a-guard/SKILL.md` + `docs/structure.md` §13 |
+| 想把一件事推到将来 | `docs/plan/parked.md`：必须同时写下触发条件、`review_by` 日期、以及**当时依赖的前提** |
+| 不知道去哪找 | `docs/README.md` 的路由表 |
+
+下面这份是按“如果全错就全读”的顺序排的清单，只在任务真的跨多个层面时使用：
+
+1. [`docs/README.md`](docs/README.md) —— 四类文档分别回答什么，先看它决定读哪一篇。
+2. `docs/structure.md` —— 什么文件放哪、什么还不该建。
+3. `KERNEL.md` —— 内核能不能改、按哪一档改。
+4. `docs/kernel/seats.md` —— 扩展点清单（封闭枚举）。
+5. `docs/kernel/divergence.md` —— 内核已被改过哪些地方。
+6. `docs/migration/baseline.md` —— 什么算绿、哪些是平台限制。
+7. `docs/architecture.md` —— 运行时怎么运转（改跨包的东西前读）。
+8. `docs/plan/master-plan.md` —— 现在做到哪、下一步是什么。
 
 不要凭记忆判断"这个文件该放哪"。文档与代码冲突时，先报告冲突，不要自行选一个。
 
@@ -112,6 +131,7 @@ pnpm hooks:install  # 一次性把 core.hooksPath 指到 .githooks
 - 不直接跑全量 vitest。跑单个文件在包目录里：
   `node ../../../node_modules/vitest/vitest.mjs --run test/x.test.ts`
 - 新增或修改测试文件，必须自己跑通再报。
+- **`pnpm check` 绿不算绿。** 改动碰过配置、目录或依赖时，宣布完成前必须跑 `pnpm test:ci`。证据：往 `packages/kernel/` 里放一个 `README.md`，根配置的项目 glob 把它也当项目收集，六个项目的测试全部起不来，而 `check` 全绿——“静态没报错”不等于“测试还能跑”。
 - 改了测试清单（增删用例、加 skip、删测试文件）→ 跑 `pnpm run test-integrity:write`，并让 `scripts/test-integrity.json` 的 diff 出现在同一个提交里。
 - 临时脚本写到 `.verify-tmp/`（gitignored），用完删掉；不要把多行脚本塞进一条命令里。
 - 提交前钩子会跑静态检查；推送前钩子会跑 `pnpm check`。绕过（`--no-verify`）必须在提交正文里说明理由。
@@ -159,6 +179,8 @@ pnpm hooks:install  # 一次性把 core.hooksPath 指到 .githooks
 - 不提交 `dist/`、`.upstream/`、`.verify-tmp/`、本地日志、`.env*`。
 
 ## 15. 文档纪律
+
+- 推迟不等于删除：写进 `docs/plan/parked.md`，并留下三件事——触发条件、复核日期、当时依赖的前提。**前提必须写成可被现实推翻的句子**；到点时先检验前提，再决定做/改条件/作废，“以后再讲”不算一个选项。`check-parked-triggers` 会拦住缺字段与已到期的条目。
 
 - 一个事实只有一处权威，权威分工见 `docs/structure.md` §17。
 - 改了边界、改了内核语义、新增 seat、新增守卫、新增根配置 → 在 `.agents/notes/<state>/<date>-<slug>.md` 记一条（背景 / 决定 / 被拒绝的替代方案 / 后果）。
