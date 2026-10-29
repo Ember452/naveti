@@ -80,7 +80,7 @@ naveti/
 ├── scripts/                             守卫与编排脚本，清单见 §14（不在这里数个数）
 ├── tests/
 │   ├── smoke/persist-resume.ts          现有：持久化与恢复冒烟
-│   └── golden/                          [待建] 首次内核改动或回补时的请求体与会话黄金文件
+│   └── golden/                          [未建] 首次内核改动或回补时的请求体与会话黄金文件
 ├── docs/
 │   ├── README.md                        导航：谁回答什么
 │   ├── structure.md                     本文，空间轴权威
@@ -398,6 +398,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
+| `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
 
 **已知缺口，不是已完成项：** `check-ts-relative-imports` 与 `check-entry-graphs` 没有反例测试。两者都把 `ROOT` 钉在脚本目录的上一级，无法用临时夹具驱动，所以要么给它们加 root 覆盖再补测试，要么承认“这两条靠阅读保证”。在那之前，"每条守卫都有红例"**不是一个成立的说法**。
 
@@ -544,7 +545,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 仓库级 `snapshots/` | 黄金文件放 `tests/golden/`，功能夹具放功能内 |
 | 每包一份 `tsconfig.build.json` | 发布期由根上单个 `tsdown` 入口按 manifest 打包（§11） |
 | `gen-paths.mjs`（生成 `paths`/alias 的脚本） | 它把"能不能正确解析"变成"有没有跑脚本"，见 §13 |
-| 任何 `[待建]` 目录的空壳 | 空目录会让"结构已完成"与"结构已规划"无法区分 |
+| 任何标了 `[未建]` 的目录先建空壳 | 空目录会让“结构已完成”与“结构已规划”无法区分 |
 
 ## 17. 权威分工
 
