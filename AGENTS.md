@@ -14,11 +14,14 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 ## 2. 先读什么
 
-1. `docs/structure.md` —— 仓库里有什么、什么该放哪、什么不该建。
-2. `KERNEL.md` —— 内核能不能改、按哪一档改。
-3. `docs/kernel/seats.md` —— 扩展点清单（封闭枚举）。
-4. `docs/kernel/divergence.md` —— 内核已被改过哪些地方。
-5. `docs/migration/baseline.md` —— 什么算绿、哪些是平台限制。
+1. [`docs/README.md`](docs/README.md) —— 四类文档分别回答什么，先看它决定读哪一篇。
+2. `docs/structure.md` —— 什么文件放哪、什么还不该建。
+3. `KERNEL.md` —— 内核能不能改、按哪一档改。
+4. `docs/kernel/seats.md` —— 扩展点清单（封闭枚举）。
+5. `docs/kernel/divergence.md` —— 内核已被改过哪些地方。
+6. `docs/migration/baseline.md` —— 什么算绿、哪些是平台限制。
+7. `docs/architecture.md` —— 运行时怎么运转（改跨包的东西前读）。
+8. `docs/plan/master-plan.md` —— 现在做到哪、下一步是什么。
 
 不要凭记忆判断"这个文件该放哪"。文档与代码冲突时，先报告冲突，不要自行选一个。
 
