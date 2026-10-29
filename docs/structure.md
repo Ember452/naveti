@@ -118,8 +118,8 @@ naveti/
 │   └── skills/<name>/SKILL.md
 ├── .github/
 │   ├── workflows/                       7 个（§14）
-│   ├── ISSUE_TEMPLATE/  APPROVED_CONTRIBUTORS
-│   └── pull_request_template.md
+│   ├── ISSUE_TEMPLATE/                  bug / config / contribution / package-report
+│   └── APPROVED_CONTRIBUTORS            贡献者准入名单（approve-contributor.yml 读）
 ├── .claude/skills                       [待建] 符号链接 → ../.agents/skills（不做第二份）
 ├── .upstream/                           gitignored，sync-upstream 的规范化缓存
 ├── AGENTS.md                            agent 硬约束（不是本文副本）
