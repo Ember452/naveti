@@ -70,7 +70,7 @@
 任何内核改动的最低门槛：
 
 ```
-pnpm check      # biome + 依赖钉版 + 运行时依赖闭包 + ts 相对导入 + 入口图 + 六条结构守卫 + tsc --noEmit
+pnpm check      # biome + 依赖钉版 + 运行时依赖闭包 + ts 相对导入 + 入口图 + 全部结构守卫（见 docs/structure.md §13）+ tsc --noEmit
 pnpm test:ci    # 门禁测试：单进程 + 密封环境（先 pnpm build）
 node --test scripts/*.test.mjs scripts/*.test.ts
 ```

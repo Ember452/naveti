@@ -7,7 +7,7 @@
 
 | 阶段 | 状态 | 内容 | Gate |
 | --- | --- | --- | --- |
-| **P0 机械层** | done | 分组目录 `packages/kernel/*`、pnpm 隔离式依赖、删手写 `paths`/alias 改 `exports` 的 `source` 条件、根 `test.projects` 单进程、密封测试环境、四条守卫 | `pnpm check` / `pnpm build` / `pnpm test:ci` 三平台全绿；Ubuntu 数字见 `migration/baseline.md` |
+| **P0 机械层** | done | 分组目录 `packages/kernel/*`、pnpm 隔离式依赖、删手写 `paths`/alias 改 `exports` 的 `source` 条件、根 `test.projects` 单进程、密封测试环境、结构守卫（见 `docs/structure.md` §13） | `pnpm check` / `pnpm build` / `pnpm test:ci` 三平台全绿；Ubuntu 数字见 `migration/baseline.md` |
 | **P1 规则层** | doing | `AGENTS.md`、`KERNEL.md`、`docs/structure.md`、`docs/architecture.md`、`docs/kernel/{seats,divergence}.md`、`.agents/notes/`、`CONTRIBUTING.md`、`SECURITY.md` | 每个规则都有落点；已发生的决定全部登记 |
 | **P2 主干** | next | `packages/contracts` → `packages/platform/host`（门面 + seat 表 + paths 注入 + transport loopback）→ `apps/server` → 第一个功能 `chat`（含 client 面） | 端到端跑通一轮对话；删掉该功能 = 删包 + 两行 |
 | **P3 出包** | later | `packages/platform/web` → `apps/web` → `apps/desktop` + `tsdown.config.ts` | 出一个能装能跑、数据落在 `userData` 的安装包 |

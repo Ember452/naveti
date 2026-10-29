@@ -93,7 +93,7 @@ naveti/
 │   └── migration/                       README / baseline / deviations / upstream-sync / diffs/
 ├── .agents/
 │   ├── notes/{proposed,implemented,archived,rejected}/   决策记录（§14）
-│   └── skills/<name>/SKILL.md          [未建] 仓库级 agent skill
+│   └── skills/add-a-guard/SKILL.md      已建；其余按需
 ├── .github/
 │   ├── workflows/                       见 §14
 │   ├── ISSUE_TEMPLATE/                  bug / config / contribution / package-report
@@ -164,8 +164,8 @@ naveti/
 @naveti/host/extend/hooks        hook、ToolTask / GenerationTask 的 handler 类型
 @naveti/host/extend/prompt       section
 @naveti/host/extend/wrap         wrapTool、wrapSection
-@naveti/host/extend/settings     设置 schema（待建）
-@naveti/host/extend/service      宿主侧服务注册（待建）
+@naveti/host/extend/settings     设置 schema [未建]
+@naveti/host/extend/service      宿主侧服务注册 [未建]
 @naveti/host/extend/types        纯类型汇总（功能只做类型标注时用这个）
 ```
 
@@ -332,7 +332,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 权威表在 [`docs/kernel/seats.md`](./kernel/seats.md)：每个 seat 记机制（哪个内核符号）、门面子路径、状态、典型用途；另有 `doc` 三种 scope 的取舍表、新增 seat 的门槛、provider 与 seat 的区分。**本文不复制那张表**（复制即漂移）。
 
-一句话摘要：宿主侧 9 个 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension` `config` `service`），客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。
+一句话摘要：宿主侧 7 个已采用 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension`），另有 `config` / `service` 两个候选；客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。权威表见 [`docs/kernel/seats.md`](./kernel/seats.md)。
 
 ## 11. 发布形态：一个打包入口，不给每包写构建配置
 
@@ -494,9 +494,9 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 文件 | 负责 | 纪律 |
 | --- | --- | --- |
 | 根 `AGENTS.md` | agent 在本仓库的硬约束：读文档顺序、位置对照表、依赖方向、加功能流程、改内核流程、禁止事项、验收命令 | 只写"必须"与"指针"，不复制本文表格 |
-| `packages/AGENTS.md`（待建） | 包级补充规则（导出形态、测试位置、README 要求） | 第一个自研包落地时建 |
+| `packages/AGENTS.md` [未建] | 包级补充规则（导出形态、测试位置、README 要求） | 第一个自研包落地时建 |
 | `CLAUDE.md` | 一句话指针：规则见 `AGENTS.md` | 永远不放第二份规则 |
-| `.claude/skills`（待建） | 符号链接 → `../.agents/skills` | 与 `.agents/skills` 同时建，不做第二份 |
+| `.claude/skills` [未建] | 符号链接 → `../.agents/skills` | 与 `.agents/skills` 同时建，不做第二份 |
 
 ### `docs/`
 

@@ -14,7 +14,7 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 ## 2. 先读什么
 
-按任务读最小集，读够用为止。**不要一次读完下面所有文档**：八篇合计超过 70 KB。
+按任务读最小集，读够用为止。**不要一次读完下面所有文档**：这些文档合计超过 70 KB。
 
 | 你要做什么 | 最少读这些 |
 | --- | --- |
@@ -23,7 +23,7 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 | 改内核 | §6 + `KERNEL.md` §2 + `docs/kernel/divergence.md`（涉及 seat 再加 `seats.md`） |
 | 动跨包 / 装配 | 上面 + `docs/architecture.md` |
 | 加顶层目录 / 改边界 | 上面 + `docs/structure.md` §15 + 在 `.agents/notes/` 写一条 |
-| 改文档 | `docs/README.md` 的五条规矩 |
+| 改文档 | `docs/README.md` 的写文档规矩 |
 | 加或改一条守卫 | `.agents/skills/add-a-guard/SKILL.md` + `docs/structure.md` §13 |
 | 想把一件事推到将来 | `docs/plan/parked.md`：必须同时写下触发条件、`review_by` 日期、以及**当时依赖的前提** |
 | 不知道去哪找 | `docs/README.md` 的路由表 |

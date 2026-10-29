@@ -1,7 +1,7 @@
 # Upstream sync: how to run it
 
 Operational runbook for `scripts/sync-upstream.mjs`. **Policy lives in
-[`KERNEL.md`](../../KERNEL.md) section 3** — when you are allowed to take an
+[`KERNEL.md`](../../KERNEL.md) §5** — when you are allowed to take an
 upstream change, and why "half following" is worse than freezing. This file only
 covers how to get the comparison and what each kind of hit means.
 
@@ -55,14 +55,14 @@ upstream tree, then three lists: `added` (present here, absent upstream),
 | Only `*.md` files differ | Expected. Package READMEs, CHANGELOGs and docs keep the upstream scope on purpose (`deviations.md` D1). Ignore. |
 | Many `durable` files differ, import lines only | Expected. The formatter re-sorted imports after the shorter scope (`deviations.md` D10). Confirm with `--full`, then ignore. |
 | `packages/ai/src/providers/data/*.json` differs | Generated. Regenerate, never hand-edit (`deviations.md` D2). |
-| A real source change nobody recorded | Either an unrecorded local edit (record it in `deviations.md`) or an upstream change (decide per `KERNEL.md` section 3). |
+| A real source change nobody recorded | Either an unrecorded local edit (record it in `deviations.md`) or an upstream change (decide per `KERNEL.md` §5). |
 | Upstream changed an `entry` schema, task state machine, commit atomicity, policy/approval/audit semantics | Stop. `KERNEL.md` section 2 requires an ADR before this lands here. |
 
 ## The pairing rule
 
 `durable` and `chord` share the entry schema, the delta encoding and the task
 semantics. Taking one without the other produces a contract mismatch that is
-harder to diagnose than never upgrading. `KERNEL.md` section 3 states the rule;
+harder to diagnose than never upgrading. `KERNEL.md` §5 states the rule;
 this is what it means in practice: **a sync is either a pair (or the whole set) or
 nothing.**
 

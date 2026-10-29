@@ -43,8 +43,9 @@ Deliberately kept:
 - `NOTICE.md`, `KERNEL.md`, `docs/migration/**` — provenance statements;
 - the default gateway and default attribution hostnames hardcoded in
   `packages/ai/src` — technical facts, so the documentation does not spell them out;
-- runtime identifiers (`pi.user`, `pi.assistant`, `pi.durable.submit`, ...) and the
-  constant `PI_ATTRIBUTION` — data formats and code symbols.
+- runtime identifiers are `naveti.*` (`naveti.user`, `naveti.assistant`,
+  `naveti.durable.submit`, ...) and the attribution constant is
+  `NAVETI_ATTRIBUTION` — data formats and code symbols (D11).
 
 Package `CHANGELOG.md` keeps the upstream scope and product name for the same
 provenance reason. Use the root `NOTICE.md` / `KERNEL.md` for this repository's

@@ -165,6 +165,11 @@ makes a 247,000-line vendored tree reviewable.
   original `docs/migration/README.md` — claimed `pi.user` / `PI_ATTRIBUTION` were
   kept as-is. That described the snapshot, not this tree. Trust the grep, not the
   prose.
+- **Addendum (2026-10-30):** two vendored package READMEs —
+  `packages/kernel/ai/README.md` and `packages/kernel/durable/README.md` — still
+  named `PI_ATTRIBUTION`. They were corrected to `NAVETI_ATTRIBUTION`; the change
+  is documentation-only and does not touch source. The generated upstream diff in
+  `docs/migration/diffs/` still shows the old name and is not authoritative.
 
 ## D12 — Text files pinned to LF, tutorial test normalizes CRLF
 
