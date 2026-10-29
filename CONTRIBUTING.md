@@ -4,7 +4,7 @@
 
 ## 谁能提交
 
-`.github/workflows/pr-gate.yml` 会检查 PR 作者是否在 `.github/APPROVED_CONTRIBUTORS` 里，或者是否是仓库协作者。不在名单里的外部 PR 会被自动关闭并留下说明。想提交请先开 issue。
+`.github/workflows/pr-gate.yml` 会检查 PR 作者是否在 `.github/APPROVED_CONTRIBUTORS` 里，或者是否是仓库协作者。名单初始为空（只保留协作者），外部 PR 会被自动关闭并留下说明。想提交请先开 issue；维护者在 issue 回复 `lgtmi`（后续 issue 保持打开）或 `lgtm`（后续 issue 与 PR 都保持打开）后，`approve-contributor.yml` 会把该账号写进名单。
 
 ## Issue 优先
 

@@ -264,3 +264,17 @@ makes a 247,000-line vendored tree reviewable.
 - **Risk:** none. The variable was never read, so removing it cannot change
   behaviour.
 
+## D17 — Inherited upstream contributor approvals removed
+
+- **What:** `.github/APPROVED_CONTRIBUTORS` started with 274 entries inherited
+  from the upstream pi snapshot, all carrying `pr` capability. The entries are
+  removed; the header and the `approve-contributor.yml` mechanism remain.
+- **Why:** those accounts are pi contributors, not naveti collaborators. Keeping
+  them means 274 external accounts can open PRs without the auto-close gate,
+  which is an inherited authorisation surface rather than a decision about this
+  repository.
+- **Risk:** external contributors now hit the documented auto-close unless a
+  maintainer replies `lgtmi` or `lgtm` on their issue. The repository owner is a
+  collaborator and is unaffected. The file is additive again: the next approval
+  writes one entry and the change is reviewable.
+
