@@ -11,6 +11,11 @@
  *   - `pnpm-lock.yaml` changed, but no manifest's dependency sections did
  *     -> either a transitive bump nobody asked for, or a hand-edited lockfile
  *
+ * `pnpm-workspace.yaml` counts as a manifest for this purpose: its `overrides` block
+ * decides resolved versions, so a lockfile change caused by an override must arrive in
+ * the same commit as the override. Without that link the guard rejects legitimate
+ * security fixes and the escape hatch becomes routine.
+ *
  * Either direction is a red unless `NAVETI_ALLOW_LOCKFILE_CHANGE` is truthy, which
  * is the deliberate escape hatch for `pnpm update`.
  *
@@ -23,6 +28,7 @@ import { join } from "node:path";
 
 const ROOT = process.cwd();
 const LOCKFILE = "pnpm-lock.yaml";
+const WORKSPACE_FILE = "pnpm-workspace.yaml";
 const ALLOW_ENV = "NAVETI_ALLOW_LOCKFILE_CHANGE";
 const DEPENDENCY_SECTIONS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"];
 
@@ -63,6 +69,20 @@ function sameJson(left, right) {
 	return JSON.stringify(left) === JSON.stringify(right);
 }
 
+/** The `overrides:` block, which is version policy and therefore a dependency change. */
+function overridesBlock(text) {
+	const lines = text.split(/\r?\n/);
+	const start = lines.findIndex((line) => line.trim() === "overrides:");
+	if (start === -1) return "";
+	const block = [];
+	for (const line of lines.slice(start + 1)) {
+		if (line.trim() === "") continue;
+		if (!/^[ \t]{2,}\S/.test(line)) break;
+		block.push(line.trim());
+	}
+	return block.join("\n");
+}
+
 const allow = /^(1|true|yes)$/i.test(process.env[ALLOW_ENV] ?? "");
 
 if (tryGit(["rev-parse", "--verify", "HEAD"]) === undefined) {
@@ -75,6 +95,13 @@ const lockChanged = changed.has(LOCKFILE);
 
 const manifestChanges = [];
 for (const path of changed) {
+	if (path === WORKSPACE_FILE) {
+		const previous = overridesBlock(tryGit(["show", `HEAD:${path}`]) ?? "");
+		const absolute = join(ROOT, path);
+		const current = existsSync(absolute) ? overridesBlock(readFileSync(absolute, "utf8")) : "";
+		if (previous !== current) manifestChanges.push(`${path} (overrides)`);
+		continue;
+	}
 	if (path !== "package.json" && !path.endsWith("/package.json")) continue;
 	const absolute = join(ROOT, path);
 	if (!existsSync(absolute)) continue; // deleted manifest: nothing to resolve
@@ -93,7 +120,7 @@ if (manifestChanges.length > 0 && !lockChanged) {
 }
 if (lockChanged && manifestChanges.length === 0) {
 	failures.push(
-		`${LOCKFILE} changed without a dependency change in any package.json: set ${ALLOW_ENV}=1 if this is an intentional resolution change`,
+		`${LOCKFILE} changed without a dependency change in any package.json or in ${WORKSPACE_FILE} overrides: set ${ALLOW_ENV}=1 if this is an intentional resolution change`,
 	);
 }
 

@@ -34,6 +34,11 @@ async function repository(t, { manifest = baseManifest, lock = baseLock } = {}) 
 	return root;
 }
 
+function gitCommit(cwd, message) {
+	git(cwd, ["add", "-A"]);
+	git(cwd, ["commit", "--quiet", "-m", message]);
+}
+
 function run(root, env = {}) {
 	return spawnSync(process.execPath, [script], {
 		cwd: root,
@@ -92,4 +97,23 @@ test("allows an intentional resolution change through the escape hatch", async (
 	const result = run(root, { NAVETI_ALLOW_LOCKFILE_CHANGE: "1" });
 	assert.equal(result.status, 0, result.stderr);
 	assert.match(result.stdout, /NAVETI_ALLOW_LOCKFILE_CHANGE set, ignoring/);
+});
+
+test("counts a pnpm-workspace overrides change as a dependency change", async (t) => {
+	const root = await repository(t);
+	await writeFile(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n\noverrides:\n  openai>undici: ^7.30.1\n");
+	await writeFile(join(root, "pnpm-lock.yaml"), `${baseLock}      undici@7.30.1: {}\n`);
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+	assert.match(result.stdout, /consistent/);
+});
+
+test("still rejects a lockfile change when overrides are untouched", async (t) => {
+	const root = await repository(t);
+	await writeFile(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n");
+	await gitCommit(root, "workspace file committed");
+	await writeFile(join(root, "pnpm-lock.yaml"), `${baseLock}      left@1.0.2: {}\n`);
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /or in pnpm-workspace\.yaml overrides/);
 });
