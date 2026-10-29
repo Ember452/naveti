@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -29,6 +30,40 @@ const SOURCES = {
 	"packages/kernel/durable/src/images/node.ts": "export const image = 1;\n",
 };
 
+const BUDGETS = {
+	"_comment": "fixture",
+	"packages/kernel/ai": {
+		"./models": {
+			"maxFiles": 20,
+			"forbid": ["providers/", "models.generated.ts", "index.ts", "utils/validation.ts", "utils/typebox-helpers.ts"],
+			"allow": ["packages/kernel/telemetry/src/index.ts"],
+		},
+		"./utils/*": { "maxFiles": 3, "forbid": ["providers/", "api/", "index.ts"] },
+	},
+	"packages/kernel/codemode": {
+		".": { "maxFiles": 12, "forbid": ["codemode/src/cloudflare.ts"] },
+		"./portable": {
+			"maxFiles": 8,
+			"forbid": ["codemode/src/index.ts", "runtime/host.ts", "runtime/worker.ts", "codemode/src/wasm.ts"],
+		},
+		"./cloudflare": {
+			"maxFiles": 9,
+			"forbid": ["codemode/src/index.ts", "runtime/host.ts", "runtime/worker.ts", "codemode/src/wasm.ts"],
+		},
+	},
+	"packages/kernel/durable": {
+		".": {
+			"maxFiles": 78,
+			"forbid": [
+				"packages/kernel/ai/src/index.ts",
+				"packages/kernel/ai/src/utils/typebox-helpers.ts",
+				"packages/kernel/durable/src/images/",
+			],
+		},
+		"./tools": { "maxFiles": 17, "forbid": ["packages/kernel/durable/src/images/"] },
+	},
+};
+
 const MANIFESTS = {
 	"packages/kernel/ai/package.json": {
 		name: "@naveti/ai",
@@ -51,7 +86,7 @@ const MANIFESTS = {
 async function workspace(t, overrides = {}) {
 	const root = await mkdtemp(join(tmpdir(), "pi-entry-graphs-"));
 	t.after(() => rm(root, { recursive: true, force: true }));
-	const files = { ...MANIFESTS, ...SOURCES, ...overrides };
+	const files = { ...MANIFESTS, ...SOURCES, "scripts/entry-budgets.json": BUDGETS, ...overrides };
 	for (const [path, value] of Object.entries(files)) {
 		const full = join(root, path);
 		await mkdir(dirname(full), { recursive: true });
@@ -106,4 +141,19 @@ test("rejects a budget for an export the package no longer declares", async (t) 
 	const result = run(root);
 	assert.equal(result.status, 1);
 	assert.match(result.stderr, /declares no export "\.\/models" but a budget exists/);
+});
+
+test("--update rewrites maxFiles and preserves forbid", async (t) => {
+	const root = await workspace(t);
+	const before = JSON.parse(readFileSync(join(root, "scripts/entry-budgets.json"), "utf8"));
+	const result = spawnSync(process.execPath, [script, "--update"], {
+		cwd: root,
+		encoding: "utf8",
+		env: { ...process.env, NAVETI_CHECK_ROOT: root },
+	});
+	assert.equal(result.status, 0, result.stderr);
+	const after = JSON.parse(readFileSync(join(root, "scripts/entry-budgets.json"), "utf8"));
+	assert.equal(after["packages/kernel/ai"]["./utils/*"].maxFiles, 4);
+	assert.deepEqual(after["packages/kernel/ai"]["./utils/*"].forbid, before["packages/kernel/ai"]["./utils/*"].forbid);
+	assert.match(result.stdout, /maxFiles 3 -> 4/);
 });
