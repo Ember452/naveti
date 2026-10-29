@@ -1,0 +1,53 @@
+{
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"paths": {
+			"@naveti/chord": ["./packages/chord/src/index.ts"],
+			"@naveti/chord/context": ["./packages/chord/src/context/index.ts"],
+			"@naveti/chord/delta": ["./packages/chord/src/delta/index.ts"],
+			"@naveti/chord/next": ["./packages/chord/src/next/index.ts"],
+			"@naveti/chord/node": ["./packages/chord/src/node.ts"],
+			"@naveti/chord/output": ["./packages/chord/src/output.ts"],
+			"@naveti/chord/telemetry-sqlite": ["./packages/chord/src/telemetry-sqlite/index.ts"],
+			"@naveti/chord/sqlite": ["./packages/chord/src/sqlite/index.ts"],
+			"@naveti/chord/sqlite/node": ["./packages/chord/src/sqlite/node.ts"],
+			"@naveti/chord/sqlite/cloudflare": ["./packages/chord/src/sqlite/cloudflare.ts"],
+			"@naveti/telemetry": ["./packages/telemetry/src/index.ts"],
+			"@naveti/telemetry/testing": ["./packages/telemetry/src/testing/index.ts"],
+			"@naveti/telemetry/render": ["./packages/telemetry/src/render.ts"],
+			"@naveti/codemode": ["./packages/codemode/src/index.ts"],
+			"@naveti/codemode/cloudflare": ["./packages/codemode/src/cloudflare.ts"],
+			"@naveti/codemode/declarations": ["./packages/codemode/src/declarations.ts"],
+			"@naveti/codemode/portable": ["./packages/codemode/src/portable.ts"],
+			"@naveti/codemode/source": ["./packages/codemode/src/source.ts"],
+			"@naveti/codemode/worker": ["./packages/codemode/src/runtime/worker.ts"],
+			"@naveti/mcp": ["./packages/mcp/src/index.ts"],
+			"@naveti/mcp/oauth": ["./packages/mcp/src/oauth/index.ts"],
+			"@naveti/mcp/testing": ["./packages/mcp/src/testing/index.ts"],
+			"@naveti/ai": ["./packages/ai/src/index.ts"],
+			"@naveti/ai/oauth": ["./packages/ai/src/oauth.ts"],
+			"@naveti/ai/*": ["./packages/ai/src/*.ts", "./packages/ai/src/providers/*.ts"],
+			"@naveti/ai/dist/*": ["./packages/ai/src/*"],
+			"@naveti/durable": ["./packages/durable/src/index.ts"],
+			"@naveti/durable/testing": ["./packages/durable/src/testing/index.ts"],
+			"@naveti/durable/*": [
+				"./packages/durable/src/*.ts",
+				"./packages/durable/src/*/index.ts",
+				"./packages/durable/src/*"
+			],
+			"typebox": ["./node_modules/typebox"]
+		}
+	},
+	"include": [
+		"scripts/model-catalog-protocol.ts",
+		"scripts/model-catalog-protocol.test.ts",
+		"packages/*/src/**/*",
+		"packages/*/test/**/*",
+		"packages/ai/catalog/**/*",
+		"packages/durable/test-workers/**/*"
+	],
+	"exclude": ["**/dist/**"]
+}
