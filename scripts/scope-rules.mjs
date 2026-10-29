@@ -23,6 +23,20 @@ export const PACKAGES = {
 	durable: "@earendil-works/pi-durable",
 };
 
+/**
+ * Upstream snapshot layout is flat (`packages/<name>`); this repository groups the
+ * kernel under `packages/kernel/<name>`. Only the local side uses this map, so CLI
+ * arguments and upstream paths keep the short name.
+ */
+export const LOCAL_PACKAGE_DIRS = {
+	telemetry: "kernel/telemetry",
+	ai: "kernel/ai",
+	chord: "kernel/chord",
+	codemode: "kernel/codemode",
+	mcp: "kernel/mcp",
+	durable: "kernel/durable",
+};
+
 /** The same mapping as it appears inside regular expressions (escaped slashes). */
 export const ESCAPED_REPLACEMENTS = REPLACEMENTS.map(([from, to]) => [
 	from.replace("/", "\\/"),

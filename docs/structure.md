@@ -1,0 +1,620 @@
+# 项目结构
+
+> 空间轴权威。本文只回答三件事：**仓库里有什么、一个功能必须放在哪、什么还不该建。**
+> 不回答：内核能不能改（见 [`KERNEL.md`](../KERNEL.md)）、什么算绿（见 [`docs/migration/baseline.md`](./migration/baseline.md)）、做什么功能（产品文档尚未写）。
+
+## 目录
+
+1. [现状与这次要解决的问题](#1-现状与这次要解决的问题)
+2. [四层目标与结构手段](#2-四层目标与结构手段)
+3. [根目录全景](#3-根目录全景)
+4. [内核六包](#4-内核六包)
+5. [五类包：职责与依赖方向](#5-五类包职责与依赖方向)
+6. [内核门面](#6-内核门面为什么功能看不见内核)
+7. [一个功能一个包](#7-一个功能一个包)
+8. [manifest 与 compose](#8-manifest-与-compose三方一致)
+9. [seam 与 provider](#9-seam-与-provider按契约换实现的准确形状)
+10. [seat 目录](#10-seat-目录)
+11. [发布形态、模块解析与打包](#11-发布形态一个打包入口不给每包写构建配置)
+12. [防散落规则](#12-防散落规则)
+13. [守卫与生成器](#13-守卫与生成器)
+14. [仓库级基础设施](#14-仓库级基础设施)
+15. [目录出现时机与落地顺序](#15-目录出现时机与落地顺序)
+16. [明确不建](#16-明确不建)
+17. [权威分工](#17-权威分工)
+18. [待决项](#18-待决项)
+
+## 1. 现状与这次要解决的问题
+
+| 事实 | 状态 |
+| --- | --- |
+| `packages/` 下六个内核包（`telemetry` `ai` `chord` `codemode` `mcp` `durable`），来自 pi 1.4.0 快照，已改名为 `@naveti/*`，持久化 kind 已定为 `naveti.*` | 已有（`docs/migration/deviations.md` D1 / D11） |
+| 产品层（`contracts` `platform` `providers` `features` `apps`） | **未建** |
+| `.github/workflows/` 七个工作流 | 已有，上游裁剪版（D8），只覆盖内核包 |
+| 根 `AGENTS.md`、`CLAUDE.md` | 已有（与本文同批落地） |
+| `.agents/` | **未建**（规则已写在 §14，目录随第一条决策出现） |
+| 根配置 | 已无手工枚举：`tsconfig.json` 不再有 `paths`（靠 `exports` 的 `source` 条件 + `customConditions`），`vitest.base.ts` 只剩共享默认值，根 `build` 是 `pnpm -r --filter` |
+| 包管理器 | pnpm 11.13.0，隔离式 `node_modules`；包间依赖写作 `workspace:*`，`allowBuilds` 只放行五个已知包 |
+| 测试运行 | 根 `vitest.config.ts` 的 `test.projects` 收集 `packages/kernel/*`：单进程、文件级并行；`run-tests.mjs` 保留逐包回退模式 |
+| 提交基线 | 2026-10-29，`check` 与 `test` 全绿 |
+
+**这次结构要解决的不是"怎么放文件"，而是三件会随时间恶化的事：**
+
+1. **包数从 6 涨到 30+ 之后，上面那几处手工枚举必然漂移。** 解法是先做分组目录、把模块解析交给 pnpm 的 symlink 与包的 `exports` 条件（§11.1），再加包——而不是维护一份更大的枚举表。顺序反了，就是每加一个功能改四处配置。
+2. **功能会散落。** 判据是"改一个功能要开几个目录"。答案是竖切成包：一个功能一个 workspace 包，删功能 = 删目录 + 一行登记。
+3. **内核要改，但没有落点。** 原策略是"冻结 + 只摘取上游补丁"，它把改动定性为例外事件。改成"三档变更 + 门面吸收 + 分歧账本"（见 `KERNEL.md`），改动才有地方发生、有地方记录。
+
+**交付形态决定 `apps/` 的形状：** 现在出 Windows 安装包（用户下载 exe 使用），将来支持手机远程控制。本机与远程共用同一个运行时与同一份前端产物，`apps/desktop` 不是第二个运行时。
+
+## 2. 四层目标与结构手段
+
+| 目标 | 结构手段 | 违反时的症状 |
+| --- | --- | --- |
+| 功能不散落 | 一个功能一个包 + `exports` 物理边界 + 依赖方向机检 | 改一个功能要开五个目录 |
+| 按契约换实现 | seam 三角色（Definition / Provider / Consumer），provider 与 feature 分家 | 换存储后端，结果给用户多出一个功能 |
+| 内核可改 | `@naveti/host` 门面 + 三档变更 + 分歧账本 | 内核里长出产品语义，三个月后没人知道改过哪 |
+| 一次交付两个端 | `apps/desktop` 只做窗口与打包，`platform/host` 接受注入路径 | 桌面与手机各跑一套逻辑 |
+
+## 3. 根目录全景
+
+```text
+naveti/
+├── packages/                            所有 workspace 包（pnpm-workspace.yaml 分组 globs）
+│   ├── kernel/                          L0 自有内核（pi 派生，可改）
+│   │   ├── telemetry/                   @naveti/telemetry
+│   │   ├── ai/                          @naveti/ai
+│   │   ├── chord/                       @naveti/chord
+│   │   ├── codemode/                    @naveti/codemode
+│   │   ├── mcp/                         @naveti/mcp
+│   │   ├── durable/                     @naveti/durable
+│   │   └── README.md                    所有权、变更分级、扩展点索引
+│   ├── contracts/                       L1 @naveti/contracts：wire 类型 + 自研 seam 声明（纯类型，零运行时）
+│   │   └── src/{transport,auth,ids,view,error}.ts     一个域一个文件
+│   ├── platform/
+│   │   ├── host/                        L2 @naveti/host
+│   │   │   └── src/
+│   │   │       ├── extend/              ★ 内核门面：功能唯一可见的内核 API
+│   │   │       ├── boot.ts              openHost()：建 Harness、装 extension、起调度、挂 transport
+│   │   │       ├── seats.ts             seat 表（封闭枚举，与 docs/kernel/seats.md 一致）
+│   │   │       ├── paths.ts             接收注入的 dataDir / cacheDir / webAssetsDir
+│   │   │       ├── storage/             存储 provider 选择（不重写内核 Storage 接口）
+│   │   │       ├── settings/            设置 schema 与持久化
+│   │   │       ├── credentials/         凭据读取（不落明文）
+│   │   │       ├── approval/            审批与审计策略挂接
+│   │   │       ├── transport/           loopback（现在）/ remote（将来）
+│   │   │       └── services/            宿主侧服务注册表（跨功能唯一合法通道）
+│   │   └── web/                         L2 @naveti/web
+│   │       └── src/
+│   │           ├── app-frame.tsx        三栏壳（壳文件：不得出现任何功能 id）
+│   │           ├── connection/          baseUrl + token、重连、断点续传
+│   │           ├── slots/               panel / nav / settings / command / composer / renderer / status
+│   │           ├── theme/               设计 token
+│   │           └── atoms/               共享基础组件
+│   ├── providers/                       L2.5 可替换实现（按需出现，见 §9）
+│   │   └── <seam>-<impl>/               例：storage-sqlite、llm-<vendor>、browser-<x>
+│   └── features/                        L3 一个功能一个包（见 §7）
+│       └── <id>/
+├── apps/                                L4 组合根，只启动不讲业务
+│   ├── server/                          唯一运行时
+│   │   └── src/{main.ts,compose.ts}     main：读 paths → openHost() → install(compose) → 挂 HTTP/WS
+│   ├── web/                             唯一 SPA（桌面内嵌 / 手机远程 / 开发浏览器共用）
+│   ├── desktop/                         Electron 主进程 + 打包签名 + 自动更新，无业务
+│   │   ├── src/main.ts                  spawn server → 开窗口指向 127.0.0.1
+│   │   └── packaging/                   安装器、签名、更新通道脚本
+│   └── cli/                             冒烟与运维入口（同一装配的第二个消费者）
+├── scripts/                             13 个脚本 + 3 个同名测试 + 待建 6 守卫 1 生成器（§13、§14）
+├── tests/
+│   ├── smoke/persist-resume.ts          现有：持久化与恢复冒烟
+│   └── golden/                          [待建] 首次内核改动或回补时的请求体与会话黄金文件
+├── docs/
+│   ├── structure.md                     本文，空间轴权威
+│   ├── kernel/
+│   │   ├── seats.md                     扩展点权威表
+│   │   └── divergence.md                与 pi 1.4.0 的分歧账本
+│   ├── migration/                       README / baseline / deviations / upstream-sync / upstream-diff-*
+│   └── archived/                        pi-main 的原始文档归档（只读）
+├── .agents/                             [待建] agent 资产（§14）
+│   ├── notes/{proposed,implemented,archived,rejected}/
+│   └── skills/<name>/SKILL.md
+├── .github/
+│   ├── workflows/                       7 个（§14）
+│   ├── ISSUE_TEMPLATE/                  bug / config / contribution / package-report
+│   └── APPROVED_CONTRIBUTORS            贡献者准入名单（approve-contributor.yml 读）
+├── .githooks/                            pre-commit（静态检查）/ pre-push（pnpm check），用 hooks:install 装
+├── .claude/skills                       [待建] 符号链接 → ../.agents/skills（不做第二份）
+├── .upstream/                           gitignored，sync-upstream 的规范化缓存
+├── AGENTS.md                            agent 硬约束（不是本文副本）
+├── CLAUDE.md                            指针：规则见 AGENTS.md
+├── KERNEL.md  NOTICE.md  README.md  LICENSE  CONTRIBUTING.md  SECURITY.md
+├── pnpm-workspace.yaml                  [待建] 分组 globs
+├── vitest.config.ts                     [待建] 根测试入口（test.projects，见 §13.1）
+├── tsdown.config.ts                     [待建] 发布期唯一打包入口（§11）
+├── pnpm-lock.yaml                       现有，取代 package-lock.json
+├── pnpm-workspace.yaml                  现有：分组 globs 与 allowBuilds
+├── vitest.base.ts                       现有：各包 mergeConfig 的共享默认值（§13.1）
+├── biome.json  tsconfig.json  tsconfig.base.json  vitest.base.ts  package.json   现有，随加层必改
+└── .npmrc  .gitignore
+```
+
+## 4. 内核六包
+
+`packages/kernel/` 是自有内核（政策见 `KERNEL.md`）。六个包各自只回答一类问题：
+
+| 包 | 负责 | 产品层需要的典型入口 |
+| --- | --- | --- |
+| `durable` | 持久化运行时：会话日志（entry）、doc（session / conversation / task 三种 scope）、task 状态机与调度、工具注册与执行、审批 hook、扩展装配（`defineExtension` / `defineTool` / `defineDoc` / `defineTask` / `hook` / `section` / `wrap*`）、`Harness.open()` | 全部 seat 的机制来源；功能不直接 import，只经门面 |
+| `chord` | 类型化宿主运行时：契约、复制状态、JSON 链路上的 RPC、watch/snapshot 语义、SQLite 与内存后端 | 前端订阅功能状态的那条流 |
+| `ai` | 统一 LLM API：provider 适配、模型目录、流式事件、token 计量 | 模型选择与会话生成 |
+| `mcp` | Model Context Protocol 客户端：连接、工具/资源发现、OAuth | 连接器类功能的底座 |
+| `codemode` | 沙箱内执行 JS，唯一能力是调用注入的工具 | 代码式工具编排 |
+| `telemetry` | 厂商中立的遥测契约与类型化 schema 工具 | 运行指标与诊断 |
+
+读代码顺序建议：`durable/src/harness/define.ts`（扩展点）→ `durable/src/harness/registry.ts`（装配 `install`）→ `durable/src/harness/harness.ts`（`Harness.open`）→ `durable/src/documents.ts`（doc）。
+
+六包之间是**强耦合的一体**（`durable` 依赖 `chord` `ai` `codemode` `telemetry`，共享 entry schema 与 delta 编码）。因此 `KERNEL.md` §5 规定：`durable` 与 `chord` 必须成对升级，禁止半跟随。改造内核时也要记住——动 entry schema 就是同时动两个包。
+
+## 5. 五类包：职责与依赖方向
+
+| 类 | 例子 | 可以 import | 有界面 | 用户可见 | 变更频率 |
+| --- | --- | --- | --- | --- | --- |
+| **kernel** | `@naveti/durable` | 只 import 其他 kernel | 否 | 否 | 慢，但**允许改**（`KERNEL.md` §2） |
+| **contracts** | `@naveti/contracts` | 无（纯类型，可 import kernel 的类型） | 否 | 否 | 稳定，破坏性改升版本 |
+| **platform** | `@naveti/host`、`@naveti/web` | kernel、contracts | host 否 / web 是 | 否 | 中 |
+| **provider** | `@naveti/storage-sqlite` | kernel、contracts、platform/host | 否 | **否** | 跟随上游生态 |
+| **feature** | `@naveti/feature-memory` | contracts、host、web、其他 feature 的 `./contract` | 可选 | **是** | 高频 |
+| **app** | `apps/server` | 全部（组合根） | — | — | 几乎不动 |
+
+依赖铁律，每条都能用 `package.json` 或 import 图机检：
+
+1. **kernel 不 import 产品层。** `dependencies` 里不出现 `@naveti/{contracts,host,web,feature-*,storage-*}`。
+2. **feature 不 import kernel。** feature 的 `dependencies` 里不出现 `@naveti/{ai,chord,codemode,durable,mcp,telemetry}`。这条是"内核可改"的全部代价：多写一个门面，换来内核重构时功能一行不动。
+3. **feature 之间只允许 `./contract` 子路径，且必须显式声明依赖。** 值导入另一个功能的实现 = 红。
+4. **provider 不登记进 `compose.ts` 的功能清单。** 它只在配置里被选中，没有 id、没有面板、没有设置分区。
+5. **client 面不 import `node:*`、不 import `platform/host`、不 import 同包 `src/host/**`。** 从 client 入口走值导入图机检。
+6. **contracts 不 import `platform` 或 `features`；platform 不 import `features`。**
+7. **引擎只在 `apps/server` 进程里加载。** `apps/web` 与 `apps/desktop` 的渲染进程不加载内核，否则会出两套运行时、两份存储状态。
+8. **`platform/host` 不自己决定数据目录。** `dataDir` / `cacheDir` / `webAssetsDir` 由 `apps/*` 注入；取路径的代码只允许出现在 `apps/*`。
+9. **包之间不用相对路径跨界 import。** 一律走包名 + `exports`；`check-ts-relative-imports` 兜住。
+10. **不为模块解析加 `tsconfig` 的 `paths` 或 vitest alias。** 见 §11.1。
+
+## 6. 内核门面：为什么功能看不见内核
+
+`packages/platform/host/src/extend/` 重新导出被批准的扩展 API，按子路径切：
+
+```text
+@naveti/host/extend              装配入口（defineFeature、Extension 类型）
+@naveti/host/extend/tools        defineTool、ToolRegistration、工具执行相关类型
+@naveti/host/extend/docs         defineDoc、defineDocFamily、三种 scope 的类型
+@naveti/host/extend/tasks        defineTask、TaskDefinition、TaskOutcome
+@naveti/host/extend/hooks        hook、ToolTask / GenerationTask 的 handler 类型
+@naveti/host/extend/prompt       section
+@naveti/host/extend/wrap         wrapTool、wrapSection
+@naveti/host/extend/settings     设置 schema（待建）
+@naveti/host/extend/service      宿主侧服务注册（待建）
+@naveti/host/extend/types        纯类型汇总（功能只做类型标注时用这个）
+```
+
+三条纪律：
+
+1. **禁止 `export *`。** 门面是显式清单，不是筒仓。清单本身就是"内核对功能的承诺"。
+2. **只在有真实消费者时加子路径。** 没有功能用到的能力不进清单；清单越长，内核改动的传导面越大。
+3. **门面只做转出与适配，不放业务逻辑。** 允许"把内核两个类型拼成一个"，不允许"判断该不该记这条记忆"。
+
+门面存在的前提是**功能真的不用内核**。一旦某个功能需要内核深处能力（自定义 entry、直接操作 doc 内部），正确处理是给门面加子路径并在 `docs/kernel/seats.md` 登记，而不是在该功能里深引内核。
+
+**门面是内核改动的吸收层**：内核重构时只改这里，功能包一行不动。这是"内核不冻结"能成立的结构原因。
+
+## 7. 一个功能一个包
+
+**一个功能 = 一个 workspace 包 + 一个 `exports` 出口面 + 固定 seat。这就是"功能不散落"的全部答案。**
+
+```text
+packages/features/memory/
+├── package.json          exports: "." → host / "./contract" / "./client" / "./manifest"
+├── naveti.feature.json   { id, contract, seats, requires, provides }
+├── README.md             五行契约：拥有什么 / 可 import 什么 / 占哪些 seat / 依赖谁 / 删掉会怎样
+├── src/
+│   ├── contract.ts       wire 类型 + 本功能服务接口（无运行时、无 node、无 react）
+│   ├── shared.ts         纯函数，前后端共用
+│   ├── host/index.ts     默认导出 defineFeature(...)：doc / tool / task / hook / section 各一处调用
+│   ├── host/doc.ts       功能状态（scope 三选一，见 docs/kernel/seats.md §4）
+│   ├── host/tools.ts     defineTool 的贡献点
+│   ├── host/facet.ts     把状态与命令映射成 contracts 里的 wire 类型
+│   ├── host/settings.ts  设置项 schema
+│   ├── client/index.ts   register(slots)
+│   ├── client/panel.tsx  右栏面板，只吃 props 与 standard hook
+│   ├── client/settings.tsx
+│   ├── client/store.ts   可选：无 React 的镜像，React 只读它
+│   └── client/renderer.tsx  可选：本功能自有 entry kind 的渲染器
+└── test/
+    ├── host.spec.ts      必有
+    ├── client.spec.tsx   有界面必有
+    └── fixtures/         本功能自己的夹具，不外放到仓库级目录
+```
+
+`package.json` 的出口面（包边界唯一可用的地方）：
+
+```json
+{
+  "name": "@naveti/feature-memory",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": { "source": "./src/host/index.ts", "types": "./dist/host/index.d.ts", "import": "./dist/host/index.js" },
+    "./contract": { "source": "./src/contract.ts", "types": "./dist/contract.d.ts", "import": "./dist/contract.js" },
+    "./client": { "source": "./src/client/index.ts", "types": "./dist/client/index.d.ts", "import": "./dist/client/index.js" },
+    "./manifest": "./naveti.feature.json"
+  },
+  "dependencies": {
+    "@naveti/contracts": "workspace:*"
+  },
+  "peerDependencies": {
+    "@naveti/host": "workspace:*",
+    "@naveti/web": "workspace:*"
+  }
+}
+```
+
+规则：
+
+1. **命名固定 `@naveti/feature-<id>`，目录固定 `packages/features/<id>/`。** id 只允许小写短横线，且与目录名、包名后缀一致（机检）。
+2. **`./contract` 是唯一稳定面。** 契约改动必须同时更新 `tests/golden/` 的对应黄金文件，否则不算改完。
+3. **一个贡献点一个文件。** 单文件超过约 200 行再拆子目录，不预先拆。
+4. **每个包至少一条 host 测试；有界面再加一条 client 测试。** 测试与夹具在包内 `test/`，禁止放仓库级 `tests/`；但**运行**由根上单个 vitest 进程统一调度，不是每包起一个 runner（§13.1）。
+5. **包内文件可自由拆分，包外只能经 `exports` 进入。** 深路径 import 在所有包上是红。
+6. **`compose.ts` 之外不得出现功能 id。** 壳文件、平台文件、其他功能里出现即红。
+
+### 双面单包，而不是 host 包 + client 包
+
+同一功能两个面（`src/host`、`src/client`）留在同一个包里，用 `exports` 子路径隔离：
+
+- 判据是"删得掉"：一个包删一次；拆两包要删两处依赖，漏一处就是孤儿。
+- 代价是 client 面无法用 `dependencies` 表达隔离，只能靠 import 图守卫（`check-client-face`）。这条守卫本来就要写。
+- **拆分触发**：单包超过约 3000 行，或 client 面需要独立发布/独立测试车道。触发时才拆成 `feature-x` + `feature-x-client`，并同时更新本文。
+
+## 8. manifest 与 compose：三方一致
+
+| 位置 | 唯一负责的说法 |
+| --- | --- |
+| `packages/features/*/naveti.feature.json` | 我这个功能**提供什么**：id、契约版本、占哪些 seat、依赖哪些功能 |
+| `apps/server/src/compose.ts` | 这次**装了哪些**功能：id → 入口 |
+| `packages/features/*/` 目录 | 代码在哪 |
+
+三者必须双向相等，由 `check-feature-registry` 机检（缺目录、缺登记、孤儿包、幽灵条目、未知 seat、悬空 `requires` 全部失败）。
+
+manifest 只写**现在真有消费者**的字段：
+
+```json
+{
+  "id": "memory",
+  "contract": 1,
+  "seats": { "host": ["doc", "tool", "section"], "client": ["panel", "settings"] },
+  "requires": [],
+  "provides": ["service:memory"]
+}
+```
+
+**不预留 `entry` / `api` 之类的未来字段。** 没有消费者的字段会腐化：它既不被校验也不被测试，最后变成"看文档以为支持"的错觉。
+
+运行期装包的真实边界，两面必须分开说——**这是本文上一版最大的错误：承诺了一条分不清两面的升级路径。**
+
+| 面 | 能不能做 | 代价 |
+| --- | --- | --- |
+| 宿主面 | 能，`await import(specifier)` 在 Node 里可行 | 不是"加两个字段"：包要在运行时可解析（已装到 node_modules）、`api` 版本相容、卸载语义（dispose 顺序 + doc/task 回收）、错误隔离。这是 `KERNEL.md` §2 的 **C 档（结构手术）** |
+| 界面面 | 基本不能 | Vite 的代码分割是**构建期**的。运行期加载外部 React chunk 需要 Module Federation / import map / 预生成 chunk 清单，还要解决 React 单实例、样式注入、slot 契约版本 |
+
+所以正确的承诺是一句话：**"不重新构建主程序即可新增宿主能力；界面随应用一起构建。"** 装一个新功能 = 装包 + 重建 SPA——对个人 agent 完全可接受，不值得为热插拔 UI 付上面那套复杂度。
+
+现在不做任何预留。真要做，先写一条决策记录，第一个 spike 只做宿主侧（一个 demo 功能通过 `import()` 装上、被调用、被卸载、错误不影响主进程）；界面侧不承诺。
+
+`compose.ts` 的形状（懒加载，启动成本按功能分摊）：
+
+```ts
+export const features = [
+  { id: "chat", host: () => import("@naveti/feature-chat"), client: () => import("@naveti/feature-chat/client") },
+];
+```
+
+`apps/server/src/main.ts` 的完整职责只有五步：读 `paths` → `openHost(paths)` → 把 `compose.features` 传给 `install()` → 挂 HTTP/WS → 打印本地地址。超过约 200 行非 import 代码就是逻辑放错层。
+
+## 9. seam 与 provider：按契约换实现的准确形状
+
+一个 seam 有三个角色，缺一不算 seam：**Service Definition（声明接口）/ Provider（实现）/ Consumer（使用方）**。
+
+| seam | Definition 放哪 | Provider 例子 |
+| --- | --- | --- |
+| 存储 | 内核已有（durable `Storage`）→ **不要重新声明** | `providers/storage-sqlite` |
+| 模型 | 内核已有（`ai` 的 adapter） | `providers/llm-<vendor>` |
+| 浏览器 / 沙箱 / 搜索 | 自研 → `packages/contracts/seams/<name>.ts` | `providers/browser-<x>` |
+| 连接器 | 内核已有（`mcp`） | `providers/mcp-<x>` |
+| 功能的对外服务 | 功能自己的 `./contract` | 同包默认实现 |
+
+两条纪律：
+
+1. **内核已声明过的 seam，不在我们这边重写一份。** provider 直接实现内核接口，只额外加一个"按配置选中"的注册表。重写 = 两处真相，内核一改就对不上。
+2. **Definition 跟着当前消费者走。** 没有第二个实现、没有第二个使用方，就不抽 interface（否则得到一层空抽象）。
+
+`providers/` 目录**按需出现**：出现"同一个 seam 的第二个实现"时才建对应包。第一个实现如果已在内核里，不搬到 `providers/`。
+
+**识别判据是两条可证伪的测试。** "用户能不能感觉到差别"不是判据——任何实现替换都可能影响质量（换数据库、换模型、换压缩算法都能被感知）：
+
+1. **换实现只改配置**：换掉它只需改配置里的选择项，不改任何 feature 代码 → 是 provider。需要改 feature 才能换 → 不是。
+2. **不贡献 seat、不改策略**：它不新增 tool / panel / nav / settings 分区，也不决定 agent 看到什么 → 是 provider。一旦贡献 seat 或改变策略，它就不是纯 provider。
+
+边界案例——换一个向量数据库连接器：
+
+- `providers/vector-<db>`：只实现 `VectorStore`（建表、写索引、按向量查询）。这是 provider。
+- "怎么切块、要不要 rerank、召回几条、什么时候写、写失败怎么办"是**策略**，改变的是 agent 看到什么 → 属于 `feature-memory`（或独立 feature），**永远不进 `providers/`**。
+- 两者常常一起改，但**不要因此合并成一个包**：合并的直接后果是"换数据库要动策略代码，策略又绑死某个数据库"。
+- 判据落到一句话：**接口实现归 provider，用法与策略归 feature。** 决策权在谁手里，比"它看起来像不像一个功能"可靠得多。
+
+`transport` 是例外：它在 `packages/platform/host/src/transport/` 内部做两个实现（`loopback`、将来的 `remote`），类型放 `contracts/transport.ts`。原因是两者共享握手与鉴权代码，拆成两个包会重复这部分；而它换的是"怎么连"，不是"连什么"。
+
+## 10. seat 目录
+
+seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 seat 属于平台变更，要写决策记录。
+
+权威表在 [`docs/kernel/seats.md`](./kernel/seats.md)：每个 seat 记机制（哪个内核符号）、门面子路径、状态、典型用途；另有 `doc` 三种 scope 的取舍表、新增 seat 的门槛、provider 与 seat 的区分。**本文不复制那张表**（复制即漂移）。
+
+一句话摘要：宿主侧 9 个 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension` `config` `service`），客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。
+
+## 11. 发布形态：一个打包入口，不给每包写构建配置
+
+| 阶段 | host 侧 | client 侧 |
+| --- | --- | --- |
+| 开发 | pnpm symlink + `customConditions: ["source"]` 直跑源码 | Vite 直跑源码 |
+| 发布 | 根上**一个** `tsdown.config.ts`，入口由 manifest 生成：`features/* → dist/features/*.js`、`apps/server → dist/server.js` | Vite 单次构建，功能子路径自动分块 |
+
+因此**加功能包 = 加目录，零构建配置**。这是"一个功能一个包"能长期不烂的前提，比任何守卫都重要。
+
+安装包只由 `apps/desktop` 产出：窗口 + 主进程 + 打包/签名/更新脚本。主进程 **spawn** `apps/server` 的装配产物（而不是把业务塞进主进程），这样"手机远程"上线时不动桌面代码。
+
+`platform/host` 只接受注入的路径，桌面传 `app.getPath("userData")`、CLI 传 `--home`、将来的服务器传环境变量——三种入口零分叉。
+
+### 11.1 模块解析：不生成 paths、不写 alias
+
+三层各管一件事，合起来就够，而且对 IDE 是"真路径"：
+
+1. **包名 → 路径**：pnpm 在 `node_modules` 建 symlink（跨包依赖写 `workspace:*`）。
+2. **入口 → 文件**：每个包的 `exports` 同时给出 `"source": "./src/index.ts"`、`"import": "./dist/index.js"`、`"types": "./dist/index.d.ts"`。
+3. **按条件取源码**：`tsconfig.json` 设 `"customConditions": ["source"]`，`vitest.base.ts` 设 `resolve.conditions: ["source"]`。
+
+于是 `tsconfig.json` 不需要 `paths`，`vitest.base.ts` 不需要 `@naveti/*` alias，TS Server 走的是 node_modules 里的真实符号链接——**加包零配置、零脚本、零重启**。
+
+为什么不用 Project References 解决这个：references 解决的是**增量构建、构建顺序、边界强制**，它不参与模块解析。"用 references"与"要不要 paths"是两个独立问题；两个都做不冲突，但用了 references 还留着手写 paths 就是重复。
+
+**手写 `paths` 的真实代价**：它是静态字符串，加包必须跑脚本，TS Server 拿到的是旧映射——飘红与脚本执行时机强绑定，而红的往往是"忘了跑脚本"，不是代码错了。
+
+例外白名单：`paths` 只允许保留 `typebox` 这类 node_modules 重定向（1–3 条），由 `check-workspace-resolution` 锁死；出现第 4 条要走决策记录。
+
+迁移顺序（P0 的第一步，只改配置不改代码）：
+
+1. 挑一个包，删掉它在 `paths` 与 vitest alias 里的条目，只靠上面三层解析；
+2. 跑 `tsc --noEmit` + 该包测试 + IDE 里"转到定义"验证；
+3. 通过后全量删。不通过再退回生成器，但必须在决策记录里写清为什么条件解析不成立。
+
+## 12. 防散落规则
+
+| # | 规则 | 违反时的症状 |
+| --- | --- | --- |
+| 1 | 一个功能的一切都在它自己的包里；包外唯一允许出现的痕迹是 `compose.ts` 的一行 | 改一个功能要开五个目录 |
+| 2 | 功能之间 import 为 0，只允许 `./contract` 类型面 + 显式声明依赖 | 功能互相调用内部实现，删除时牵一发动全身 |
+| 3 | 跨进程/跨功能 wire 类型进 `contracts/<domain>.ts`；功能内部类型留在 `shared.ts` | 契约目录变成杂物间，或功能私造协议 |
+| 4 | 功能不给内核打补丁。需要改内核就走 `KERNEL.md` §2 的对应档位 | 内核里长出产品语义，回补上游时冲突 |
+| 5 | client 面只 import `contracts`、`platform/web`、自身 `shared.ts`、其他功能的 `./contract` | 前端打进服务端代码，包体积与安全同时出事 |
+| 6 | **装配不改壳。** 壳文件（`app-frame.tsx`、`sidebar.tsx`、`chat-view.tsx`）里出现任何功能 id 即失败 | 每加一个功能都要动同一个巨型组件 |
+| 7 | 状态只有一处真相：功能状态住 durable doc（宿主侧），前端只消费流；`localStorage` 只允许纯视图偏好 | 前端自造持久状态，刷新与多端对不上 |
+| 8 | wire 必须远程安全：不放 `Date` 对象、不放函数、id 是不透明字符串、订阅可断点续传 | 手机远程上线时要改每一个功能 |
+| 9 | **删得掉**：删功能 = 删包 + 删 `compose.ts` 一行，不留孤儿夹具、孤儿设置键、孤儿 seat | 仓库里堆着没人敢删的死代码 |
+| 10 | 同一个事实只有一处权威；要引用就写"见 X"，不复制正文 | 复制的那一刻就开始漂移 |
+
+## 13. 守卫与生成器
+
+现有五条，覆盖依赖与图（`check-lockfile-commit` 从上游移植，判据改成了 pnpm 语义）：
+
+| 脚本 | 判据 |
+| --- | --- |
+| `check-pinned-deps.mjs` | 依赖版本钉死，不允许浮动范围 |
+| `check-runtime-deps.mjs` | 运行时依赖闭包完整（不漏声明） |
+| `check-ts-relative-imports.mjs` | 相对导入不跨包 |
+| `check-entry-graphs.mjs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） |
+| `check-lockfile-commit.mjs` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` |
+
+新增七条，都读 `package.json`、走 import 图或读测试源码，不用正则凑字符串猜测：
+
+| 守卫 | 判据 | 覆盖 |
+| --- | --- | --- |
+| `check-package-layers.mjs` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | §5 第 1、2、5、6 条 |
+| `check-kernel-facade.mjs` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力；深路径即失败 | §6 |
+| `check-feature-registry.mjs` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；`requires` 不悬空；壳文件无功能 id | §8、§12 第 1、6、9 条 |
+| `check-client-face.mjs` | 从 `src/client/index.ts` 走值导入图，命中 `node:*`、`platform/host`、同包 `src/host/**` 即失败 | §5 第 5 条、§12 第 5 条 |
+| `check-kernel-divergence.mjs` | 与基线 hash 不同的内核文件必须在 `docs/kernel/divergence.md` 有条目 | `KERNEL.md` §4 |
+| `check-workspace-resolution.mjs` | 跨包依赖必须是 `workspace:*`；每个包 `exports` 带 `source` 条件；`tsconfig` 有 `customConditions`；`tsconfig.json` 的 `paths` 只含白名单键；`vitest.base.ts` 不含 `@naveti/*` alias | §11.1 |
+| `check-test-integrity.mjs` | `.only` 与 `describe.skip` 直接红；每个测试文件的声明数不得减少、各类 skip 不得增加（对 `scripts/test-integrity.json` 棘轮）；基线条目不得无故消失 | §13.2 |
+
+生成器只有一个，而且它不是在补解析的窟窿：
+
+| 生成器 | 产物 | 出现时机 |
+| --- | --- | --- |
+| `gen-feature-index.mjs` | `apps/server/src/compose.ts` | 功能数超过约 20，或重复登记已经出过事故。它解决"登记重复"，不解决"解析漂移" |
+
+**明确不要 `gen-paths.mjs`。** 生成 `tsconfig` 的 `paths` 与 vitest alias 有两个副作用：一是"加包后必须跑脚本才不飘红"，把 IDE 响应速度绑在脚本上；二是生成物与真实解析不一致时，红的是脚本而不是代码。解析问题的正确解法在 §11.1，守卫负责守住它。
+
+两条纪律：守卫必须带同名 `.test.mjs`，**且测试要证明守卫会变红**（只写绿例的守卫等于没有）；`gen-feature-index.mjs` 必须支持 `--check` 并在 CI 里跑。守卫的红例已经进 `check` 链（`pnpm run test:scripts`），否则反向校验只会在 CI 的某条车道里跑，门禁本身永远看不到红。
+
+### 13.1 测试位置与测试运行是两件事
+
+- **位置**：测试在包内 `packages/**/test/`，夹具在 `test/fixtures/`。删包即删测试，不留孤儿——这条不因为下面的运行方式而改变。
+- **运行**：根上一个 `vitest.config.ts`，用 `test.projects`（Vitest 3 起取代旧的 `vitest.workspace.ts`；本仓库已是 Vitest 4，旧写法已移除）按 glob 收集所有包，**单进程调度、文件级并行**。跑单包用 `vitest run --project <name>`。
+- **为什么不能"测试在包里，所以每包一个 runner"**：旧做法是每包一次 `vitest`，包数 N 就启动 N 次、N 份 transform 缓存。30–50 个包时反馈时间线性增长，而这是每天要做几十次的动作。
+- 包内 `vitest.config.ts` 只在确实需要特殊设置时存在，默认继承根配置。
+- **隔离例外**：会 spy 全局定时器或共享模块状态的用例（现在 `chord` 有一个）单独放一个 project，只对它设 `isolate` / `--no-file-parallelism`，不要因此把整包改成串行。
+- CI 的车道划分（现在 `durable` 单跑、`other` 遍历）改成按 project 过滤或 shard，不再靠目录循环。
+
+### 13.2 测试完整性：清单棘轮，不是上限
+
+"每文件设一个 skip 上限 + 每项写 reason"不是最优解：上限是拍出来的数字，合法新增时要抬高，而抬高的那一步没有审查价值；reason 是自由文本，没人读。
+
+改用**清单棘轮**：`scripts/test-integrity.json` 记录每个测试文件的 `tests / skips / conditionalSkips / helperSkips / todos`，任何变化都必须用 `pnpm run test-integrity:write` 重新生成，并**在同一个提交里出现**。那份 JSON diff 就是审查物：`env-node.test.ts: helperSkips 2 -> 5` 比一个被悄悄抬高的上限有用得多。
+
+- **不需要基线的硬规则**：`.only` 直接红（它会让整轮只剩标记的用例）；`describe.skip` 直接红（整块消失）。`vitest.config.ts` 另设 `allowOnly: false` 做运行时兜底，防止绕过文本扫描。
+- **允许的方向**：测试数可增、各类 skip 可减、新测试文件随便加。只有反方向红。
+- **删文件**必须同步改基线，否则红——删除也是变更，必须进 diff。
+- **局限（必须知道）**：这是文本计数，不是运行时统计。把 10 个用例改写成 1 个 `.each` 会让 `tests` 下降而红，那是预期的（强制你在 diff 里说明）；但把断言从 `toBe(4)` 改成 `toBeGreaterThan(0)` 它**抓不到**。测试**质量**不属于这道守卫，只能靠黄金文件与人工验收。
+
+## 14. 仓库级基础设施
+
+这一层和 `packages/` 同等重要：它决定"人和 agent 进仓库后按什么规则干活"。
+
+### `.github/workflows/`（现有 7 个）
+
+| 文件 | 负责 | 需要改什么 |
+| --- | --- | --- |
+| `ci.yml` | `build-check`（build → check）+ `test`（矩阵：`durable` 单跑、`other` 遍历其余包） | 已转 pnpm；Ubuntu 侧待首次 CI 运行确认（本机无法验证） |
+| `npm-audit.yml` | 依赖审计 | 换 pnpm 后改 `pnpm audit --omit=dev` |
+| `pr-gate.yml` | PR 门槛 | 不动 |
+| `issue-gate.yml` | issue 准入门槛 | 不动 |
+| `issue-triage-labels.yml` | 自动打标签 | 不动 |
+| `approve-contributor.yml` | 贡献者准入（配 `APPROVED_CONTRIBUTORS`） | 不动 |
+| `remove-inprogress-on-close.yml` | 关闭时清理标签 | 不动 |
+
+**待建：`desktop-release.yml`** —— build → 打包 → 签名 → 上传。触发条件：第一个能装的 exe 出现时。上签名证书后此文件是唯一发布路径。
+
+### `.githooks/`
+
+不用 husky 依赖，只把 `core.hooksPath` 指到仓库里的目录（`pnpm run hooks:install`，故意不进 `postinstall`）。
+
+| 钩子 | 跑什么 | 为什么是这个范围 |
+| --- | --- | --- |
+| `pre-commit` | biome **检查**（不写盘）、依赖钉版、相对导入、入口图、工作区解析、锁文件一致性、测试清单棘轮 | 只要秒级。钩子里的格式化会改文件，改完就提交等于提交了没审查的内容 |
+| `pre-push` | `pnpm check`（加 tsc 与守卫红例） | 离机前把静态门禁跑完 |
+| 不跑 | 测试 | `pnpm test:ci` 约 4.5 分钟且需要 build，留给 CI |
+
+两个坑：钩子必须在索引里是 `100755`，否则 Linux/macOS 上静默不执行（Git for Windows 不看这个位，本机测不出来）；`pre-commit` 里**不能**用 `biome --write`，它会改文件，改完就提交等于提交了没审查过的内容。
+
+### `.agents/`（待建）
+
+| 路径 | 负责 | 出现时机 |
+| --- | --- | --- |
+| `notes/proposed/` | 未定的决定 | 第一条需要记录的决定出现时（本文与 `KERNEL.md` 的这次改动本身就是决定） |
+| `notes/implemented/` | 已实施的决定 | 同上 |
+| `notes/archived/` | 被取代的决定（保留不删） | 同上 |
+| `notes/rejected/` | 被拒绝的决定 + 理由 | 同上 |
+| `skills/<name>/SKILL.md` | 仓库级 agent skill：把"加一个功能包"这类多步流程固化成可复用指令 | 同一步骤被手工做过 3 次 |
+
+四态子目录的规则：一条决定一个文件，命名 `<日期>-<slug>.md`，字段固定 **背景 / 决定 / 被拒绝的替代方案 / 后果**。`rejected/` 比其余三栏加起来都值钱——它是唯一能防止同一个争论重复半年的东西。
+
+**规模控制：** 只在"改了边界、改了内核语义、新增一个 seat、新增一条守卫"时记录。普通功能设计写功能 README，不进 notes，否则 notes 会变成第二套文档反过来拖慢开发。
+
+决策记录**只放 `.agents/notes/`**，不在 `docs/` 下另开 `decisions/`——两处就是两套真相。
+
+### `AGENTS.md` 与 `CLAUDE.md`
+
+| 文件 | 负责 | 纪律 |
+| --- | --- | --- |
+| 根 `AGENTS.md` | agent 在本仓库的硬约束：读文档顺序、位置对照表、依赖方向、加功能流程、改内核流程、禁止事项、验收命令 | 只写"必须"与"指针"，不复制本文表格 |
+| `packages/AGENTS.md`（待建） | 包级补充规则（导出形态、测试位置、README 要求） | 第一个自研包落地时建 |
+| `CLAUDE.md` | 一句话指针：规则见 `AGENTS.md` | 永远不放第二份规则 |
+| `.claude/skills`（待建） | 符号链接 → `../.agents/skills` | 与 `.agents/skills` 同时建，不做第二份 |
+
+### `docs/`
+
+只放长期权威文档（本文、`KERNEL.md`、`docs/kernel/*`、`docs/migration/*`、`docs/archived/*`）。临时分析、方案草稿、会议结论不放这里——它们属于 `.agents/notes/` 或直接消失。
+
+### `scripts/`（现有 18 个 + 6 个测试）
+
+| 类 | 脚本 | 职责 |
+| --- | --- | --- |
+| 格式 | `biome-check.mjs` | 调 biome，`--write` 时兼作格式化 |
+| 检查 | `check-pinned-deps.mjs` / `.test.mjs` | 依赖版本钉死 |
+| 检查 | `check-runtime-deps.mjs` / `.test.mjs` | 运行时依赖闭包 |
+| 检查 | `check-ts-relative-imports.mjs` | 相对导入不跨包 |
+| 检查 | `check-entry-graphs.mjs` | 入口值导入图预算 |
+| 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
+| 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
+| 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
+| 测试编排 | `hermetic-env.mjs` | 移植上游 `test.sh` 的密封环境：临时 HOME/TMP、无 API key、不读用户 git/npm 配置、`TZ=UTC LANG=C` |
+| 仓库 | `install-hooks.mjs` | 把 `core.hooksPath` 指到 `.githooks/`；故意不进 `postinstall` |
+| 检查 | `model-catalog-protocol.ts` / `.test.ts` | 模型目录协议校验 |
+| 测试编排 | `run-tests.mjs` | 全量测试（Windows 上唯一受支持方式） |
+| 迁移 | `rename-scope.mjs`、`scope-rules.mjs`、`sync-upstream.mjs` | 作用域改名、规则表、上游对照 |
+| 发布 | `package-workspaces.mjs`、`release-packages.mjs`、`npm-audit.mjs` | 打包、发布、审计（`release-packages` 仅因 `check-runtime-deps` 引用而保留） |
+
+新增脚本必须落在其中一类，并更新 `package.json` 的 `check` 或 CI。
+
+### `tests/`
+
+只放跨包的公共资产：`smoke/`（现有）+ `golden/`（首次内核改动或回补时）。功能自己的夹具留在功能包内。
+
+## 15. 目录出现时机与落地顺序
+
+判据不是版本号，是**第一个消费者出现**。没有消费者就建 = 空壳。
+
+| 触发条件 | 新增 |
+| --- | --- |
+| 换 pnpm（现在做，成本最低） | `pnpm-workspace.yaml`、删 `package-lock.json`、六处 `0.0.1` → `workspace:*`、根 build 改拓扑串联 |
+| 出现第一个跨 web/server 的 wire 类型 | `packages/contracts/` |
+| 第一个功能同时需要宿主面和界面面 | `packages/features/<id>/`（竖切，不拆两半） |
+| 需要替换一个 seam 的第二个实现 | `packages/providers/<seam>-<impl>/` |
+| 第二个功能出现 | 显式 seat 表 + 打开 `check-feature-registry` |
+| 第一次出安装包 | `apps/desktop`、`tsdown.config.ts`、`desktop-release.yml` |
+| 第一次要手机连本机 | `platform/host/src/transport/remote` + `contracts/auth.ts` 落地 |
+| 同一步骤被手工做 3 次 | `.agents/skills/<name>/` |
+| 首次改动内核 | `tests/golden/` + `docs/kernel/divergence.md` 条目 |
+| 一条决定改了边界 | `.agents/notes/<state>/<date>-<slug>.md` |
+| 功能数超过约 20，或重复登记出过事故 | `gen-feature-index.mjs` 接管 `compose.ts` |
+
+落地顺序（依赖顺序，不是版本号）：
+
+| 阶段 | 内容 | Gate |
+| --- | --- | --- |
+| **P0 机械层** | 分组目录（`packages/kernel/*` 等）+ pnpm + 删手写 `paths`/alias（靠 §11.1 条件解析）+ `check-workspace-resolution` + 根 `vitest.config.ts` 的 `test.projects` + CI 改串联 | `pnpm check` 与 `pnpm test` 全绿，**业务代码零改动** |
+| **P1 规则层** | `docs/kernel/{seats,divergence}.md`（已落）+ 六条守卫（带反例测试）+ 上游 remote | 守卫能在反例上变红 |
+| **P2 主干** | `contracts` → `platform/host`（paths 注入 + transport loopback + seat 表）→ `apps/server` → 第一个功能 `chat`（含 client 面） | 端到端跑通；删该功能 = 删包 + 两行 |
+| **P3 出包** | `platform/web` → `apps/web` → `apps/desktop` + `tsdown.config.ts` | 出一个能装能跑、数据落在 `userData` 的安装包 |
+| **P4 第二个功能** | 抽 seat 表、打开 `check-feature-registry`、加 `check-client-face` | 两个功能并行不互相 import |
+| **P5 将来** | 远程 transport、`compose.ts` 生成化；运行期加载**只做宿主侧** spike（§8），界面侧不承诺 | — |
+
+## 16. 明确不建
+
+| 不建 | 原因 |
+| --- | --- |
+| `packages/product/` 单包 | "功能变包"之后它只剩反作用：把包边界退化成目录边界 |
+| 与 `packages/` 并列的第三种顶层目录（`product/`、`src/`、`modules/`） | 会让 workspace 成员散落在两种形态里，且要同步改四处配置 |
+| 按能力类型横切的 `kernel/` + `capabilities/` 分组 | 那是上一版散落的来源；归属按"谁拥有"分，不按"能力像什么"分 |
+| `plugins/` 运行期插件层 | 编译期内置已由 `features/` 承载；再开一层会得到两套生命周期。§8 已写清它的真实边界 |
+| `docs/decisions/` | 决策记录的唯一落点是 `.agents/notes/` |
+| `evals/`、`profiles/`、`rfcs/`、`infra/`、`docker/`、`deploy/`、`examples/` | 没有当前消费者（`packages/durable/test/examples/` 已有可跑样例） |
+| 仓库级 `snapshots/` | 黄金文件放 `tests/golden/`，功能夹具放功能内 |
+| 每包一份 `tsconfig.build.json` | 发布期由根上单个 `tsdown` 入口按 manifest 打包（§11） |
+| `gen-paths.mjs`（生成 `paths`/alias 的脚本） | 它把"能不能正确解析"变成"有没有跑脚本"，见 §13 |
+| 任何 `[待建]` 目录的空壳 | 空目录会让"结构已完成"与"结构已规划"无法区分 |
+
+## 17. 权威分工
+
+| 文档 | 唯一负责的说法 |
+| --- | --- |
+| `KERNEL.md` | 内核能不能改、分档门槛、分歧账本、上游回补政策 |
+| `docs/kernel/seats.md` | 有哪些扩展点、机制是什么、谁在用 |
+| `docs/kernel/divergence.md` | 我们改了内核哪些地方、为什么 |
+| `NOTICE.md` | 许可与来源 |
+| `docs/migration/*` | 来源、偏离清单、什么算绿、回补怎么跑 |
+| `docs/structure.md`（本文） | 有什么、放哪、何时出现 |
+| `packages/features/*/naveti.feature.json` | 该功能提供什么 |
+| `apps/server/src/compose.ts` | 系统里到底装了哪些功能 |
+| `packages/features/*/README.md` | 该功能的唯一契约说明 |
+| `AGENTS.md` | agent 在本仓库必须遵守的硬约束 |
+| `README.md` | 一句话定位 |
+
+## 18. 待决项
+
+| # | 待决 | 当前倾向 | 决定前需要的证据 |
+| --- | --- | --- | --- |
+| 1 | 桌面外壳：Electron / Tauri / 自打包 Node + WebView | Electron（Node 内置、`node:sqlite` 大概率可用；窗口只是一个指向 `127.0.0.1` 的浏览器） | 一次 spike：Electron 当前版本里 `node:sqlite` 是否可用；包体积与启动耗时可接受 |
+| 2 | `node:sqlite` 在桌面端不可用时的退路 | `storage` 提前做第二个 provider（WASM / 文件存储），不在 `platform/host` 写死一种 | 同上 spike 结论 |
+| 3 | 桌面是"主进程内跑 server"还是"spawn 子进程" | spawn 子进程：与服务器形态解耦，将来搬上服务器几乎不改 | 进程管理、日志归属、退出清理的成本 |
+| 4 | 手机远程的鉴权模型 | 设备配对 + 能力 token，`contracts/auth.ts` 先定型 | 是否要暴露到公网（决定 TLS、撤销、审计的最低要求） |
+| 5 | `compose.ts` 何时改为生成物 | 功能数超过约 20，或重复登记出过事故 | 手工登记的漏登记次数。注意：生成 `compose.ts` 只解决"登记重复"，**不等于**运行期热插拔（§8） |
+| 6 | 内核是否分拆（`durable` 单包体量最大） | 暂不拆；先靠门面 + 账本控制改动半径 | 连续若干次改动都只落在同一个子目录 |
+| 7 | Windows 上 5 个 symlink 测试 | 改成 `skipIf(不能建符号链接)` | 现在本机永远不全绿，红失去意义 |

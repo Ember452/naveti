@@ -1,0 +1,10 @@
+#!/bin/sh
+# The full static gate before anything leaves the machine: type checking plus the
+# guard red-case suites that pre-commit skips for speed.
+#
+# Tests are not run here. `pnpm test:ci` takes about four and a half minutes and
+# needs a build; CI runs it on every push, which is soon enough to be useful and
+# late enough not to be bypassed out of impatience.
+set -e
+
+pnpm check

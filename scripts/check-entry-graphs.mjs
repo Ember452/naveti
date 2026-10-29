@@ -19,12 +19,12 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Workspace package name -> its source root, so cross-package imports are followed. */
 const WORKSPACE = {
-	"@naveti/chord": "packages/chord/src",
-	"@naveti/ai": "packages/ai/src",
-	"@naveti/durable": "packages/durable/src",
-	"@naveti/codemode": "packages/codemode/src",
-	"@naveti/telemetry": "packages/telemetry/src",
-	"@naveti/mcp": "packages/mcp/src",
+	"@naveti/chord": "packages/kernel/chord/src",
+	"@naveti/ai": "packages/kernel/ai/src",
+	"@naveti/durable": "packages/kernel/durable/src",
+	"@naveti/codemode": "packages/kernel/codemode/src",
+	"@naveti/telemetry": "packages/kernel/telemetry/src",
+	"@naveti/mcp": "packages/kernel/mcp/src",
 };
 
 /**
@@ -32,17 +32,17 @@ const WORKSPACE = {
  * graph it is allowed to reach.
  */
 const BUDGETS = {
-	"packages/ai": {
+	"packages/kernel/ai": {
 		"./models": {
 			// Request telemetry reaches pi-ai's telemetry.ts and pi-telemetry's root (index, noop, metrics, memory).
 			// Request identity reaches utils/identity.ts and its version constant.
 			maxFiles: 20,
 			forbid: ["providers/", "models.generated.ts", "index.ts", "utils/validation.ts", "utils/typebox-helpers.ts"],
-			allow: ["packages/telemetry/src/index.ts"],
+			allow: ["packages/kernel/telemetry/src/index.ts"],
 		},
 		"./utils/*": { maxFiles: 3, forbid: ["providers/", "api/", "index.ts"] },
 	},
-	"packages/codemode": {
+	"packages/kernel/codemode": {
 		// Node and Bun users never load the Cloudflare entry, which imports the `cloudflare:workers` built-in.
 		".": { maxFiles: 12, forbid: ["codemode/src/cloudflare.ts"] },
 		// Runtimes without Node built-ins (Workers, browsers) import these; neither may reach the worker-thread host
@@ -56,7 +56,7 @@ const BUDGETS = {
 			forbid: ["codemode/src/index.ts", "runtime/host.ts", "runtime/worker.ts", "codemode/src/wasm.ts"],
 		},
 	},
-	"packages/durable": {
+	"packages/kernel/durable": {
 		".": {
 			// Tool argument validation reaches TypeBox; provider-session creation reaches pi-ai's lean UUID utility; the
 			// memory and SQLite storages share scan order and cursor handling. Values from Chord's root (copyJson,
@@ -69,14 +69,14 @@ const BUDGETS = {
 			// value through type-only imports.
 			maxFiles: 78,
 			forbid: [
-				"packages/ai/src/index.ts",
-				"packages/ai/src/utils/typebox-helpers.ts",
+				"packages/kernel/ai/src/index.ts",
+				"packages/kernel/ai/src/utils/typebox-helpers.ts",
 				// Photon (WebAssembly) loads only through `./images`.
-				"packages/durable/src/images/",
+				"packages/kernel/durable/src/images/",
 			],
 		},
 		// The file tools reach their environment helpers and the Harness definitions they need, not the Harness itself.
-		"./tools": { maxFiles: 17, forbid: ["packages/durable/src/images/"] },
+		"./tools": { maxFiles: 17, forbid: ["packages/kernel/durable/src/images/"] },
 	},
 };
 

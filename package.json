@@ -3,30 +3,39 @@
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",
-	"workspaces": [
-		"packages/*"
-	],
+	"packageManager": "pnpm@11.13.0",
 	"engines": {
 		"node": ">=22.19.0"
 	},
 	"scripts": {
-		"clean": "npm run clean --workspaces",
-		"build": "cd packages/telemetry && npm run build && cd ../chord && npm run build && cd ../codemode && npm run build && cd ../mcp && npm run build && cd ../ai && npm run build && cd ../durable && npm run build",
-		"check": "node scripts/biome-check.mjs --write && npm run check:pinned-deps && npm run check:runtime-deps && npm run check:ts-imports && npm run check:entry-graphs && tsc --noEmit",
+		"clean": "pnpm -r run clean",
+		"build": "pnpm -r --filter \"./packages/kernel/*\" run build",
+		"build:catalog": "pnpm --filter @naveti/ai run build:catalog",
+		"check": "node scripts/biome-check.mjs --write && pnpm run check:pinned-deps && pnpm run check:runtime-deps && pnpm run check:ts-imports && pnpm run check:entry-graphs && pnpm run check:workspace-resolution && pnpm run check:lockfile-commit && pnpm run check:test-integrity && pnpm run test:scripts && tsc --noEmit",
 		"check:pinned-deps": "node scripts/check-pinned-deps.mjs",
 		"check:runtime-deps": "node scripts/check-runtime-deps.mjs",
 		"check:ts-imports": "node scripts/check-ts-relative-imports.mjs",
 		"check:entry-graphs": "node scripts/check-entry-graphs.mjs",
-		"test": "npm run test --workspaces --if-present",
+		"check:workspace-resolution": "node scripts/check-workspace-resolution.mjs",
+		"check:lockfile-commit": "node scripts/check-lockfile-commit.mjs",
+		"check:test-integrity": "node scripts/check-test-integrity.mjs",
+		"test-integrity:write": "node scripts/check-test-integrity.mjs --write",
+		"test": "pnpm -r --if-present run test",
 		"test:scripts": "node --test scripts/*.test.mjs scripts/*.test.ts",
-		"test:ci": "node scripts/run-tests.mjs",
+		"test:ci": "node scripts/run-tests.mjs --projects --hermetic",
+		"test:ci:local": "node scripts/run-tests.mjs --projects",
+		"hooks:install": "node scripts/install-hooks.mjs",
 		"rename:scope": "node scripts/rename-scope.mjs"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.5",
 		"@biomejs/wasm-nodejs": "2.3.5",
+		"@naveti/ai": "workspace:*",
+		"@naveti/chord": "workspace:*",
+		"@naveti/durable": "workspace:*",
 		"@types/node": "22.19.19",
 		"shx": "0.3.4",
-		"typescript": "7.0.2"
+		"typescript": "7.0.2",
+		"vitest": "4.1.12"
 	}
 }

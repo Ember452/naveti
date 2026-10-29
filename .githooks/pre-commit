@@ -1,0 +1,18 @@
+#!/bin/sh
+# Fast static checks. Everything here reads the worktree and never writes to it,
+# so a commit cannot be reformatted under your feet.
+#
+# Full type checking (`tsc`) and the test suites are deliberately absent: this hook
+# must stay under a few seconds or people start using --no-verify. `pre-push` runs
+# the full `pnpm check`; CI runs the tests.
+#
+# Install once with: pnpm run hooks:install
+set -e
+
+node scripts/biome-check.mjs
+node scripts/check-pinned-deps.mjs
+node scripts/check-ts-relative-imports.mjs
+node scripts/check-entry-graphs.mjs
+node scripts/check-workspace-resolution.mjs
+node scripts/check-lockfile-commit.mjs
+node scripts/check-test-integrity.mjs
