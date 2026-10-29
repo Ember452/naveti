@@ -1,0 +1,16 @@
+{
+	"note": "The migration-time per-file record was overwritten by an idempotency check and cannot be recovered. The authoritative applied count is produced by `node scripts/sync-upstream.mjs --from ../pi-main`, which normalizes the upstream tree with exactly these rules and reports the count per package.",
+	"idempotency": {
+		"status": "renamed 0 occurrences across 0 files",
+		"meaning": "The working tree is already fully renamed; re-running the script changes nothing."
+	},
+	"rules": [
+		{ "from": "@earendil-works/pi-telemetry", "to": "@naveti/telemetry" },
+		{ "from": "@earendil-works/pi-codemode", "to": "@naveti/codemode" },
+		{ "from": "@earendil-works/pi-durable", "to": "@naveti/durable" },
+		{ "from": "@earendil-works/pi-ai", "to": "@naveti/ai" },
+		{ "from": "@earendil-works/pi-mcp", "to": "@naveti/mcp" },
+		{ "from": "@earendil-works/chord", "to": "@naveti/chord" }
+	],
+	"notRenamed": ["*.md (README, CHANGELOG, docs) keep the upstream scope on purpose"]
+}
