@@ -25,7 +25,7 @@ import { type Host, openHost } from "../src/host.ts";
 /**
  * Two transports, one body of assertions. A loopback socket is the one a user's browser gets; the in-process link is
  * the one an embedded host (and this test) uses so the fast lane does not depend on ports. If they diverged, the fast
- * lane would stop being evidence for the real one â€?so every assertion runs against both, and a transport that cannot
+ * lane would stop being evidence for the real one, so every assertion runs against both, and a transport that cannot
  * pass it does not ship.
  */
 
@@ -109,7 +109,7 @@ async function waitFor(done: () => boolean, timeoutMs = 5_000): Promise<void> {
 }
 
 /** The same four assertions, run over whichever link the transport provides. */
-async function roundTrip(host: Host, link: () => Link): Promise<void> {
+async function roundTrip(link: () => Link): Promise<void> {
 	const client = createHost<Principal>({ onError: () => {} });
 	try {
 		client.connect(link(), { principal: { kind: "server" } }, BACKGROUND_CONTEXT);
@@ -151,7 +151,7 @@ describe("the loopback transport", () => {
 		await withHost(async (host) => {
 			const listener = await host.listen({ port: 0 });
 			try {
-				await roundTrip(host, () => webSocketLink(new WebSocket(listener.url) as unknown as WebSocketLike));
+				await roundTrip(() => webSocketLink(new WebSocket(listener.url) as unknown as WebSocketLike));
 			} finally {
 				await listener.close();
 			}
@@ -163,7 +163,7 @@ describe("the loopback transport", () => {
 			const listener = await host.listen({ port: 0 });
 			try {
 				// A raw socket: the refusal has to happen at the transport, before any hold exists. The close code is the
-				// observation â€?a client host would translate it into a retry and only give up at `readyTimeout`.
+				// observation: a client host would translate it into a retry and only give up at `readyTimeout`.
 				const socket = new WebSocket(`ws://127.0.0.1:${listener.port}/?token=wrong`);
 				const closed = once(socket, "close") as Promise<[number, Buffer]>;
 				const [code] = await closed;
@@ -178,7 +178,7 @@ describe("the loopback transport", () => {
 describe("the in-process transport", () => {
 	it("delivers a snapshot, method results, a large payload and concurrent writes", async () => {
 		await withHost(async (host) => {
-			await roundTrip(host, () => host.acceptInProcess());
+			await roundTrip(() => host.acceptInProcess());
 		});
 	});
 });
