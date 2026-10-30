@@ -1,0 +1,27 @@
+{
+	"name": "@naveti/feature-chat",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Conversations with coding tools: the first vertical slice",
+	"type": "module",
+	"exports": {
+		".": {
+			"source": "./src/host/index.ts",
+			"types": "./dist/host/index.d.ts",
+			"import": "./dist/host/index.js"
+		},
+		"./manifest": "./naveti.feature.json",
+		"./package.json": "./package.json"
+	},
+	"sideEffects": false,
+	"dependencies": {
+		"@naveti/contracts": "workspace:*"
+	},
+	"peerDependencies": {
+		"@naveti/host": "workspace:*"
+	},
+	"devDependencies": {
+		"@naveti/host": "workspace:*",
+		"vitest": "4.1.12"
+	}
+}

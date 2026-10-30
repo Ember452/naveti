@@ -45,10 +45,10 @@
 ### 删东西的六问
 
 - 来源：DeepSeek harness `dsh-find-simplifications`
-- 条件：`path_exists packages/features`
+- 条件：`packages/features/*/package.json >= 2`
 - 复核：`review_by 2027-06-01`
 - 前提：功能层出现后会发生"要不要删一个子系统/一片代码"的判断，而 `structure.md` §12 第 9 条只给了判据（删得掉），没给取证方法。
-- 判断依据：第一次真要做减法时，检查 §12 那条判据是否已经足够指导行动。足够 → 作废（说明六问只是同一件事的另一种说法，加它是重复）；不够 → 把六问写进当时的 skill，而不是现在就抄进来。
+- 判断依据：P2 建出第一个功能时，这条的旧条件（`path_exists packages/features`）在目录出现的那天就成立了，而那时没有任何"删子系统"的判断发生——P2 的"删掉 chat"验的是**形状**（删包 + 两行），不是一次减法决策。所以条件改为"第二个功能出现时"，即功能层真的开始积累、有人需要考虑拿掉其中一块的时候。到点检查 §12 那条判据是否已经足够指导行动：足够 → 作废（六问只是同一件事的另一种说法，加它是重复）；不够 → 把六问写进当时的 skill，而不是现在就抄进来。
 
 ### 技能暴露策略一致性守卫
 
@@ -85,10 +85,10 @@
 ### seat 目录生成器
 
 - 来源：DeepSeek `gen-tool-catalog.ts`——不读 AST，直接 boot 插件读运行时注册的 schema，再用 `--check` 保证提交物不腐化
-- 条件：`path_exists packages/features`
+- 条件：`packages/features/*/package.json >= 2`
 - 复核：`review_by 2027-03-01`
-- 前提：第一个功能落地后，`seats.md` 的表格回答不了"这个 seat 的字段有哪些"，于是 agent 会转而去读 `durable/src/harness/types.ts` 那一级的源文件。
-- 判断依据：第一个功能写完时看实际发生了什么。若确有人/AI 读了内核源并读错，就做 `gen-seat-catalog.mjs`：boot 一个最小 Harness，导出每个 seat 的真实签名与字段，`--check` 校验提交物。若 `seats.md` 加一段字段清单就够用，作废——生成器的维护成本高于它省下的阅读。
+- 前提：第二个功能落地时，`seats.md` 的表格回答不了"这个 seat 的字段有哪些"，于是 agent 会转而去读 `durable/src/harness/types.ts` 那一级的源文件。
+- 判断依据：P2 建第一个功能时旧条件就成立了，而那天没有可检验的阅读行为——现在的证据只有本轮的作者（他本来就要读内核）。所以条件改为"第二个功能出现时"，那时读到的错误才有对照。到点看实际发生了什么：若确有人/AI 读了内核源并读错，就做 `gen-seat-catalog.mjs`：boot 一个最小 Harness，导出每个 seat 的真实签名与字段，`--check` 校验提交物；若 `seats.md` 加一段字段清单就够用，作废——生成器的维护成本高于它省下的阅读。
 
 ### 测试价值门槛
 

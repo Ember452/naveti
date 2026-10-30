@@ -47,6 +47,19 @@ importers:
         specifier: workspace:*
         version: link:../kernel/chord
 
+  packages/features/chat:
+    dependencies:
+      '@naveti/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+    devDependencies:
+      '@naveti/host':
+        specifier: workspace:*
+        version: link:../../platform/host
+      vitest:
+        specifier: 4.1.12
+        version: 4.1.12(@types/node@22.19.19)(vite@8.3.5(@types/node@22.19.19)(esbuild@0.28.2))
+
   packages/kernel/ai:
     dependencies:
       '@anthropic-ai/sdk':

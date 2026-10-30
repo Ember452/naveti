@@ -1,0 +1,10 @@
+{
+	"id": "chat",
+	"contract": 1,
+	"seats": {
+		"host": ["doc", "section"],
+		"client": []
+	},
+	"requires": [],
+	"provides": []
+}
