@@ -73,3 +73,52 @@
 - 复核：`review_by 2027-03-01`
 - 前提：会出现**外生**评审证据（非作者提出、且最终代码采纳了的意见）；在那之前，唯一可得的代理是重复次数。
 - 判断依据：查 `.github/` 之外的真实记录——是否出现过"别人提 → 代码采纳"的证据对。有 → 建最小版本（证据 → 候选 → 人工晋升），并保留"工具不许自动合并"这条；没有 → 作废，确认频次代理继续有效，并写进 `.agents/notes/rejected/`。
+
+### 门面入口的认知面积预算
+
+- 来源：本轮讨论——AI 一次只能同时持有内核的一小片，`entry-budgets.json` 的 `maxFiles` 同时也是"读懂这个入口要拖多少文件"
+- 条件：`path_exists packages/platform/host/src/extend`
+- 复核：`review_by 2027-03-01`
+- 前提：门面建成后，如果某个子路径的 `maxFiles` 与内核父入口同量级，说明门面只换了名字、没有压缩认知面积，产品层仍然要读内核。
+- 判断依据：门面落地时把每个子路径写进 `entry-budgets.json`。若 `@naveti/host/extend/tools` 实测超过 12，先拆门面，不放宽预算；若已经很小且没有继续下降的空间，说明"认知面积"与"入口成本"是同一件事，作废本条并把结论写进 `structure.md` 的门面一节。
+
+### seat 目录生成器
+
+- 来源：DeepSeek `gen-tool-catalog.ts`——不读 AST，直接 boot 插件读运行时注册的 schema，再用 `--check` 保证提交物不腐化
+- 条件：`path_exists packages/features`
+- 复核：`review_by 2027-03-01`
+- 前提：第一个功能落地后，`seats.md` 的表格回答不了"这个 seat 的字段有哪些"，于是 agent 会转而去读 `durable/src/harness/types.ts` 那一级的源文件。
+- 判断依据：第一个功能写完时看实际发生了什么。若确有人/AI 读了内核源并读错，就做 `gen-seat-catalog.mjs`：boot 一个最小 Harness，导出每个 seat 的真实签名与字段，`--check` 校验提交物。若 `seats.md` 加一段字段清单就够用，作废——生成器的维护成本高于它省下的阅读。
+
+### 测试价值门槛
+
+- 来源：cindy-main `engineering-conventions.md` §3.2 的四问模板与 `check:test-hygiene`
+- 条件：`packages/features/*/package.json >= 3`
+- 复核：`review_by 2027-06-01`
+- 前提：自有测试超过移植测试的量级之前，"这个测试保护什么"只能靠人问；到第三个功能时，agent 写的测试会开始出现"和实现同构、改实现就跟着改"的形态。
+- 判断依据：逐个翻那几个功能的 `test/`，找"删掉被测实现后仍然会绿"的用例。找到 → 把四问写成 PR 模板并加一条测试卫生守卫；找不到 → 说明移植来的测试风格已经被继承，作废。
+
+### 棘轮基线（存量冻结、新增阻断）
+
+- 来源：ZCode-main `architecture-policy.yaml` + `.architecture-baseline.json`（存量违规进 baseline，新违规阻断，CI 不得自刷）
+- 条件：`仅复核`
+- 复核：`review_by 2027-06-01`
+- 前提：会出现"改一处、多个模块红"的阶段，那时需要冻结存量而不是逐个修。
+- 判断依据：没有可观测信号能表达"开始改不动了"（想拿"一次改动触及的包数"当代理，但单包功能期它恒为 1，是假精确）。到点只看一件事：`baseline.md` 的已知限制段是否开始出现"因为改动面太大所以没做"。有 → 做；没有 → 作废，说明门面与账本已经把改动半径控住了。
+
+### root 层的上游对比
+
+- 来源：`deviations.md` D15 自己写下的缺口——`sync-upstream.mjs` 只迭代 `packages/*`，root 文件、root `scripts/`、`.github/` 都在比较范围外
+- 条件：`仅复核`
+- 复核：`review_by 2027-03-01`
+- 前提：上游对 root 配置的修复（`.gitattributes` 规则、hook 清单、workflow 的 pin）不会通过 `packages/` 对比浮现。
+- 判断依据：下一次取上游快照时手工跑一次 root 对比。若发现至少一处漏掉的 root 变更，就把 root 对比做成脚本，而不是靠"记得"；一处都没有 → 作废，说明上游很少动 root。
+
+### "文档提到的机制必须存在"
+
+- 来源：本轮的真事故——`KERNEL.md` 写着"内核不得 import 产品层（CI 拦截）"，而对应守卫并不存在；`divergence.md` 同样写着"脚本待建，当前靠纪律"
+- 条件：`仅复核`
+- 复核：`review_by 2027-03-01`
+- 前提：规则文档会继续引用尚未实现的机检，而 `check-doc-links` 只验证路径、`check-doc-counts` 只挡数量断言，两者都看不见"承诺了一个不存在的守卫"。
+- 判断依据：把 `docs/` 与根 `*.md` 里出现的 `check-*.mjs` 名字与 `ls scripts/check-*.mjs` 对一遍。再出现一处"文档说有、实际没有" → 在 `check-gate-registration` 里加反向断言（文档提到的 `check-<name>` 必须在磁盘上，或在 `structure.md` 的未建表里）；没有 → 作废，说明这次是人为疏漏而不是模式。
+
