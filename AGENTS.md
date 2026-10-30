@@ -68,16 +68,16 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 ## 5. 加一个功能的固定流程
 
-1. 建 `packages/features/<id>/`，包名 `@naveti/feature-<id>`，`exports` 四出口（`.` / `./contract` / `./client` / `./manifest`）。
+1. 建 `packages/features/<id>/`，包名 `@naveti/feature-<id>`，`exports` 三出口（`.` / `./client` / `./manifest`）。wire 契约住 `@naveti/contracts`，不在功能包里再写一份。
 2. 写 `naveti.feature.json`：`id`、`contract`、`seats`、`requires`、`provides`。
 3. 写 `README.md` 五行：拥有什么 / 可 import 什么 / 占哪些 seat / 依赖谁 / 删掉会怎样。
-4. `contract.ts` 先定型（远程安全：无 `Date` 对象、无函数、id 为不透明字符串）。
+4. wire 契约先在 `@naveti/contracts` 定型（远程安全：无 `Date` 对象、无函数、id 为不透明值），功能包引用它。
 5. `host/index.ts` 默认导出 `defineFeature(...)`，一个贡献点一个文件。
 6. `client/index.ts` 只 `register(slots)`；壳文件里不出现功能 id。
 7. 加 `test/host.spec.ts`（有界面再加 `client.spec.tsx`），夹具放包内 `test/fixtures/`。不要给包单独配 runner——根上 `test.projects` 统一调度。
 8. `compose.ts` 加一行，然后跑 `pnpm check && pnpm test:ci`。
 
-**自查判据：删掉这个功能，是否只需删包 + 删 `compose.ts` 一行？** 需要动别处，说明放错了。
+**自查判据：删掉这个功能时，`packages/platform/*` 与 `apps/*/src/main.*` 是否需要改？** 需要，说明放错了。删包、两份 compose 各删一行、两份 `package.json` 去掉依赖声明、重跑生成物（锁文件与 `test-integrity.json`），这是删一个功能的全部动作；平台代码不在其中。
 
 ## 6. 改内核的固定流程
 

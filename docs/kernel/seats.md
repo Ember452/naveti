@@ -13,19 +13,21 @@ seat 是"功能可以占的位置"，不是"功能的类型"。一个功能通�
 
 机制全部来自 `packages/kernel/durable/src/harness/`，经门面 `@naveti/host/extend/*` 暴露。
 
-> 状态列说明：`已有` = 机制已存在于内核，可直接用；`待建` = 需要平台侧先声明。门面本身（`packages/platform/host/src/extend/`）目前尚未建立，所以下表所有门面子路径都是**目标形状**，不是现状。
+> 状态列说明：`已有` = 机制已存在于内核且门面已有对应子路径。门面只开了有消费者的子路径：`tools` / `docs` / `prompt` / `serve` / `types` 已建；`tasks` / `hooks` / `wrap` 的机制在内核里，但还没有功能用，所以门面暂不给子路径（加它是门面工作，不是为某个功能开特例）。
 
 | seat | 机制（内核符号） | 门面子路径 | 状态 | 典型用途 |
 | --- | --- | --- | --- | --- |
 | `tool` | `defineTool` / `ToolRegistration` | `@naveti/host/extend/tools` | 已有 | 记忆读写、检索、连接器、子 agent |
 | `section` | `section` | `@naveti/host/extend/prompt` | 已有 | 注入系统提示词片段 |
-| `hook` | `hook(ToolTask / GenerationTask, handlers)` | `@naveti/host/extend/hooks` | 已有 | 审批拦截、脱敏、上下文策略、结果改写 |
-| `wrap` | `wrapTool` / `wrapSection` | `@naveti/host/extend/wrap` | 已有 | 不改原实现，包一层 |
-| `task` | `defineTask` | `@naveti/host/extend/tasks` | 已有 | 定时、主动、后台作业、长任务 |
+| `hook` | `hook(ToolTask / GenerationTask, handlers)` | `@naveti/host/extend/hooks`（未开） | 机制已有 | 审批拦截、脱敏、上下文策略、结果改写 |
+| `wrap` | `wrapTool` / `wrapSection` | `@naveti/host/extend/wrap`（未开） | 机制已有 | 不改原实现，包一层 |
+| `task` | `defineTask` | `@naveti/host/extend/tasks`（未开） | 机制已有 | 定时、主动、后台作业、长任务 |
 | `doc` | `defineDoc` / `defineDocFamily` | `@naveti/host/extend/docs` | 已有 | 功能状态（三种 scope 见 §4） |
-| `extension` | `defineExtension` + `registry.install()` | `@naveti/host/extend` | 已有 | 一次装多个贡献点；`compose.ts` 的入口形态 |
+| `extension` | `defineExtension` + `registry.install()` | `@naveti/host/extend` | 已有 | 一次装多个贡献点；`ctx.tools` / `ctx.sections` / `ctx.serve` 就是它的形状 |
 
-装配顺序固定：`openHost()` 建 Harness → 逐个 `registry.install(extension)` → 启动任务调度 → 挂 transport。**引擎不做服务发现**，这也是不引入 DI 容器的原因。
+装配顺序固定：`openHost()` 建 Harness → 调用方 `install(features)`（每个功能的 `install` 声明贡献，随后 `start` 跑启动工作）→ 启动任务调度 → 挂 transport。**引擎不做服务发现**，这也是不引入 DI 容器的原因。
+
+`ctx.serve(contract, factory)` 不单列为 seat：它不是新的挂点，而是把功能自己的 state 暴露在**已声明的契约**上（`packages/contracts`）的那一步。功能不自己开通道；它只能经这一条已有的 transport 面到达客户端。
 
 ### 候选，未采用
 
@@ -40,12 +42,12 @@ seat 是"功能可以占的位置"，不是"功能的类型"。一个功能通�
 
 | seat | 位置 | 状态 | 典型用途 |
 | --- | --- | --- | --- |
-| `panel` | 右栏面板 | 未建 | 文件、浏览器、终端、子 agent |
+| `panel` | 右栏面板 | **已建**（`@naveti/web`） | 文件、浏览器、终端、子 agent |
 | `nav` | 侧栏导航项 | 未建 | 设置、插件页 |
 | `settings` | 设置分区 | 未建 | 模型、工具策略、功能参数 |
 | `command` | 命令面板 / 快捷键 | 未建 | 新建、归档、导出 |
 | `composer` | 输入区扩展 | 未建 | 引用、附件、模板 |
-| `renderer` | entry kind → 视图 | 未建 | 计划卡片、审批卡片、工具结果 |
+| `renderer` | entry kind → 视图 | **已建**（`@naveti/web`） | 计划卡片、审批卡片、工具结果 |
 | `status` | 顶栏状态 | 未建 | 上下文占用、计价、运行中任务 |
 
 客户端 seat 由 `@naveti/web` 声明，功能 `client/index.ts` 用 `register(slots)` 占位。**壳文件里不允许出现功能 id**，由 `check-feature-registry` 校验。
@@ -60,7 +62,7 @@ seat 是"功能可以占的位置"，不是"功能的类型"。一个功能通�
 
 选错 scope 是这类功能最常见的错误：**放到 `session` 的会话数据会在两个会话间互相污染，放到 `conversation` 的用户偏好会在新会话里消失。**
 
-功能自己的 doc 通过已有的 watch / `watchDoc` / `snapshot` 面到达前端；功能不得自开传输通道。
+功能自己的 doc 通过已有的 watch / `watchDoc` / `snapshot` 面到达前端：在 served 工厂里用 `self.follow((observer, ctx) => harness.observeDoc(token, observer, ctx))` 把它变成一个 state 成员，客户端拿到的就是 snapshot 加 delta。功能不得自开传输通道。
 
 ## 5. 新增一个 seat 的门槛
 

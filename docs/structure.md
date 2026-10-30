@@ -72,15 +72,15 @@ naveti/
 │   │   ├── mcp/                         @naveti/mcp
 │   │   ├── durable/                     @naveti/durable
 │   │   └── README.md                    所有权、变更分级、扩展点索引
-│   ├── contracts/                       [未建] L1 纯类型：wire + 自研 seam 声明
-│   ├── platform/                        [未建] L2 host（装配/seat/路径/transport/凭据）+ web（壳/slot）
+│   ├── contracts/                       L1 零 I/O：wire 契约与 transport 声明
+│   ├── platform/                        L2 host（装配/seat/路径/transport）+ web（壳/slot）
 │   ├── providers/                       [未建] L2.5 可替换实现，按 seam 分，不进功能清单
-│   └── features/                        [未建] L3 一个功能一个包（§7）
-├── apps/                                [全部未建] L4 组合根：server / web / desktop / cli
+│   └── features/                        L3 一个功能一个包（§7），现为 `chat`
+├── apps/                                L4 组合根：server（宿主）/ web（浏览器）；desktop 在 P3
 ├── scripts/                             守卫与编排脚本，清单见 §14（不在这里数个数）
 ├── tests/
-│   ├── smoke/persist-resume.ts          现有：持久化与恢复冒烟
-│   └── golden/                          [未建] 首次内核改动或回补时的请求体与会话黄金文件
+│   ├── smoke/persist-resume.ts          持久化与恢复冒烟
+│   └── golden/chat-wire.json           wire 契约与持久化格式的黄金文件（首次改动内核或首个产品数据结构时建）
 ├── docs/
 │   ├── README.md                        导航：谁回答什么
 │   ├── structure.md                     本文，空间轴权威
@@ -189,27 +189,28 @@ naveti/
 
 ```text
 packages/features/memory/
-├── package.json          exports: "." → host / "./contract" / "./client" / "./manifest"
+├── package.json          exports: "." → host / "./client" / "./manifest"
 ├── naveti.feature.json   { id, contract, seats, requires, provides }
 ├── README.md             五行契约：拥有什么 / 可 import 什么 / 占哪些 seat / 依赖谁 / 删掉会怎样
 ├── src/
-│   ├── contract.ts       wire 类型 + 本功能服务接口（无运行时、无 node、无 react）
-│   ├── shared.ts         纯函数，前后端共用
-│   ├── host/index.ts     默认导出 defineFeature(...)：doc / tool / task / hook / section 各一处调用
+│   ├── host/index.ts     默认导出 defineFeature(...)
 │   ├── host/doc.ts       功能状态（scope 三选一，见 docs/kernel/seats.md §4）
 │   ├── host/tools.ts     defineTool 的贡献点
-│   ├── host/facet.ts     把状态与命令映射成 contracts 里的 wire 类型
-│   ├── host/settings.ts  设置项 schema
+│   ├── host/<thing>.ts   一个贡献点一个文件
+│   ├── shared.ts         纯函数，前后端共用（可选）
 │   ├── client/index.ts   register(slots)
-│   ├── client/panel.tsx  右栏面板，只吃 props 与 standard hook
-│   ├── client/settings.tsx
-│   ├── client/store.ts   可选：无 React 的镜像，React 只读它
-│   └── client/renderer.tsx  可选：本功能自有 entry kind 的渲染器
+│   ├── client/panel.tsx  右栏面板，只吃 props 与 shared hook
+│   ├── client/renderer.tsx  可选：本功能自有 entry kind 的渲染器
+│   └── client/store.ts   可选：无 React 的镜像，React 只读它
 └── test/
     ├── host.spec.ts      必有
     ├── client.spec.tsx   有界面必有
     └── fixtures/         本功能自己的夹具，不外放到仓库级目录
 ```
+
+**wire 契约不在功能包里。** 它住 `packages/contracts`（宿主与客户端都要持有，而平台不许 import 功能），
+所以功能包没有 `./contract` 出口——两份声明就是两套真相。功能间需要共享的*服务接口*仍可以走 `./contract`，
+那是另一个事实（“我能被谁调”），与 wire 格式不同。
 
 `package.json` 的出口面（包边界唯一可用的地方）：
 
@@ -221,7 +222,6 @@ packages/features/memory/
   "type": "module",
   "exports": {
     ".": { "source": "./src/host/index.ts", "types": "./dist/host/index.d.ts", "import": "./dist/host/index.js" },
-    "./contract": { "source": "./src/contract.ts", "types": "./dist/contract.d.ts", "import": "./dist/contract.js" },
     "./client": { "source": "./src/client/index.ts", "types": "./dist/client/index.d.ts", "import": "./dist/client/index.js" },
     "./manifest": "./naveti.feature.json"
   },
@@ -238,7 +238,7 @@ packages/features/memory/
 规则：
 
 1. **命名固定 `@naveti/feature-<id>`，目录固定 `packages/features/<id>/`。** id 只允许小写短横线，且与目录名、包名后缀一致（机检）。
-2. **`./contract` 是唯一稳定面。** 契约改动必须同时更新 `tests/golden/` 的对应黄金文件，否则不算改完。
+2. **wire 契约住 `@naveti/contracts`，功能包不自称契约的权威。** 契约为全局版本（`name` + `version`），契约改动同时更新 `tests/golden/` 的对应黄金文件。
 3. **一个贡献点一个文件。** 单文件超过约 200 行再拆子目录，不预先拆。
 4. **每个包至少一条 host 测试；有界面再加一条 client 测试。** 测试与夹具在包内 `test/`，禁止放仓库级 `tests/`；但**运行**由根上单个 vitest 进程统一调度，不是每包起一个 runner（§13.1）。
 5. **包内文件可自由拆分，包外只能经 `exports` 进入。** 深路径 import 在所有包上是红。
@@ -287,11 +287,18 @@ manifest 只写**现在真有消费者**的字段：
 
 现在不做任何预留。真要做，先写一条决策记录，第一个 spike 只做宿主侧（一个 demo 功能通过 `import()` 装上、被调用、被卸载、错误不影响主进程）；界面侧不承诺。
 
-`compose.ts` 的形状（懒加载，启动成本按功能分摊）：
+`compose.ts` 的形状（懒加载，启动成本按功能分摊）。宿主与客户端各一份：两个面本来就独立（一个功能可以只有宿主面），
+但它们必须在功能集合上一致：
 
 ```ts
-export const features = [
-  { id: "chat", host: () => import("@naveti/feature-chat"), client: () => import("@naveti/feature-chat/client") },
+// apps/server/src/compose.ts
+export const compose = [
+  { id: "chat", host: () => import("@naveti/feature-chat") },
+];
+
+// apps/web/src/compose.ts
+export const compose = [
+  { id: "chat", client: () => import("@naveti/feature-chat/client") },
 ];
 ```
 
