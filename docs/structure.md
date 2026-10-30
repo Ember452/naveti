@@ -398,7 +398,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 | 闭包由打包器或 `pnpm deploy` 直接算出后 |
 | `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） | TypeScript 或 lint 原生拒绝跨包相对导入后 |
 | `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败）；含测试的包必须自带 `vitest.config.ts` 且被某个 glob 收集 | 有 | projects 改成显式清单、误收不可能发生之后 |
-| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） | 入口预算由发布期打包产物报告接管后 |
+| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护。**产品层（`packages/{contracts,platform,features}`、`apps/*`）的每个代码入口必须有条目**；内核包仍是手工按需登记 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具；含“产品层入口无预算”与“app 入口无预算”两个红例） | 入口预算由发布期打包产物报告接管后 |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 | 锁文件改为 CI 生成、不再随提交进入仓库后 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 | 模块解析交回 Project References 或打包器统一裁决后 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 | 测试统计改为运行时采集、不再文本计数后 |

@@ -13,6 +13,11 @@
  * Budgets live in `scripts/entry-budgets.json`; `--update` rewrites `maxFiles` to
  * ceil(measured * 1.1) and leaves `forbid` / `allow` untouched. The JSON diff is the
  * review artifact.
+ *
+ * A budget nobody wrote protects nothing. The kernel's own entries are listed by
+ * hand because they change with upstream; every **product-layer** entry (packages/
+ * contracts|platform|features, apps/*) must be listed, or the facade could grow as
+ * wide as the barrel it replaced without one line going red.
  */
 
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -110,6 +115,55 @@ function expand(pkgDir, entry, target) {
 let failures = 0;
 const changes = [];
 
+/**
+ * The layer whose entries this guard insists on covering: the code that talks to the
+ * kernel through a facade. Kernel entries stay opt-in, because upstream owns them.
+ */
+function isProductLayer(pkgDir) {
+	return /^packages\/(contracts|platform|features)(\/|$)/.test(pkgDir) || /^apps\/[^/]+$/.test(pkgDir);
+}
+
+/** Every declared export that resolves code: an object with `types` or `import`, and no wildcard we cannot expand. */
+function codeExports(manifest) {
+	const names = [];
+	for (const [entry, value] of Object.entries(manifest.exports ?? {})) {
+		if (value === null || typeof value !== "object") continue;
+		if (!("types" in value) && !("import" in value)) continue;
+		names.push(entry);
+	}
+	return names;
+}
+
+/** A declared export is covered by its own budget key or by a wildcard whose expansion names it. */
+function covered(pkgDir, entry, manifest) {
+	const keys = budgetEntries(pkgDir).map(([key]) => key);
+	if (keys.includes(entry)) return true;
+	for (const key of keys.filter((candidate) => candidate.includes("*"))) {
+		const declared = manifest.exports?.[key];
+		if (declared === undefined) continue;
+		const target = typeof declared === "string" ? declared : declared.import;
+		if (expand(pkgDir, key, target).some(([name]) => name === entry)) return true;
+	}
+	return false;
+}
+
+for (const root of ["packages", "apps"]) {
+	const directory = join(ROOT, root);
+	if (!existsSync(directory)) continue;
+	for (const pkgDir of findWorkspacePackages(directory)) {
+		const relativeDir = relative(ROOT, pkgDir).split(sep).join("/");
+		if (!isProductLayer(relativeDir)) continue;
+		const manifest = JSON.parse(readFileSync(join(pkgDir, "package.json"), "utf8"));
+		for (const entry of codeExports(manifest)) {
+			if (covered(relativeDir, entry, manifest)) continue;
+			console.error(
+				`${relativeDir} export "${entry}" has no entry in scripts/entry-budgets.json; a product-layer entry is a cost contract, and an unmeasured one is not`,
+			);
+			failures += 1;
+		}
+	}
+}
+
 for (const [pkgDir] of packageBudgets()) {
 	const manifest = JSON.parse(readFileSync(resolve(ROOT, pkgDir, "package.json"), "utf8"));
 	for (const [entry, budget] of budgetEntries(pkgDir)) {
@@ -170,4 +224,4 @@ if (failures > 0) {
 	console.error(`\n${failures} entry-point budget violation(s).`);
 	process.exit(1);
 }
-console.log("Entry point graphs are within budget.");
+console.log(`Entry point graphs are within budget; every product-layer export is covered.`);
