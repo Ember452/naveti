@@ -1,0 +1,20 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"declaration": false,
+		"declarationMap": false,
+		"jsx": "react-jsx",
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"customConditions": ["source"],
+		"types": ["vite/client", "node"]
+	},
+	"include": [
+		"src",
+		"../../packages/platform/web/src",
+		"../../packages/features/*/src/client",
+		"../../packages/features/*/test/**/*.tsx"
+	]
+}

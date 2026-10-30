@@ -20,5 +20,11 @@
 		"packages/kernel/ai/catalog/**/*",
 		"packages/kernel/durable/test-workers/**/*"
 	],
-	"exclude": ["**/dist/**"]
+	"exclude": [
+		"**/dist/**",
+		"packages/platform/web/**",
+		"packages/features/*/src/client/**",
+		"packages/features/*/test/**/*.tsx",
+		"apps/web/**"
+	]
 }

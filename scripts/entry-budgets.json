@@ -40,6 +40,17 @@
 	"packages/features/chat": {
 		".": {
 			"maxFiles": 257
+		},
+		"./client": {
+			"maxFiles": 185
+		}
+	},
+	"packages/platform/web": {
+		".": {
+			"maxFiles": 178
+		},
+		"./connection": {
+			"maxFiles": 172
 		}
 	},
 	"packages/kernel/ai": {

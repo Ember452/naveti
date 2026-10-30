@@ -3,7 +3,7 @@
 	"contract": 1,
 	"seats": {
 		"host": ["doc", "section"],
-		"client": []
+		"client": ["panel", "renderer"]
 	},
 	"requires": [],
 	"provides": []

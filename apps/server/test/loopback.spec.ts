@@ -5,6 +5,8 @@ import { createModels, fauxAssistantMessage, fauxProvider, fauxText, fauxToolCal
 import { ChatConversation, ChatHub, type ChatView } from "@naveti/contracts";
 import { type Host, openHost } from "@naveti/host";
 import { connectLoopback } from "@naveti/host/testing";
+// The browser's own connection module, imported without its React surface: this is the code the page dials through.
+import { connect as connectWeb } from "@naveti/web/connection";
 import { afterEach, describe, expect, it } from "vitest";
 import { compose } from "../src/compose.ts";
 
@@ -66,6 +68,41 @@ async function waitFor(done: () => boolean, timeoutMs = 60_000): Promise<void> {
 }
 
 describe("the loopback round", () => {
+	it("keeps the client face's own connection module working against the real socket", async () => {
+		// The second lane the browser takes: `@naveti/web`'s connect (global WebSocket, chord's link) against the host,
+		// holding the same contracts. A DOM test would need jsdom; this proves the module the page loads works, and the
+		// panel is covered separately in the feature's jsdom spec.
+		const directory = await mkdtemp(join(tmpdir(), "naveti-web-"));
+		directories.push(directory);
+		await mkdir(join(directory, "workspace"), { recursive: true });
+		const host = await start(directory);
+		const listener = await host.listen({ port: 0 });
+		const connection = await connectWeb(listener.url);
+		try {
+			const hub = await connection.get(ChatHub, {});
+			const root = hub.conversations.value[0];
+			if (root === undefined) throw new Error("no reserved conversation");
+			const conversation = await connection.get(ChatConversation, { conversation: root.id });
+
+			// A panel watches the projection; the frame it receives is what a browser would render.
+			const seen: ChatView[] = [];
+			const watch = await conversation.view.watch(connection.context);
+			watch.start(async (call) => {
+				if (call.kind === "value") seen.push(call.value);
+			});
+			await conversation.submit({ content: "hello from the client" }, connection.context);
+			// Wait for the answer entry, not for any text: the view's built-in agent doc already names the provider.
+			await waitFor(() => conversation.view.value.entries.some((entry) => entry.kind === "naveti.assistant"));
+			expect(seen.length).toBeGreaterThan(0);
+			expect(conversation.view.value.entries.map((entry) => entry.kind)).toContain("naveti.assistant");
+			await watch.stop();
+		} finally {
+			await connection.close();
+			await listener.close();
+			await host.close();
+		}
+	});
+
 	it("runs read, edit and bash over the socket, and reads the same transcript back after a restart", async () => {
 		const directory = await mkdtemp(join(tmpdir(), "naveti-loopback-"));
 		directories.push(directory);
