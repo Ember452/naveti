@@ -179,6 +179,8 @@ naveti/
 
 门面存在的前提是**功能真的不用内核**。一旦某个功能需要内核深处能力（自定义 entry、直接操作 doc 内部），正确处理是给门面加子路径并在 `docs/kernel/seats.md` 登记，而不是在该功能里深引内核。
 
+**门面的宽度是量出来的，不是声称的。** 每个子路径在 `scripts/entry-budgets.json` 里有预算，产品层的每个代码入口都必须有（`check-entry-graphs`）。P2 落地时的实测表明：只引用类型的子路径很窄，而转出内核运行值的子路径与内核根入口同量级——因为一行 `export { … } from "@naveti/durable"` 拖进来的是整个 barrel。这不是门面的失败，是内核只有根入口的结果；补救与结论见 `.agents/notes/implemented/2026-10-30-facade-width-measured.md`，排进 P4 与 `check-kernel-facade` 同一轮。
+
 **门面是内核改动的吸收层**：内核重构时只改这里，功能包一行不动。这是"内核不冻结"能成立的结构原因。
 
 ## 7. 一个功能一个包

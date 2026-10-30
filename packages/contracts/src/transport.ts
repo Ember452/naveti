@@ -5,10 +5,12 @@
 // our principal, and both ends have to agree on those, so they are here — pure strings and one pure parser, no I/O.
 
 /**
- * Who a connection acts for. One machine, one owner: a loopback link is the owner's own browser and nobody else.
- * Remote clients (a phone) add their own principals, with their own credentials, when that transport exists.
+ * Who a connection acts for. Two roles exist and both are needed: `owner` is the person at this machine — what the
+ * platform stamps on an accepted loopback link, and therefore what a feature's factory always sees; `server` is the
+ * other end of that link, what a client says its parent is when it connects. Remote clients (a phone) add their own
+ * principals, with their own credentials, when that transport exists.
  */
-export type Principal = { readonly kind: "owner" };
+export type Principal = { readonly kind: "owner" } | { readonly kind: "server" };
 
 /** Loopback is bound to the loopback interface, never to a wildcard address. */
 export const LOOPBACK_HOST = "127.0.0.1";

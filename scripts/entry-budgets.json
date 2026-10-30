@@ -11,6 +11,29 @@
 			"maxFiles": 2
 		}
 	},
+	"packages/platform/host": {
+		".": {
+			"maxFiles": 274
+		},
+		"./extend": {
+			"maxFiles": 3
+		},
+		"./extend/docs": {
+			"maxFiles": 87
+		},
+		"./extend/prompt": {
+			"maxFiles": 87
+		},
+		"./extend/serve": {
+			"maxFiles": 2
+		},
+		"./extend/tools": {
+			"maxFiles": 87
+		},
+		"./extend/types": {
+			"maxFiles": 2
+		}
+	},
 	"packages/kernel/ai": {
 		"./models": {
 			"maxFiles": 22,

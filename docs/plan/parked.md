@@ -77,10 +77,10 @@
 ### 门面入口的认知面积预算
 
 - 来源：本轮讨论——AI 一次只能同时持有内核的一小片，`entry-budgets.json` 的 `maxFiles` 同时也是"读懂这个入口要拖多少文件"
-- 条件：`path_exists packages/platform/host/src/extend`
+- 条件：`仅复核`
 - 复核：`review_by 2027-03-01`
-- 前提：门面建成后，如果某个子路径的 `maxFiles` 与内核父入口同量级，说明门面只换了名字、没有压缩认知面积，产品层仍然要读内核。
-- 判断依据：门面落地时把每个子路径写进 `entry-budgets.json`。若 `@naveti/host/extend/tools` 实测超过 12，先拆门面，不放宽预算；若已经很小且没有继续下降的空间，说明"认知面积"与"入口成本"是同一件事，作废本条并把结论写进 `structure.md` 的门面一节。
+- 前提：把门面子路径从内核根 barrel 里脱出来（给内核加窄子路径）之后，`@naveti/host/extend/*` 的 `maxFiles` 会从今天的量级落到两位数，读者不再为一行 `defineTool` 打开整个 `types.ts`。
+- 判断依据：P2 已实测并确认前提——`extend/tools` 等子路径与内核父入口同量级（证据见 `.agents/notes/implemented/2026-10-30-facade-width-measured.md`）；宽度来自 `export { … } from "@naveti/durable"` 这一行，**拆门面子路径无效**。补救搬进 P4，与 `check-kernel-facade` 同一轮：给内核加窄子路径，把每个门面子路径压到 12 以下；若届时已用别的方式收窄，作废本条并把结论写进 `structure.md` §6。
 
 ### seat 目录生成器
 

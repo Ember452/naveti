@@ -190,6 +190,31 @@ importers:
         specifier: 4.1.12
         version: 4.1.12(@types/node@22.19.19)(vite@8.3.5(@types/node@22.19.19)(esbuild@0.28.2))
 
+  packages/platform/host:
+    dependencies:
+      '@naveti/ai':
+        specifier: workspace:*
+        version: link:../../kernel/ai
+      '@naveti/chord':
+        specifier: workspace:*
+        version: link:../../kernel/chord
+      '@naveti/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@naveti/durable':
+        specifier: workspace:*
+        version: link:../../kernel/durable
+      ws:
+        specifier: 8.21.0
+        version: 8.21.0
+    devDependencies:
+      '@types/ws':
+        specifier: 8.18.2
+        version: 8.18.2
+      vitest:
+        specifier: 4.1.12
+        version: 4.1.12(@types/node@22.19.19)(vite@8.3.5(@types/node@22.19.19)(esbuild@0.28.2))
+
 packages:
 
   '@anthropic-ai/sdk@0.129.0':
