@@ -13,10 +13,13 @@
 | 怎么报漏洞 | `SECURITY.md` | 根 |
 | 这个文件该放哪、什么还不该建 | [`structure.md`](./structure.md) | docs |
 | 系统现在怎么运转 | [`architecture.md`](./architecture.md) | docs |
+| 要做什么功能、先做哪个、什么不做 | [`product.md`](./product.md) | docs |
 | 接下来做什么、按什么顺序 | [`plan/master-plan.md`](./plan/master-plan.md) | docs |
 | 现在不做、将来才判断的事 | [`plan/parked.md`](./plan/parked.md) | docs |
 | 有哪些扩展点、机制是什么 | [`kernel/seats.md`](./kernel/seats.md) | docs |
+| 第一个功能该怎么写、会踩什么坑 | [`cookbook/adding-a-feature.md`](./cookbook/adding-a-feature.md) | docs |
 | 内核被动过哪些地方 | [`kernel/divergence.md`](./kernel/divergence.md) | docs |
+| 想学习这个项目或它的来龙去脉 | [`learn/`](./learn/) | docs |
 | 来源、偏离、什么算绿、怎么回补 | [`migration/`](./migration/) | docs |
 | 某条决定为什么这样定 | `.agents/notes/` | 根 |
 
@@ -30,7 +33,7 @@
 
 ## 容量
 
-`docs/` 长期不超过 **15 个手写文件**。`docs/migration/rename-report.json` 与 `docs/migration/diffs/*.md` 是生成物，不计入——否则撞线的原因是生成物，不是散文。超过说明有内容该回包内：包自己的契约写进包 README，测试夹具进包内 `test/`，决策进 `.agents/notes/`。
+`docs/` 长期不超过 **15 个手写文件**。`docs/migration/rename-report.json` 与 `docs/migration/diffs/*.md` 是生成物，不计入——否则撞线的原因是生成物，不是散文。`learn/` 也不计入：它是读者材料而非权威文档，撞线时该瘦身的是权威层，不是学习层。超过说明有内容该回包内：包自己的契约写进包 README，测试夹具进包内 `test/`，决策进 `.agents/notes/`。
 
 每个新文件必须能回答：**它替谁省掉了什么问题？** 答不出来就不建。
 
