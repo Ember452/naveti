@@ -17,7 +17,7 @@
 
 ## P2 的拆解（下一步就做这个）
 
-0. **spike：桌面 shell 里的 `node:sqlite`**（原待决 #1–#3，前置到这里）。Electron 内跑通 `durable` 的 SQLite storage 一次读写 + 包体积与启动耗时记录；顺带定主进程内跑 server 还是 spawn。产出一条 `.agents/notes/implemented/` 决策。**前提验证必须先于主干**：P2 的 `paths.ts` 注入与 chat 落盘都建立在 sqlite 可用上，spike 推翻前提的成本在这里是一天，放到 P3 是重写。若不可用，`storage` 提前做第二个 provider（原待决 #2 的退路），仍在本步骤内定案。
+0. **spike：桌面 shell 里的 `node:sqlite`**（原待决 #1–#3，前置到这里）。**两段式，P2 已定案**：P2 只验 Node 侧（`node:sqlite` → `openStore` → `StoreStorage` → `Harness.open` 一轮读写 + 重启读回，实测已过）；**Electron 内可用性、包体积与冷启动留到 P3 安装包那轮**，到期条件已写进 P3 Gate，退路不变（不可用就只加一个 `storage` provider）。记录见 [`2026-10-30-p2-runtime-shape.md`](../../.agents/notes/implemented/2026-10-30-p2-runtime-shape.md)。之所以能拆开：P2 的 `paths.ts` 注入与 chat 落盘只依赖“`node:sqlite` 在 Node 里可用”，而 Electron 内是否可用能用同一个 spike 脚本在 P3 重跑——它不改变 P2 的任何形状，只影响发布产物。
 1. `packages/contracts`：只放跨进程 wire 类型与自研 seam 声明。判据：`check-workspace-resolution` 仍有 `source` 条件，且包内无 I/O。
 2. `packages/platform/host`：`extend/` 门面（显式清单，禁 `export *`）、`seats.ts`（封闭枚举）、`paths.ts`（注入）、`transport/loopback`（token + 127.0.0.1）。
 3. `apps/server`：`main.ts` 只做五步——读 paths → `openHost()` → `install(compose)` → 挂 HTTP/WS → 打印地址；`compose.ts` 一行一个功能。
