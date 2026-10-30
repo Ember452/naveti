@@ -135,7 +135,7 @@ naveti/
 | 类 | 例子 | 可以 import | 有界面 | 用户可见 | 变更频率 |
 | --- | --- | --- | --- | --- | --- |
 | **kernel** | `@naveti/durable` | 只 import 其他 kernel | 否 | 否 | 慢，但**允许改**（`KERNEL.md` §2） |
-| **contracts** | `@naveti/contracts` | 无（零运行时：只有类型、常量与纯函数，无 I/O、无状态、无注册表） | 否 | 否 | 稳定，破坏性改升版本 |
+| **contracts** | `@naveti/contracts` | 内核的声明层（契约与 schema 构造，现为 `@naveti/chord`）；无 I/O、无状态、无注册表 | 否 | 否 | 稳定，破坏性改升版本 |
 | **platform** | `@naveti/host`、`@naveti/web` | kernel、contracts | host 否 / web 是 | 否 | 中 |
 | **provider** | `@naveti/storage-sqlite` | kernel、contracts、platform/host | 否 | **否** | 跟随上游生态 |
 | **feature** | `@naveti/feature-memory` | contracts、host、web、其他 feature 的 `./contract` | 可选 | **是** | 高频 |
@@ -401,6 +401,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护。**产品层（`packages/{contracts,platform,features}`、`apps/*`）的每个代码入口必须有条目**；内核包仍是手工按需登记 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具；含“产品层入口无预算”与“app 入口无预算”两个红例） | 入口预算由发布期打包产物报告接管后 |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 | 锁文件改为 CI 生成、不再随提交进入仓库后 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 | 模块解析交回 Project References 或打包器统一裁决后 |
+| `check-package-layers` | 读 `dependencies` / `peerDependencies` / `devDependencies` 守四个方向：kernel 只依赖 kernel；contracts 只依赖内核的声明层（现为 `@naveti/chord`）；platform 不依赖 feature/app；feature 不依赖任何内核包 | 有（`NAVETI_CHECK_ROOT` 夹具，每个方向一条红例） | 包边界改由打包器或发布清单统一声明后 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 | 测试统计改为运行时采集、不再文本计数后 |
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 | 文档站构建的 dead-link 检查接管后 |
 | `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 | 规则文档里的清单段全部移入生成物后 |
@@ -416,7 +417,6 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 | 守卫 | 判据 | 建它的触发条件 |
 | --- | --- | --- |
-| `check-package-layers` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | 第一个产品层包（`packages/contracts`）出现时 |
 | `check-kernel-facade` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力 | `platform/host/extend/` 建起来后 |
 | `check-feature-registry` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；壳文件无功能 id | 第二个功能出现时 |
 | `check-client-face` | 从 `src/client/index.ts` 走值导入图，命中 `node:*` / `platform/host` / 同包 `src/host/**` 即失败 | 第一个带界面的功能出现时 |
@@ -527,6 +527,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
 | 检查 | `check-entry-graphs.mjs` / `.test.mjs` + `entry-budgets.json` | 入口值导入图预算；`--update` 重写 `maxFiles` |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
+| 检查 | `check-package-layers.mjs` / `.test.mjs` | 包之间的依赖方向：kernel 不依赖产品层、contracts 只依赖内核声明层、platform 不依赖 feature、feature 不依赖内核 |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
 | 检查 | `check-kernel-divergence.mjs` / `.test.mjs` + `kernel-baseline.json` | 内核与基线不一致的每个文件都必须在 `divergence.md` 或 `deviations.md` 被命名；基线同时记录上游独有的路径，所以“恢复了上游文件”不会被当成普通新增 |

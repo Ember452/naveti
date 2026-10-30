@@ -15,6 +15,7 @@ node scripts/check-ts-relative-imports.mjs
 node scripts/check-vitest-projects.mjs
 node scripts/check-entry-graphs.mjs
 node scripts/check-workspace-resolution.mjs
+node scripts/check-package-layers.mjs
 node scripts/check-lockfile-commit.mjs
 node scripts/check-test-integrity.mjs
 node scripts/check-doc-links.mjs

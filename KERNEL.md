@@ -7,7 +7,7 @@
 
 ## 1. 边界规则
 
-- `packages/kernel/` 是内核；`packages/{contracts,platform,providers,features}` 与 `apps/*` 是产品层。**内核不得 import 产品层**。这条目前靠纪律：机检是 `check-package-layers`（`docs/structure.md` §13 未建表），建立时机是第一个产品层包（`packages/contracts`）出现时。在两侧目录都不存在时建它，是对空集的断言。
+- `packages/kernel/` 是内核；`packages/{contracts,platform,providers,features}` 与 `apps/*` 是产品层。**内核不得 import 产品层**。机检是 `check-package-layers`：它读每个包的 `dependencies` / `peerDependencies` / `devDependencies`，内核包列出任何非 kernel 的 workspace 包就红（同一条守卫也守 feature 不依赖内核、contracts 只依赖内核声明层、platform 不依赖 feature）。
 - 产品层访问内核只有一条路：`@naveti/host/extend/*` 门面。功能包连内核的包名都不该出现在 `dependencies` 里。
 - 内核不承载产品语义：UI、命令、皮肤、安装器、发布流程都不进内核包。
 
