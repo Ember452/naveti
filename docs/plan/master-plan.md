@@ -12,7 +12,7 @@
 | **P1 规则层** | done | `AGENTS.md`、`KERNEL.md`、`docs/structure.md`、`docs/architecture.md`、`docs/product.md`、`docs/kernel/{seats,divergence}.md`、`.agents/notes/`、`CONTRIBUTING.md`、`SECURITY.md` | `structure.md` §17 权威分工表里每篇文档在磁盘存在且被 `check-doc-links` 绿；此后**规则文档只为已被现实触发的漂移新增，不为“更完备”新增**（新增判据同 §13 守卫：照做会失败才写） |
 | **P2 主干** | done | `spike 桌面 shell 前提` → `packages/contracts` → `packages/platform/host`（门面 + seat 表 + paths 注入 + transport loopback）→ `apps/server` → 第一个功能 `chat`（compose 装上内核已有工具）→ 最小 web 壳（只建 `panel`/`renderer` 两个 seat）→ `apps/web` | host 侧：loopback 端到端一轮**带工具调用**的对话（`read`/`edit`/`bash` 至少各发生一次且落盘可恢复）——机器证据在 `apps/server/test/loopback.spec.ts`；client 侧：chat 界面在 `apps/web` 渲染同一轮对话——人工看过工具卡。删掉该功能 = 删包 + 两行（实测：平台代码未动）。**待验（不是待做）**：“第二个功能加进来时平台不改”这条判据只能在 P4 被检验 |
 | **P3 出包** | later | `packages/platform/web` 补全 → `apps/desktop` + `tsdown.config.ts`（shell 形态由 P3 定案，运行时与存储已由 P2 步骤 0 定案，见 [`2026-10-30-p2-runtime-shape.md`](../../.agents/notes/implemented/2026-10-30-p2-runtime-shape.md)）；**断线自愈**：`@naveti/web` 的 `connect` 现在只拨一次，socket 掉线后界面停在最后一个快照且不报错，桌面端睡一晚就会撞上（见 `docs/architecture.md` §2 第 7 步的现状注） | 出一个能装能跑、数据落在 `userData` 的安装包；安装包上跑通 product「一年判据」第 1 条的编码任务。**出第一个安装包的同一轮必须定案两件 P2 仍未定的事：Electron 内 `node:sqlite` 是否可用、包体积与冷启动耗时**（到期条件在此，不再“以后再说”）；若不可用，按已写下的退路只加一个 `storage` provider 包。另加一条可证伪的：断网 30 秒再恢复，界面不刷新也能自己回到最新（今天做不到） |
-| **P4 功能扩展** | later | 下一个功能由 `product.md` 首批功能表顺位定（当前是记忆与检索）；`platform/host` 的 `seats.ts` 转为唯一权威、开 `check-feature-registry`；**第二个带界面的功能出现前先补客户端的挡路石**：`AppFrame` 今天把注册的 `panel` 全叠在一列，没有 `nav` 与面板切换——第二个 UI 功能一进来就是这个形状；**门面收窄**：给内核加窄子路径（`@naveti/durable/define`、`/types`、`/docs` 之类），把 `@naveti/host/extend/*` 每个子路径从今天的 87 文件量级压到 12 以内（实测与结论见 [`2026-10-30-facade-width-measured.md`](../../.agents/notes/implemented/2026-10-30-facade-width-measured.md)） | 两个功能并行不互相 import；新功能的 seat 全部来自 `seats.ts` 封闭枚举，无新增挂点；`extend/*` 每个入口的实测文件数降到两位数；两个面板能各占一处而不是上下叠 |
+| **P4 功能扩展** | later | 下一个功能由 `product.md` 首批功能表顺位定（当前是记忆与检索）；**第二个带界面的功能出现前先补客户端的挡路石**：`AppFrame` 今天把注册的 `panel` 全叠在一列，没有 `nav` 与面板切换——第二个 UI 功能一进来就是这个形状；**门面收窄**：给内核加窄子路径（`@naveti/durable/define`、`/types`、`/docs` 之类），把 `@naveti/host/extend/*` 每个子路径从今天的 87 文件量级压到 12 以内（实测与结论见 [`2026-10-30-facade-width-measured.md`](../../.agents/notes/implemented/2026-10-30-facade-width-measured.md)）。（`check-feature-registry` 已在 P2 后补建，不占 P4） | 两个功能并行不互相 import；新功能的 seat 全部来自 `seats.ts` 封闭枚举，无新增挂点；`extend/*` 每个入口的实测文件数降到两位数；两个面板能各占一处而不是上下叠 |
 | **P5 将来** | later | 远程 transport、`compose.ts` 生成化；运行期加载只做宿主侧 spike；product 优先级 3–5（定时/通知/检索）按各自消费者出现落进 P4 式的功能轮次 | — |
 
 ## P2 的拆解（已完成，留作记录）
@@ -35,7 +35,7 @@
 | chat 的 client 面要渲染（P2 拆解步骤 5） | `packages/platform/web/`、`apps/web/` |
 | 编码会话里出现“用 bash 找文件很别扭”的真实反馈 | `glob`/`grep` 独立工具（进 chat 包或 host 工具面，按 `structure.md` §7 判归属） |
 | 需要替换一个 seam 的第二个实现 | `packages/providers/<seam>-<impl>/` |
-| 第二个功能出现 | `seats.ts` 转唯一权威 + 打开 `check-feature-registry` |
+| 第二个功能出现 | `seats.ts` 转唯一权威（`check-feature-registry` 已在 P2 后先建） |
 | 第一次出安装包 | `apps/desktop`、`tsdown.config.ts`、`desktop-release.yml` |
 | 第一个可装的 exe 出现，或 transport 开始接受来 127.0.0.1 之外的连接 | `deps-audit` 从每周一改回每天（现在没有自动依赖变更，每天跑只会训练唯一的那个读者去静音它），并把 `tests/golden/` 提到发布前置 |
 | 第一次要手机连本机 | `platform/host/src/transport/remote` + `contracts/auth.ts` |

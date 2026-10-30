@@ -75,7 +75,7 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 5. `host/index.ts` 默认导出 `defineFeature(...)`，一个贡献点一个文件。
 6. `client/index.ts` 只 `register(slots)`；壳文件里不出现功能 id。
 7. 加 `test/host.spec.ts`（有界面再加 `client.spec.tsx`），夹具放包内 `test/fixtures/`。**有测试就必须有 `vitest.config.ts`**（三行：`mergeConfig(sharedTestConfig, defineConfig({ test: { name } }))`），否则根上的 `test.projects` glob 收不到它，`check-vitest-projects` 会报“测试永远不跑”。不要在里面配路径、alias 或第二个 runner。
-8. **两份** `compose.ts` 各加一行（`apps/server/src/compose.ts` 宿主面、`apps/web/src/compose.ts` 客户端面），然后跑 `pnpm check && pnpm test:ci`。这两份清单目前靠 review 保持一致（`check-feature-registry` 在 P4）。
+8. **两份** `compose.ts` 各加一行（`apps/server/src/compose.ts` 宿主面、`apps/web/src/compose.ts` 客户端面），然后跑 `pnpm check && pnpm test:ci`。机检规则（`check-feature-registry`）：目录 ↔ manifest ↔ server 清单双向相等；有 `./client` 就在 web 清单里，没有就不能在；web 清单 ⊆ server 清单（可以有宿主面没界面，不能反过来）；`seats` 必在 `packages/platform/host/src/seats.ts` 的闭集里。
 
 **自查判据：删掉这个功能时，`packages/platform/*` 与 `apps/*/src/main.*` 是否需要改？** 需要，说明放错了。删包、两份 compose 各删一行、两份 `package.json` 去掉依赖声明、重跑生成物（锁文件与 `test-integrity.json`），这是删一个功能的全部动作；平台代码不在其中。
 

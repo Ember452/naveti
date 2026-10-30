@@ -13,7 +13,8 @@ seat 是"功能可以占的位置"，不是"功能的类型"。一个功能通�
 >
 > 1. **枚举**在 `packages/platform/host/src/seats.ts`（`HOST_SEATS` / `CLIENT_SEATS`）。
 > 2. **可占的挂点**是 `FeatureContext` 上的三个（`tools` / `sections` / `serve`）加客户端 slot 表里的两个（`panel` / `renderer`）；表里其余 seat 的机制在内核里有、但平台没给挂点（见 §2 状态列的“不可占”）。
-> 3. **manifest 的 `seats` 目前无人校验**：`seats.ts` 的 `isHostSeat` / `isClientSeat` / `FeatureSeats` 还没有消费者，`naveti.feature.json` 也没人读。校验是 P4 `check-feature-registry` 的一部分；在那之前它是一张声明，不是一道门。
+> 3. **manifest 的 `seats` 已被机检**：`check-feature-registry` 读 `naveti.feature.json`，要求 `id` 与目录同名、`seats` 落在 `seats.ts` 的闭集里。它盯的是“声明了不存在的 seat”，不盯“声明了没使用的 seat”（后者只能靠 code review）。
+> 4. **“壳文件里不出现功能 id”仍未机检**：它需要按功能 id 扫描壳源码，对象还没出现（壳目前真的一处都没有）。
 
 ## 2. 宿主侧 seat（内核已有，可直接用）
 
@@ -56,7 +57,7 @@ seat 是"功能可以占的位置"，不是"功能的类型"。一个功能通�
 | `renderer` | entry kind → 视图 | **已建**（`@naveti/web`） | 计划卡片、审批卡片、工具结果 |
 | `status` | 顶栏状态 | 未建 | 上下文占用、计价、运行中任务 |
 
-客户端 seat 由 `@naveti/web` 声明，功能 `client/index.ts` 用 `register(slots)` 占位。**壳文件里不允许出现功能 id**——目前靠 review，P4 的 `check-feature-registry` 会把它变成机检（含“两份 `compose.ts` 集合相等”与“manifest 的 seat 落在闭集里”）。
+客户端 seat 由 `@naveti/web` 声明，功能 `client/index.ts` 用 `register(slots)` 占位。**壳文件里不允许出现功能 id**——目前靠 review（壳里还没有出现过，所以也没建扫描）；`check-feature-registry` 负责的是清单与 manifest 的一致性，不是壳的源码扫描。
 
 ## 4. `doc` 的三种 scope
 

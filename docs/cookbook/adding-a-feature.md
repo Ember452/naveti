@@ -79,7 +79,7 @@ export function register(slots: SlotRegistry): void {
 | --- | --- | --- |
 | `scripts/entry-budgets.json` | 包的每个**代码**出口（`.` 与 `./client`）各一条 `maxFiles`；数字是手工天花板，只降不跟涨 | `check-entry-graphs`："a product-layer entry is a cost contract, and an unmeasured one is not" |
 | `packages/features/<id>/vitest.config.ts` | 有 `test/` 就要有，内容只有 `name` | `check-vitest-projects`："has tests but no vitest.config.ts, so its tests never run" |
-| `apps/server/src/compose.ts` 与 `apps/web/src/compose.ts` | 各一行（宿主面 / 客户端面） | 不会红，功能只是不出现——两份清单的一致性现在靠 review（P4 的 `check-feature-registry`） |
+| `apps/server/src/compose.ts` 与 `apps/web/src/compose.ts` | 各一行（宿主面 / 客户端面）；有 `./client` 就必须在 web 清单里，web 清单必须是 server 清单的子集 | `check-feature-registry`："does not install …" / "omits … which exports ./client" / "renders …, which the server does not install" |
 | `pnpm install` + `pnpm run test-integrity:write` | 重生成锁文件与测试清单 | `check-lockfile-commit` / `check-test-integrity` |
 
 `naveti.feature.json` 的 `seats` 今天**没有校验者**：`seats.ts` 的枚举函数还没有消费者。写对它是为了对（以及给 P4 的 `check-feature-registry` 用），不是为了过门。

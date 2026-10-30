@@ -263,6 +263,14 @@ packages/features/memory/
 
 三者必须双向相等，由 `check-feature-registry` 机检（缺目录、缺登记、孤儿包、幽灵条目、未知 seat、悬空 `requires` 全部失败）。
 
+**但两份 compose 不是相等关系，别把上一句套到 `apps/web` 上：**
+
+| 关系 | 规则 | 为什么 |
+| --- | --- | --- |
+| 目录 ↔ manifest ↔ `apps/server/src/compose.ts` | 双向相等 | 装了什么就该有什么 |
+| 功能 `exports["./client"]` ↔ `apps/web/src/compose.ts` 的条目 | 有 `./client` 就必须在清单里，没有就不能在 | 有客户端面没人挂载 = 永远不渲染 |
+| `apps/web` 的 id 集合 ⊆ `apps/server` 的 id 集合 | 子集，不是相等 | 两面独立：一个功能可以有宿主面而没有界面（§8 下文那句“界面随应用一起构建”就是指这个） |
+
 manifest 只写**现在真有消费者**的字段：
 
 ```json
@@ -414,6 +422,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 | 模块解析交回 Project References 或打包器统一裁决后 |
 | `check-package-layers` | 读 `dependencies` / `peerDependencies` / `devDependencies` 守四个方向：kernel 只依赖 kernel；contracts 只依赖内核的声明层（现为 `@naveti/chord`）；platform 不依赖 feature/app；feature 不依赖任何内核包 | 有（`NAVETI_CHECK_ROOT` 夹具，每个方向一条红例） | 包边界改由打包器或发布清单统一声明后 |
 | `check-client-face` | 从每个功能的 `./client` 入口走**值导入图**（`import type` 不算），命中 `node:*`、`@naveti/host*`、同包 `src/host/**` 即失败 | 有（`NAVETI_CHECK_ROOT` 夹具：node 内置、host 包、同包 host 面、一跳远、无 client 面） | client 面改为独立构建目标、天然不解析 node 后 |
+| `check-feature-registry` | 目录 ↔ manifest ↔ `apps/server` compose 双向相等；功能有 `./client` ⇔ 在 `apps/web` 清单里；web 清单 ⊆ server 清单；seat 必在 `seats.ts` 闭集里（现读该文件，不复制）；`requires` 必指向已装功能 | 有（夹具：无 manifest、id 不匹配、未知 seat、无人安装、幽灵条目、有界面未挂载、无界面却挂载、web 装而 host 未装、悬空 requires、无界面的宿主侧功能必须通过） | `compose.ts` 改为生成物（P5 的 `gen-feature-index`）后，生成器自带一致性 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 | 测试统计改为运行时采集、不再文本计数后 |
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 | 文档站构建的 dead-link 检查接管后 |
 | `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 | 规则文档里的清单段全部移入生成物后 |
@@ -430,7 +439,6 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 守卫 | 判据 | 建它的触发条件 |
 | --- | --- | --- |
 | `check-kernel-facade` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力 | `platform/host/extend/` 建起来后 |
-| `check-feature-registry` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；壳文件无功能 id | 第二个功能出现时 |
 
 ### 不要生成器
 
@@ -540,6 +548,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
 | 检查 | `check-package-layers.mjs` / `.test.mjs` | 包之间的依赖方向：kernel 不依赖产品层、contracts 只依赖内核声明层、platform 不依赖 feature、feature 不依赖内核 |
 | 检查 | `check-client-face.mjs` / `.test.mjs` | 功能的 client 面不加载 `node:*`、`@naveti/host` 或同包 host 面 |
+| 检查 | `check-feature-registry.mjs` / `.test.mjs` | 目录、manifest 与两份 compose 的一致性；seat 闭集；悬空 `requires` |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
 | 检查 | `check-kernel-divergence.mjs` / `.test.mjs` + `kernel-baseline.json` | 内核与基线不一致的每个文件都必须在 `divergence.md` 或 `deviations.md` 被命名；基线同时记录上游独有的路径，所以“恢复了上游文件”不会被当成普通新增 |
