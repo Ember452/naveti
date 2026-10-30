@@ -39,8 +39,10 @@
 3. **commit 是唯一提交点**。generation 与 tool task 的每次写入都在一个 commit 里；一个 commit 同时产生 entry（事实）、doc 变更（投影）与 task 状态变化。所以“工具跑完了”不是一个通知，而是一次 commit 的可见结果。
 4. **view 是投影，不是查询**。会话对外给出的不是“查一次 entry 表”，而是一个带窗口的 view：entry 窗口 + 内建 doc（agent / live / inbox / provider / usage）。它通过 `follow` 接到宿主对象的一个 state 成员上；功能自己的 doc 走同一条 watch，不开第二条通道。
 5. **帧回到界面**。state 成员一变，宿主先给新持有的端一个 snapshot，再用 delta 推送其后每一个 commit 的变更；一个 commit 一帧，界面拿到的顺序就是 commit 顺序。
-6. **界面只渲染**。client 面把 view 映射到 `renderer` 与 `panel` 两个 seat，不读 entry 原文、不写状态；它的本地存留只允许纯视图偏好。
+6. **界面只渲染**。client 面把 view 映射到 `renderer` 与 `panel` 两个 seat，不读 entry 原文、不写状态；它的本地存留只允许两类：纯视图偏好，和本次连接的本机凭据（`sessionStorage`，见 `structure.md` §12 第 11 条）。
 7. **断线不改事实**。连接断开只影响“谁在看”；重启后未完成的 generation 从 entry 日志恢复，view 重新绑定，界面拿到的第一个值就是恢复后的快照。这就是 host 侧那个验收（重启后读得回）为什么不由界面提供证据。
+
+   但要说清楚现状：**进程重启会重建连接，socket 自己掉线不会**。`@naveti/web` 的 `connect` 只拨一次，没有重连与重订阅；断掉之后界面停在最后一个快照上，既不报错也不刷新。桌面端长期开机、休眠/唤醒就会撞上，P3 之前要补（判据：拔掉网络再恢复，界面不刷新也能自己回到最新）。
 
 一句话的所有权划分：**transport 归平台，submission 与 commit 归内核，view 到 state 的接线归平台，帧里的类型归 `contracts`，渲染归功能与壳。** 这条划分是 P2 “第二个功能加进来时平台不用改”的判据：新功能只新增自己的 seat 占用与契约，不新增上面任何一步。
 
