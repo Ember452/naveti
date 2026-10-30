@@ -30,7 +30,7 @@ import { dirname, join, relative } from "node:path";
 
 const ROOT = process.cwd();
 const BASELINE = join(ROOT, "scripts", "test-integrity.json");
-const SCAN_ROOTS = ["packages", "tests"];
+const SCAN_ROOTS = ["packages", "apps", "tests"];
 const SKIP_DIRECTORIES = new Set(["node_modules", "dist", ".upstream"]);
 const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx)$/;
 

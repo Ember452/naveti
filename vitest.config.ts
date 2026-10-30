@@ -18,6 +18,6 @@ export default defineConfig({
 		// (`check-test-integrity.mjs`) catches it in the gate; this catches it at
 		// runtime, including in files the walker does not scan.
 		allowOnly: false,
-		projects: ["packages/*/vitest.config.ts", "packages/*/*/vitest.config.ts"],
+		projects: ["packages/*/vitest.config.ts", "packages/*/*/vitest.config.ts", "apps/*/vitest.config.ts"],
 	},
 });

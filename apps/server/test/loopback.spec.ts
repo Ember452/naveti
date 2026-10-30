@@ -1,0 +1,129 @@
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createModels, fauxAssistantMessage, fauxProvider, fauxText, fauxToolCall } from "@naveti/ai";
+import { ChatConversation, ChatHub, type ChatView } from "@naveti/contracts";
+import { type Host, openHost } from "@naveti/host";
+import { connectLoopback } from "@naveti/host/testing";
+import { afterEach, describe, expect, it } from "vitest";
+import { compose } from "../src/compose.ts";
+
+/**
+ * P2's host-side acceptance, at the composition root: the real `compose`, the real loopback socket, a real turn with
+ * three tool calls, and a restart that reads the same transcript back from the same database file.
+ *
+ * The model is the faux provider because the assertion has to be about the durable path, not about a vendor; the
+ * assertions never mention a token count or a scripted id, so the same body runs under a real provider by swapping the
+ * models object.
+ */
+const directories: string[] = [];
+
+afterEach(async () => {
+	for (const directory of directories.splice(0)) {
+		await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+	}
+});
+
+function toolCall(name: string, args: Parameters<typeof fauxToolCall>[1], id: string) {
+	return fauxAssistantMessage([fauxToolCall(name, args, { id })], { stopReason: "toolUse" });
+}
+
+function scriptedModels() {
+	const faux = fauxProvider();
+	faux.setResponses([
+		toolCall("read", { path: "notes.txt" }, "read-1"),
+		toolCall("edit", { path: "notes.txt", edits: [{ oldText: "world", newText: "naveti" }] }, "edit-1"),
+		toolCall("bash", { command: "cat notes.txt" }, "bash-1"),
+		fauxAssistantMessage([fauxText("The file now greets naveti.")]),
+	]);
+	const models = createModels();
+	models.setProvider(faux.provider);
+	return models;
+}
+
+async function start(directory: string): Promise<Host> {
+	const host = await openHost(
+		{ dataDir: join(directory, "data"), cacheDir: join(directory, "cache") },
+		{
+			models: scriptedModels(),
+			model: { provider: "faux", modelId: "faux-1" },
+			workspace: join(directory, "workspace"),
+			shellPath: process.env.NAVETI_SHELL,
+			onError: () => {},
+		},
+	);
+	await host.install(await Promise.all(compose.map(async (entry) => (await entry.host()).default)));
+	return host;
+}
+
+async function waitFor(done: () => boolean, timeoutMs = 60_000): Promise<void> {
+	const deadline = Date.now() + timeoutMs;
+	while (Date.now() < deadline) {
+		if (done()) return;
+		await new Promise((resolve) => setTimeout(resolve, 20));
+	}
+	throw new Error("timed out waiting for the conversation view");
+}
+
+describe("the loopback round", () => {
+	it("runs read, edit and bash over the socket, and reads the same transcript back after a restart", async () => {
+		const directory = await mkdtemp(join(tmpdir(), "naveti-loopback-"));
+		directories.push(directory);
+		await mkdir(join(directory, "workspace"), { recursive: true });
+		await writeFile(join(directory, "workspace", "notes.txt"), "hello world\n");
+
+		const first = await start(directory);
+		const listener = await first.listen({ port: 0 });
+		const client = await connectLoopback(listener.url);
+		let before: ChatView;
+		try {
+			const hub = await client.get(ChatHub, {});
+			const root = hub.conversations.value[0];
+			if (root === undefined) throw new Error("the feature did not create the reserved conversation");
+			const conversation = await client.get(ChatConversation, { conversation: root.id });
+
+			await conversation.submit({ content: "Greet naveti instead." }, client.context);
+			await waitFor(() => {
+				const view = conversation.view.value;
+				return view.entries.filter((entry) => entry.kind === "naveti.tool-result").length >= 3;
+			});
+
+			before = conversation.view.value;
+			const kinds = before.entries.map((entry) => entry.kind);
+			const transcript = JSON.stringify(before.entries);
+			for (const tool of ["read", "edit", "bash"]) {
+				expect(transcript, `${tool} must be called`).toContain(`"${tool}"`);
+			}
+			expect(before.entries.filter((entry) => entry.kind === "naveti.tool-result")).toHaveLength(3);
+			expect(kinds).toContain("naveti.assistant");
+			expect(transcript).toContain("The file now greets naveti.");
+			// The tool really ran on the server's side: the file on disk changed.
+			expect(await readFile(join(directory, "workspace", "notes.txt"), "utf8")).toBe("hello naveti\n");
+		} finally {
+			await client.close();
+			await listener.close();
+			await first.close();
+		}
+
+		// A second process would do exactly this: a new host over the same dataDir, a new client, the same conversation.
+		const second = await start(directory);
+		const again = await second.listen({ port: 0 });
+		const reopened = await connectLoopback(again.url);
+		try {
+			const hub = await reopened.get(ChatHub, {});
+			const root = hub.conversations.value[0];
+			if (root === undefined) throw new Error("the conversation list did not survive the restart");
+			const conversation = await reopened.get(ChatConversation, { conversation: root.id });
+			expect(conversation.view.value.entries.map((entry) => entry.id)).toEqual(
+				before.entries.map((entry) => entry.id),
+			);
+			expect(conversation.view.value.entries.map((entry) => entry.kind)).toEqual(
+				before.entries.map((entry) => entry.kind),
+			);
+		} finally {
+			await reopened.close();
+			await again.close();
+			await second.close();
+		}
+	});
+});

@@ -1,5 +1,13 @@
 {
 	"files": {
+		"apps/server/test/loopback.spec.ts": {
+			"tests": 1,
+			"each": 0,
+			"skips": 0,
+			"conditionalSkips": 0,
+			"helperSkips": 0,
+			"todos": 0
+		},
 		"packages/features/chat/test/host.spec.ts": {
 			"tests": 2,
 			"each": 0,
