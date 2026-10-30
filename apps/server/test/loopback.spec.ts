@@ -77,7 +77,7 @@ describe("the loopback round", () => {
 		await mkdir(join(directory, "workspace"), { recursive: true });
 		const host = await start(directory);
 		const listener = await host.listen({ port: 0 });
-		const connection = await connectWeb(listener.url);
+		const connection = await connectWeb(listener.url, listener.token);
 		try {
 			const hub = await connection.get(ChatHub, {});
 			const root = hub.conversations.value[0];
@@ -111,7 +111,7 @@ describe("the loopback round", () => {
 
 		const first = await start(directory);
 		const listener = await first.listen({ port: 0 });
-		const client = await connectLoopback(listener.url);
+		const client = await connectLoopback(listener.url, listener.token);
 		let before: ChatView;
 		try {
 			const hub = await client.get(ChatHub, {});
@@ -120,21 +120,32 @@ describe("the loopback round", () => {
 			const conversation = await client.get(ChatConversation, { conversation: root.id });
 
 			await conversation.submit({ content: "Greet naveti instead." }, client.context);
+			// The run is four model turns (call, call, call, answer). Three tool results are not the end: the answer is a
+			// fourth commit after them, so waiting on the tool results alone races the last commit under load.
 			await waitFor(() => {
-				const view = conversation.view.value;
-				return view.entries.filter((entry) => entry.kind === "naveti.tool-result").length >= 3;
+				const entries = conversation.view.value.entries;
+				return (
+					entries.filter((entry) => entry.kind === "naveti.tool-result").length >= 3 &&
+					entries.filter((entry) => entry.kind === "naveti.assistant").length >= 4
+				);
 			});
 
 			before = conversation.view.value;
-			const kinds = before.entries.map((entry) => entry.kind);
-			const transcript = JSON.stringify(before.entries);
-			for (const tool of ["read", "edit", "bash"]) {
-				expect(transcript, `${tool} must be called`).toContain(`"${tool}"`);
-			}
-			expect(before.entries.filter((entry) => entry.kind === "naveti.tool-result")).toHaveLength(3);
-			expect(kinds).toContain("naveti.assistant");
-			expect(transcript).toContain("The file now greets naveti.");
-			// The tool really ran on the server's side: the file on disk changed.
+			// The turn's shape, not the kernel's prompt bookkeeping: `naveti.system` entries are written whenever the prompt
+			// changes, so they are filtered out; the model's wording is the faux provider's business, so no sentence is
+			// asserted either. What is left is the commit order this test exists to pin.
+			const kinds = before.entries.map((entry) => entry.kind).filter((kind) => kind !== "naveti.system");
+			expect(kinds).toEqual([
+				"naveti.user",
+				"naveti.assistant",
+				"naveti.tool-result",
+				"naveti.assistant",
+				"naveti.tool-result",
+				"naveti.assistant",
+				"naveti.tool-result",
+				"naveti.assistant",
+			]);
+			// The tools really ran on the server's side: the file on disk changed.
 			expect(await readFile(join(directory, "workspace", "notes.txt"), "utf8")).toBe("hello naveti\n");
 		} finally {
 			await client.close();
@@ -145,7 +156,7 @@ describe("the loopback round", () => {
 		// A second process would do exactly this: a new host over the same dataDir, a new client, the same conversation.
 		const second = await start(directory);
 		const again = await second.listen({ port: 0 });
-		const reopened = await connectLoopback(again.url);
+		const reopened = await connectLoopback(again.url, again.token);
 		try {
 			const hub = await reopened.get(ChatHub, {});
 			const root = hub.conversations.value[0];
