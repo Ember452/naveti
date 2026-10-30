@@ -74,14 +74,6 @@
 - 前提：会出现**外生**评审证据（非作者提出、且最终代码采纳了的意见）；在那之前，唯一可得的代理是重复次数。
 - 判断依据：查 `.github/` 之外的真实记录——是否出现过"别人提 → 代码采纳"的证据对。有 → 建最小版本（证据 → 候选 → 人工晋升），并保留"工具不许自动合并"这条；没有 → 作废，确认频次代理继续有效，并写进 `.agents/notes/rejected/`。
 
-### 门面入口的认知面积预算
-
-- 来源：本轮讨论——AI 一次只能同时持有内核的一小片，`entry-budgets.json` 的 `maxFiles` 同时也是"读懂这个入口要拖多少文件"
-- 条件：`仅复核`
-- 复核：`review_by 2027-03-01`
-- 前提：把门面子路径从内核根 barrel 里脱出来（给内核加窄子路径）之后，`@naveti/host/extend/*` 的 `maxFiles` 会从今天的量级落到两位数，读者不再为一行 `defineTool` 打开整个 `types.ts`。
-- 判断依据：P2 已实测并确认前提——`extend/tools` 等子路径与内核父入口同量级（证据见 `.agents/notes/implemented/2026-10-30-facade-width-measured.md`）；宽度来自 `export { … } from "@naveti/durable"` 这一行，**拆门面子路径无效**。补救搬进 P4，与 `check-kernel-facade` 同一轮：给内核加窄子路径，把每个门面子路径压到 12 以下；若届时已用别的方式收窄，作废本条并把结论写进 `structure.md` §6。
-
 ### seat 目录生成器
 
 - 来源：DeepSeek `gen-tool-catalog.ts`——不读 AST，直接 boot 插件读运行时注册的 schema，再用 `--check` 保证提交物不腐化
