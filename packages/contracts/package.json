@@ -1,0 +1,29 @@
+{
+	"name": "@naveti/contracts",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Wire contracts and transport declarations shared by the host and every client",
+	"type": "module",
+	"exports": {
+		".": {
+			"source": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./chat": {
+			"source": "./src/chat.ts",
+			"types": "./dist/chat.d.ts",
+			"import": "./dist/chat.js"
+		},
+		"./transport": {
+			"source": "./src/transport.ts",
+			"types": "./dist/transport.d.ts",
+			"import": "./dist/transport.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"sideEffects": false,
+	"dependencies": {
+		"@naveti/chord": "workspace:*"
+	}
+}
