@@ -112,4 +112,30 @@ describe("the chat panel", () => {
 		});
 		expect(submitted).toEqual(["change notes.txt"]);
 	});
+
+	// The report this test exists for: a panel whose first hold is still pending used to show an empty list and an inert
+	// button, which is indistinguishable from a host that is not answering.
+	it("says why it is empty and why the composer is inert", async () => {
+		const { registry, slots } = createSlots();
+		register(registry);
+		const pending = {
+			context: { abortSignal: undefined, telemetry: {} } as Connection["context"],
+			get: (() => new Promise(() => {})) as unknown as Connection["get"],
+			close: async () => {},
+		};
+
+		const container = document.createElement("div");
+		document.body.append(container);
+		const root = createRoot(container);
+		cleanup = () => root.unmount();
+
+		await act(async () => {
+			root.render(<ChatPanel connection={pending} slots={slots as Slots} />);
+		});
+
+		expect(container.textContent ?? "").toContain("connecting to the host…");
+		const button = container.querySelector("button[type=submit]");
+		if (!(button instanceof HTMLButtonElement)) throw new Error("the composer has no send button");
+		expect(button.disabled).toBe(true);
+	});
 });

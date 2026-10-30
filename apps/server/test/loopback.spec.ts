@@ -103,6 +103,12 @@ describe("the loopback round", () => {
 		}
 	});
 
+	it("reports an unreachable address instead of handing back a connection that is not there", async () => {
+		// `client.load([])` needs no link, so a connect that resolved before the socket opened would render a panel whose
+		// every hold is pending forever — an empty screen where "press send does nothing" is the only symptom.
+		await expect(connectWeb("ws://127.0.0.1:1/", "whatever")).rejects.toThrow(/cannot reach ws:\/\/127\.0\.0\.1:1\//);
+	});
+
 	it("runs read, edit and bash over the socket, and reads the same transcript back after a restart", async () => {
 		const directory = await mkdtemp(join(tmpdir(), "naveti-loopback-"));
 		directories.push(directory);

@@ -41,26 +41,32 @@ export function useRemote<T>(readable: RemoteReadable<T> | undefined, context: C
 	return value ?? readable?.value;
 }
 
-/** The result of `get`, re-run when its dependencies change; a failed load logs and leaves the value undefined. */
-export function useAsync<T>(load: (() => Promise<T>) | undefined, dependencies: readonly unknown[]): T | undefined {
-	const [value, setValue] = useState<T | undefined>(undefined);
+/**
+ * What `useAsync` reports. The error is part of the value, not a log line: a panel that only knows "no value yet" cannot
+ * tell a slow host from a refused one, and will happily render an empty screen for both.
+ */
+export type AsyncState<T> = { readonly value: T | undefined; readonly error: string | undefined };
+
+/** The result of `get`, re-run when its dependencies change; a failed load keeps its reason for the panel to show. */
+export function useAsync<T>(load: (() => Promise<T>) | undefined, dependencies: readonly unknown[]): AsyncState<T> {
+	const [state, setState] = useState<AsyncState<T>>({ value: undefined, error: undefined });
 	useEffect(() => {
 		if (load === undefined) {
-			setValue(undefined);
+			setState({ value: undefined, error: undefined });
 			return;
 		}
 		let active = true;
 		void load()
 			.then((result) => {
-				if (active) setValue(result);
+				if (active) setState({ value: result, error: undefined });
 			})
 			.catch((error: unknown) => {
-				console.error("client load:", error);
+				if (active) setState({ value: undefined, error: error instanceof Error ? error.message : String(error) });
 			});
 		return () => {
 			active = false;
 		};
 		// biome-ignore lint/correctness/useExhaustiveDependencies: the caller owns the dependency list, and `load` is a fresh closure every render by design.
 	}, dependencies);
-	return value;
+	return state;
 }

@@ -14,7 +14,8 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 .naveti-list button[aria-current="true"] { background: #1e2227; }
 .naveti-list .title { font-size: 0.9rem; display: block; }
 .naveti-list .when { font-size: 0.75rem; color: #7f868d; }
-.naveti-transcript { padding: 1rem 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.naveti-status { color: #9aa0a6; font-size: 0.9rem; margin: 0.5rem 0; }
+ .naveti-transcript { padding: 1rem 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
 .naveti-entry { border: 1px solid #23262a; border-radius: 0.5rem; padding: 0.6rem 0.75rem; white-space: pre-wrap; }
 .naveti-entry.tool { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 0.85rem; color: #b8c0c8; }
 .naveti-entry.tool header { color: #7fd1a3; margin-bottom: 0.35rem; }
