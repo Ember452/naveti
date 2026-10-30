@@ -74,7 +74,6 @@ export function createHermeticEnvironment(options = {}) {
 		NPM_CONFIG_USERCONFIG: join(root, "npm-userconfig"),
 		NPM_CONFIG_GLOBALCONFIG: join(root, "npm-globalconfig"),
 		NPM_CONFIG_CACHE: npmCache,
-		PI_NO_LOCAL_LLM: "1",
 		AWS_EC2_METADATA_DISABLED: "true",
 	};
 	passthrough(baseEnv, WINDOWS_LOADER, env);

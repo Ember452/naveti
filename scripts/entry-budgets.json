@@ -1,0 +1,68 @@
+{
+	"_comment": "maxFiles = ceil(measured graph size * 1.1). Regenerate with `node scripts/check-entry-graphs.mjs --update`; forbid/allow stay manual. The JSON diff is the review artifact.",
+	"packages/kernel/ai": {
+		"./models": {
+			"maxFiles": 22,
+			"forbid": [
+				"providers/",
+				"models.generated.ts",
+				"index.ts",
+				"utils/validation.ts",
+				"utils/typebox-helpers.ts"
+			],
+			"allow": [
+				"packages/kernel/telemetry/src/index.ts"
+			]
+		},
+		"./utils/*": {
+			"maxFiles": 4,
+			"forbid": [
+				"providers/",
+				"api/",
+				"index.ts"
+			]
+		}
+	},
+	"packages/kernel/codemode": {
+		".": {
+			"maxFiles": 14,
+			"forbid": [
+				"codemode/src/cloudflare.ts"
+			]
+		},
+		"./portable": {
+			"maxFiles": 9,
+			"forbid": [
+				"codemode/src/index.ts",
+				"runtime/host.ts",
+				"runtime/worker.ts",
+				"codemode/src/wasm.ts"
+			]
+		},
+		"./cloudflare": {
+			"maxFiles": 10,
+			"forbid": [
+				"codemode/src/index.ts",
+				"runtime/host.ts",
+				"runtime/worker.ts",
+				"codemode/src/wasm.ts"
+			]
+		}
+	},
+	"packages/kernel/durable": {
+		".": {
+			"maxFiles": 86,
+			"forbid": [
+				"packages/kernel/ai/src/index.ts",
+				"packages/kernel/ai/src/utils/typebox-helpers.ts",
+				"packages/kernel/durable/src/images/"
+			]
+		},
+		"./tools": {
+			"maxFiles": 19,
+			"forbid": [
+				"packages/kernel/durable/src/images/"
+			]
+		}
+	}
+}

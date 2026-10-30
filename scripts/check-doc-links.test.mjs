@@ -69,3 +69,14 @@ test("accepts a root-absolute link when the file exists", async (t) => {
 	const result = run(root);
 	assert.equal(result.status, 0, result.stderr);
 });
+
+test("checks feature and app READMEs", async (t) => {
+	const root = await workspace(t, {
+		"packages/features/x/README.md": "[gone](./missing.md)\n",
+		"apps/server/README.md": "[gone](./missing.md)\n",
+	});
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /packages\/features\/x\/README\.md:1/);
+	assert.match(result.stderr, /apps\/server\/README\.md:1/);
+});

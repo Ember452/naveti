@@ -45,14 +45,30 @@ function tryGit(args) {
 }
 
 function changedFiles() {
-	const tracked = tryGit(["diff", "--name-only", "HEAD"]) ?? "";
+	// `git diff HEAD` misses a staged change that was reverted in the working tree.
+	// The union of the index and the working tree is what the commit and the checkout
+	// actually contain between them.
+	const staged = tryGit(["diff", "--cached", "--name-only"]) ?? "";
+	const unstaged = tryGit(["diff", "--name-only"]) ?? "";
 	const untracked = tryGit(["ls-files", "--others", "--exclude-standard"]) ?? "";
 	return new Set(
-		[...tracked.split("\n"), ...untracked.split("\n")]
+		[...staged.split("\n"), ...unstaged.split("\n"), ...untracked.split("\n")]
 			.map((line) => line.trim())
 			.filter((line) => line.length > 0)
 			.map((line) => line.split("\\").join("/")),
 	);
+}
+
+/**
+ * The version that matters is the one the commit would contain. When the index differs
+ * from HEAD, that is the index; otherwise fall back to the working tree so unstaged
+ * edits are still seen.
+ */
+function currentText(path, absolute) {
+	const index = tryGit(["show", `:${path}`]);
+	const head = tryGit(["show", `HEAD:${path}`]);
+	if (index !== undefined && index !== head) return index;
+	return existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined;
 }
 
 function dependencySections(manifest) {
@@ -98,14 +114,16 @@ for (const path of changed) {
 	if (path === WORKSPACE_FILE) {
 		const previous = overridesBlock(tryGit(["show", `HEAD:${path}`]) ?? "");
 		const absolute = join(ROOT, path);
-		const current = existsSync(absolute) ? overridesBlock(readFileSync(absolute, "utf8")) : "";
+		const current = overridesBlock(currentText(path, absolute) ?? "");
 		if (previous !== current) manifestChanges.push(`${path} (overrides)`);
 		continue;
 	}
 	if (path !== "package.json" && !path.endsWith("/package.json")) continue;
 	const absolute = join(ROOT, path);
 	if (!existsSync(absolute)) continue; // deleted manifest: nothing to resolve
-	const current = JSON.parse(readFileSync(absolute, "utf8"));
+	const currentTextValue = currentText(path, absolute);
+	if (currentTextValue === undefined) continue;
+	const current = JSON.parse(currentTextValue);
 	const previousText = tryGit(["show", `HEAD:${path}`]);
 	if (previousText === undefined) continue; // new manifest
 	const previous = JSON.parse(previousText);

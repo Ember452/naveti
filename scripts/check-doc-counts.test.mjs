@@ -54,6 +54,46 @@ test("rejects the retired 待建 marker", async (t) => {
 	assert.match(result.stderr, /\[待建\]/);
 });
 
+test("rejects the full-width 待建 marker", async (t) => {
+	const root = await workspace(t, { "docs/structure.md": "| `packages/AGENTS.md`（待建） |\n" });
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /（待建）/);
+});
+
+test("rejects Chinese-numeral inventory phrases", async (t) => {
+	const root = await workspace(t, { "KERNEL.md": "pnpm check 由六条结构守卫组成。\n" });
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /六条结构守卫/);
+});
+
+test("rejects Chinese-numeral rule counts", async (t) => {
+	const root = await workspace(t, { "docs/README.md": "四条写文档的规矩。\n" });
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /四条写文档的规矩/);
+});
+
+test("rejects Chinese-numeral document counts", async (t) => {
+	const root = await workspace(t, { "AGENTS.md": "八篇合计超过 70 KB。\n" });
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /八篇/);
+});
+
+test("accepts the singular 一条守卫", async (t) => {
+	const root = await workspace(t, { "AGENTS.md": "新增一条守卫时，补红例。\n" });
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+});
+
+test("accepts 两条守卫 as a specific pair, not an inventory", async (t) => {
+	const root = await workspace(t, { ".agents/skills/x/SKILL.md": "两条守卫补上 root 注入与红例。\n" });
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+});
+
 test("leaves docs/migration alone: counting is its job", async (t) => {
 	const root = await workspace(t, { "docs/migration/baseline.md": "现有 6 条门禁，18 个脚本，全绿。\n" });
 	const result = run(root);

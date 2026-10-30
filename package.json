@@ -24,6 +24,7 @@
 		"test:scripts": "node --test scripts/*.test.mjs scripts/*.test.ts",
 		"test:ci": "node scripts/run-tests.mjs --projects --hermetic",
 		"test:ci:local": "node scripts/run-tests.mjs --projects",
+		"smoke": "node --conditions=source tests/smoke/persist-resume.ts",
 		"hooks:install": "node scripts/install-hooks.mjs",
 		"rename:scope": "node scripts/rename-scope.mjs",
 		"check:doc-links": "node scripts/check-doc-links.mjs",

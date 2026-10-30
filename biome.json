@@ -29,6 +29,8 @@
 			"scripts/model-catalog-protocol.test.ts",
 			"vitest.config.ts",
 			"vitest.base.ts",
+			"packages/*/src/**/*.ts",
+			"packages/*/test/**/*.ts",
 			"packages/*/*/src/**/*.ts",
 			"packages/*/*/test/**/*.ts",
 			"packages/kernel/ai/catalog/**/*.ts",

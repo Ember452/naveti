@@ -117,3 +117,17 @@ test("still rejects a lockfile change when overrides are untouched", async (t) =
 	assert.equal(result.status, 1);
 	assert.match(result.stderr, /or in pnpm-workspace\.yaml overrides/);
 });
+
+test("rejects a staged dependency change reverted in the working tree", async (t) => {
+	const root = await repository(t);
+	await writeFile(
+		join(root, "package.json"),
+		JSON.stringify({ ...baseManifest, dependencies: { left: "1.0.0", right: "2.0.0" } }, null, 2),
+	);
+	git(root, ["add", "package.json"]);
+	// The commit would contain the index version even though the working tree is back at HEAD.
+	await writeFile(join(root, "package.json"), JSON.stringify(baseManifest, null, 2));
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /dependency sections changed in package\.json but pnpm-lock\.yaml did not/);
+});

@@ -4,7 +4,7 @@
 
 ## 谁能提交
 
-`.github/workflows/pr-gate.yml` 会检查 PR 作者是否在 `.github/APPROVED_CONTRIBUTORS` 里，或者是否是仓库协作者。不在名单里的外部 PR 会被自动关闭并留下说明。想提交请先开 issue。
+`.github/workflows/pr-gate.yml` 会检查 PR 作者是否在 `.github/APPROVED_CONTRIBUTORS` 里，或者是否是仓库协作者。名单初始为空（只保留协作者），外部 PR 会被自动关闭并留下说明。想提交请先开 issue；维护者在 issue 回复 `lgtmi`（后续 issue 保持打开）或 `lgtm`（后续 issue 与 PR 都保持打开）后，`approve-contributor.yml` 会把该账号写进名单。
 
 ## Issue 优先
 
@@ -19,8 +19,8 @@
 | Job | 覆盖 |
 | --- | --- |
 | `build-check` | `pnpm install --frozen-lockfile` → `pnpm build` → `pnpm check` |
-| `test (durable)` | `durable` 的默认套件 + retention-off 第二遍 + `test:store` + `test:workers` |
-| `test (other)` | 其余五个包各自的 `test` 脚本 + `test:scripts` |
+| `test-ci` | `pnpm test:ci`：单进程、全部 project、密封环境，与本地同源 |
+| `durable-lanes` | `test:retention0` + `test:store` + `test:workers`（`test:ci` 不跑的三条） |
 
 本地等价命令：
 
@@ -29,7 +29,10 @@ pnpm install
 pnpm build          # 测试需要 dist：ai 与 chord 的 probe 用例走构建产物
 pnpm check
 pnpm test:ci        # 单进程 + 密封环境
+pnpm smoke          # 持久化与恢复冒烟
 ```
+
+`durable` 的额外 lane 用 `pnpm --filter @naveti/durable run test:retention0|test:store|test:workers`；`pnpm test` 只跑默认套件。
 
 装一次钩子，让静态检查在提交时就跑：`pnpm hooks:install`。
 

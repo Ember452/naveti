@@ -93,7 +93,7 @@ naveti/
 │   └── migration/                       README / baseline / deviations / upstream-sync / diffs/
 ├── .agents/
 │   ├── notes/{proposed,implemented,archived,rejected}/   决策记录（§14）
-│   └── skills/<name>/SKILL.md          [未建] 仓库级 agent skill
+│   └── skills/add-a-guard/SKILL.md      已建；其余按需
 ├── .github/
 │   ├── workflows/                       见 §14
 │   ├── ISSUE_TEMPLATE/                  bug / config / contribution / package-report
@@ -164,8 +164,8 @@ naveti/
 @naveti/host/extend/hooks        hook、ToolTask / GenerationTask 的 handler 类型
 @naveti/host/extend/prompt       section
 @naveti/host/extend/wrap         wrapTool、wrapSection
-@naveti/host/extend/settings     设置 schema（待建）
-@naveti/host/extend/service      宿主侧服务注册（待建）
+@naveti/host/extend/settings     设置 schema [未建]
+@naveti/host/extend/service      宿主侧服务注册 [未建]
 @naveti/host/extend/types        纯类型汇总（功能只做类型标注时用这个）
 ```
 
@@ -332,7 +332,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 权威表在 [`docs/kernel/seats.md`](./kernel/seats.md)：每个 seat 记机制（哪个内核符号）、门面子路径、状态、典型用途；另有 `doc` 三种 scope 的取舍表、新增 seat 的门槛、provider 与 seat 的区分。**本文不复制那张表**（复制即漂移）。
 
-一句话摘要：宿主侧 9 个 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension` `config` `service`），客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。
+一句话摘要：宿主侧 7 个已采用 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension`），另有 `config` / `service` 两个候选；客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。权威表见 [`docs/kernel/seats.md`](./kernel/seats.md)。
 
 ## 11. 发布形态：一个打包入口，不给每包写构建配置
 
@@ -395,8 +395,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 |
 | `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 |
 | `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） |
-| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败），且命中的目录必须自带 `vitest.config.ts` | 有 |
-| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来） | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
+| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败）；含测试的包必须自带 `vitest.config.ts` 且被某个 glob 收集 | 有 |
+| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
@@ -430,7 +430,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 - **为什么不能"测试在包里，所以每包一个 runner"**：旧做法是每包一次 `vitest`，包数 N 就启动 N 次、N 份 transform 缓存。30–50 个包时反馈时间线性增长，而这是每天要做几十次的动作。
 - 包内 `vitest.config.ts` 只在确实需要特殊设置时存在，默认继承根配置。
 - **隔离例外**：会 spy 全局定时器或共享模块状态的用例（现在 `chord` 有一个）单独放一个 project，只对它设 `isolate` / `--no-file-parallelism`，不要因此把整包改成串行。
-- CI 的车道划分（现在 `durable` 单跑、`other` 遍历）改成按 project 过滤或 shard，不再靠目录循环。
+- CI 的车道划分：`test-ci` 跑与本地同源的 `pnpm test:ci`（含 `pnpm smoke`），`durable-lanes` 只补 `test:ci` 不跑的 retention0 / store / workers；不再按目录循环。
+- `durable` 的 `test` 只跑默认套件；`retention0` / `store` / `workers` 是显式 lane（`test:retention0` / `test:store` / `test:workers`），由 `durable-lanes` 跑，不要靠 `pnpm test` 全跑。
 
 ### 13.2 测试完整性：清单棘轮，不是上限
 
@@ -440,8 +441,9 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 - **不需要基线的硬规则**：`.only` 直接红（它会让整轮只剩标记的用例）；`describe.skip` 直接红（整块消失）。`vitest.config.ts` 另设 `allowOnly: false` 做运行时兜底，防止绕过文本扫描。
 - **允许的方向**：测试数可增、各类 skip 可减、新测试文件随便加。只有反方向红。
+- **重构例外**：同一文件的 `each` 计数上升时，`tests` 下降不再算“删测试”，但仍必须跑 `--write` 重新基线；否则豁免会一直复用旧基线。JSON diff 是审查物。它仍然抓不到“加一个 `.each` 同时删掉更多用例”的具体数量，只能要求这次重基线被看见。
 - **删文件**必须同步改基线，否则红——删除也是变更，必须进 diff。
-- **局限（必须知道）**：这是文本计数，不是运行时统计。把 10 个用例改写成 1 个 `.each` 会让 `tests` 下降而红，那是预期的（强制你在 diff 里说明）；但把断言从 `toBe(4)` 改成 `toBeGreaterThan(0)` 它**抓不到**。测试**质量**不属于这道守卫，只能靠黄金文件与人工验收。
+- **局限（必须知道）**：这是文本计数，不是运行时统计。`.each` 重构会要求一次 `--write` 重基线，但“加一个 `.each` 同时删更多用例”的具体数量仍可能漏过；把断言从 `toBe(4)` 改成 `toBeGreaterThan(0)` 它**抓不到**。测试**质量**不属于这道守卫，只能靠黄金文件与人工验收。
 
 ## 14. 仓库级基础设施
 
@@ -451,7 +453,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 | 文件 | 负责 | 需要改什么 |
 | --- | --- | --- |
-| `ci.yml` | `build-check`（build → check）+ `test`（矩阵：`durable` 单跑、`other` 遍历其余包） | 已转 pnpm；Ubuntu 已有两次实测（数字见 `docs/migration/baseline.md`） |
+| `ci.yml` | `build-check`（build → check）+ `test-ci`（`pnpm test:ci` + `pnpm smoke`，与本地同源）+ `durable-lanes`（retention0 / store / workers） | 已转 pnpm；Ubuntu 已有两次实测（数字见 `docs/migration/baseline.md`） |
+| `pr-title.yml` | PR 标题格式：`type(scope): 摘要` | 不动 |
 | `deps-audit.yml` | 生产依赖公告审计（定时） | 已转 pnpm：`pnpm install --frozen-lockfile` + `node scripts/deps-audit.mjs`。npm 的 `audit signatures` 步骤已删——pnpm 无等价命令，锁文件完整性由安装本身保证 |
 | `pr-gate.yml` | PR 门槛 | 不动 |
 | `issue-gate.yml` | issue 准入门槛 | 不动 |
@@ -494,9 +497,9 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 文件 | 负责 | 纪律 |
 | --- | --- | --- |
 | 根 `AGENTS.md` | agent 在本仓库的硬约束：读文档顺序、位置对照表、依赖方向、加功能流程、改内核流程、禁止事项、验收命令 | 只写"必须"与"指针"，不复制本文表格 |
-| `packages/AGENTS.md`（待建） | 包级补充规则（导出形态、测试位置、README 要求） | 第一个自研包落地时建 |
+| `packages/AGENTS.md` [未建] | 包级补充规则（导出形态、测试位置、README 要求） | 第一个自研包落地时建 |
 | `CLAUDE.md` | 一句话指针：规则见 `AGENTS.md` | 永远不放第二份规则 |
-| `.claude/skills`（待建） | 符号链接 → `../.agents/skills` | 与 `.agents/skills` 同时建，不做第二份 |
+| `.claude/skills` [未建] | 符号链接 → `../.agents/skills` | 与 `.agents/skills` 同时建，不做第二份 |
 
 ### `docs/`
 
@@ -518,7 +521,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-gate-registration.mjs` / `.test.mjs` | 守卫本身不得漏登记（缺红例 / 不在链里 / 不在本文） |
 | 审计 | `deps-audit.mjs` / `.test.mjs` + `deps-audit-accept.json` | 生产依赖公告；要联网所以不进 `check`，定时跑；豁免是一条带理由的数据行 |
 | 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
-| 检查 | `check-entry-graphs.mjs` / `.test.mjs` | 入口值导入图预算 |
+| 检查 | `check-entry-graphs.mjs` / `.test.mjs` + `entry-budgets.json` | 入口值导入图预算；`--update` 重写 `maxFiles` |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
@@ -541,6 +544,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 具体的触发条件表、阶段顺序与验收 gate 都在 [`plan/master-plan.md`](./plan/master-plan.md)：它们是会变的，所以不住在本文。
 
+`deploy/`、`docker/` 不在 §16 的禁令里：第一次出安装包时，如果发布路径需要它们，按 `plan/master-plan.md` 的 P3 触发条件再建。
+
 ## 16. 明确不建
 
 | 不建 | 原因 |
@@ -550,11 +555,13 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 按能力类型横切的 `kernel/` + `capabilities/` 分组 | 那是上一版散落的来源；归属按"谁拥有"分，不按"能力像什么"分 |
 | `plugins/` 运行期插件层 | 编译期内置已由 `features/` 承载；再开一层会得到两套生命周期。§8 已写清它的真实边界 |
 | `docs/decisions/` | 决策记录的唯一落点是 `.agents/notes/` |
-| `evals/`、`profiles/`、`rfcs/`、`infra/`、`docker/`、`deploy/`、`examples/` | 没有当前消费者（`packages/durable/test/examples/` 已有可跑样例） |
+| `evals/`、`profiles/`、`rfcs/`、`infra/`、`examples/` | 没有当前消费者（`packages/durable/test/examples/` 已有可跑样例） |
 | 仓库级 `snapshots/` | 黄金文件放 `tests/golden/`，功能夹具放功能内 |
 | 每包一份 `tsconfig.build.json` | 发布期由根上单个 `tsdown` 入口按 manifest 打包（§11） |
 | `gen-paths.mjs`（生成 `paths`/alias 的脚本） | 它把"能不能正确解析"变成"有没有跑脚本"，见 §13 |
 | 任何标了 `[未建]` 的目录先建空壳 | 空目录会让“结构已完成”与“结构已规划”无法区分 |
+
+`deploy/`、`docker/` 不在这里：它们由 P3 的发布路径决定，见 §15 与 [`plan/master-plan.md`](./plan/master-plan.md)。
 
 ## 17. 权威分工
 

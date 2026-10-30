@@ -17,17 +17,21 @@ This repository vendors source code from the open-source project **pi**
 
 | Vendored path | Upstream package | Upstream path |
 | --- | --- | --- |
-| `packages/telemetry` | `@earendil-works/pi-telemetry` | `packages/telemetry` |
-| `packages/ai` | `@earendil-works/pi-ai` | `packages/ai` |
-| `packages/chord` | `@earendil-works/chord` | `packages/chord` |
-| `packages/codemode` | `@earendil-works/pi-codemode` | `packages/codemode` |
-| `packages/mcp` | `@earendil-works/pi-mcp` | `packages/mcp` |
-| `packages/durable` | `@earendil-works/pi-durable` | `packages/durable` |
+| `packages/kernel/telemetry` | `@earendil-works/pi-telemetry` | `packages/telemetry` |
+| `packages/kernel/ai` | `@earendil-works/pi-ai` | `packages/ai` |
+| `packages/kernel/chord` | `@earendil-works/chord` | `packages/chord` |
+| `packages/kernel/codemode` | `@earendil-works/pi-codemode` | `packages/codemode` |
+| `packages/kernel/mcp` | `@earendil-works/pi-mcp` | `packages/mcp` |
+| `packages/kernel/durable` | `@earendil-works/pi-durable` | `packages/durable` |
 
-Vendored source is kept structurally identical to upstream: directory layout,
-`exports` maps, module sub-paths and test suites are unchanged. The only
-mechanical change is the package scope, renamed to `@naveti/*` (see
-`scripts/rename-scope.mjs` and `docs/migration/rename-report.json`).
+Vendored source is kept structurally identical inside each package: `exports`
+maps, module sub-paths and test suites are unchanged. The packages live under
+`packages/kernel/` (deviation D13); the only mechanical source change is the
+package scope, renamed to `@naveti/*` (see `scripts/rename-scope.mjs` and
+`docs/migration/rename-report.json`).
+
+The maintained deviation list is [`docs/migration/deviations.md`](./docs/migration/deviations.md);
+this file keeps licence, provenance and the original migration record.
 
 ## Not vendored
 
@@ -46,7 +50,8 @@ product-layer code rather than kernel:
    already points at `catalog/generate.ts` (the real generator, which fetches
    upstream catalogs). `src/providers/data/` is gitignored upstream and was
    absent from the snapshot, so it is generated once with
-   `node catalog/generate.ts --strict`; `build` regenerates it.
+   `node catalog/generate.ts --strict`; `build` verifies it offline, and
+   `build:catalog` refreshes it.
 2. Root `package.json`, `tsconfig.json`, `biome.json`, `vitest.base.ts` and
    `scripts/check-entry-graphs.mjs` are trimmed to the six vendored packages.
 3. Release, publish, installer and coding-agent tooling scripts from upstream
@@ -58,7 +63,7 @@ product-layer code rather than kernel:
 5. `packages/ai/src/providers/data/*.json` is regenerated with
    `node catalog/generate.ts --strict` because the snapshot shipped without it
    while every `*.models.ts` imports it. Generated data tracks upstream model
-   catalogs; see KERNEL.md section 3 for the follow-up policy.
+   catalogs; see `KERNEL.md` §5 for the follow-up policy.
 6. `packages/chord/test/boundary.test.ts` compares resolved paths with the
    platform separator instead of a hardcoded `/`, which rejected every relative
    import on Windows. The assertions are unchanged.
@@ -73,7 +78,7 @@ product-layer code rather than kernel:
    mcp-conformance job were removed.
 9. Root tooling added for this repository: `scripts/scope-rules.mjs`,
    `scripts/rename-scope.mjs`, `scripts/sync-upstream.mjs`,
-   `scripts/run-tests.mjs`, plus the upstream `scripts/npm-audit.mjs`,
+   `scripts/run-tests.mjs`, plus `scripts/deps-audit.mjs`,
    `scripts/release-packages.mjs`, `scripts/package-workspaces.mjs` that the
    retained checks import. `tests/smoke/persist-resume.ts` is a local
    persistence check, not upstream code.
@@ -85,8 +90,11 @@ product-layer code rather than kernel:
 11. Package `README.md` / `CHANGELOG.md` / `docs/*.md` keep the upstream scope on
     purpose, so they still read `npm install @earendil-works/pi-*`. `rename-scope.mjs`
     skips `.md` to preserve the vendored provenance; install instructions for this
-    repository live in the root `NOTICE.md` and `KERNEL.md`.
+    repository live in the root `NOTICE.md` and `KERNEL.md`. Two package READMEs
+    that named the old attribution constant were corrected to `NAVETI_ATTRIBUTION`
+    (D11 addendum); no source file changed.
 
-Code identifiers such as `PI_ATTRIBUTION`, `DEFAULT_AGENT_IDENTITY` and
-`DEFAULT_HARNESS_IDENTITY` are kept as-is. Product identity is supplied by the
-caller through the `identity` option.
+The attribution constant is `NAVETI_ATTRIBUTION`, and `DEFAULT_HARNESS_IDENTITY`
+is `{ attribution: NAVETI_ATTRIBUTION }` (D11). `DEFAULT_AGENT_IDENTITY` is not
+part of this tree. Product identity is supplied by the caller through the
+`identity` option.

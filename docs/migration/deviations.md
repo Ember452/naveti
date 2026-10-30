@@ -165,6 +165,11 @@ makes a 247,000-line vendored tree reviewable.
   original `docs/migration/README.md` — claimed `pi.user` / `PI_ATTRIBUTION` were
   kept as-is. That described the snapshot, not this tree. Trust the grep, not the
   prose.
+- **Addendum (2026-10-30):** two vendored package READMEs —
+  `packages/kernel/ai/README.md` and `packages/kernel/durable/README.md` — still
+  named `PI_ATTRIBUTION`. They were corrected to `NAVETI_ATTRIBUTION`; the change
+  is documentation-only and does not touch source. The generated upstream diff in
+  `docs/migration/diffs/` still shows the old name and is not authoritative.
 
 ## D12 — Text files pinned to LF, tutorial test normalizes CRLF
 
@@ -249,4 +254,27 @@ makes a 247,000-line vendored tree reviewable.
 - **Risk:** an upstream fix to a root config (a workflows guard, a hook list, a
   `.gitattributes` rule) will never surface. Re-run the root comparison by hand
   when taking a new snapshot; `packages/` parity does not imply repository parity.
+
+## D16 — The hermetic harness no longer sets `PI_NO_LOCAL_LLM`
+
+- **What:** `scripts/hermetic-env.mjs` dropped `PI_NO_LOCAL_LLM: "1"`.
+- **Why:** no vendored code reads it. `git grep PI_NO_LOCAL_LLM` returned only that
+  line; greps for `NO_LOCAL`, `ollama` and `11434` returned nothing. It looked like
+  a local-LLM guard and guarded nothing.
+- **Risk:** none. The variable was never read, so removing it cannot change
+  behaviour.
+
+## D17 — Inherited upstream contributor approvals removed
+
+- **What:** `.github/APPROVED_CONTRIBUTORS` started with 274 entries inherited
+  from the upstream pi snapshot, all carrying `pr` capability. The entries are
+  removed; the header and the `approve-contributor.yml` mechanism remain.
+- **Why:** those accounts are pi contributors, not naveti collaborators. Keeping
+  them means 274 external accounts can open PRs without the auto-close gate,
+  which is an inherited authorisation surface rather than a decision about this
+  repository.
+- **Risk:** external contributors now hit the documented auto-close unless a
+  maintainer replies `lgtmi` or `lgtm` on their issue. The repository owner is a
+  collaborator and is unaffected. The file is additive again: the next approval
+  writes one entry and the change is reviewable.
 

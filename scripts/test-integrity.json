@@ -2,6 +2,7 @@
 	"files": {
 		"packages/kernel/ai/test/abort.test.ts": {
 			"tests": 41,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 2,
 			"helperSkips": 0,
@@ -9,6 +10,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-auth-token.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -16,6 +18,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-cache-write-1h-cost.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -23,6 +26,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-eager-tool-input-compat.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -30,6 +34,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-eager-tool-input-e2e.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 2,
 			"helperSkips": 0,
@@ -37,6 +42,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-empty-thinking-signature-compat.test.ts": {
 			"tests": 5,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -44,6 +50,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-error-tool-result-images.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -51,6 +58,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-federation-sdk.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -58,6 +66,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-federation.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -65,6 +74,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-force-adaptive-thinking.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -72,6 +82,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-long-cache-retention-e2e.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -79,6 +90,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-mid-conversation-effort.test.ts": {
 			"tests": 10,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -86,6 +98,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-oauth.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -93,6 +106,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-opus-4-8-smoke.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -100,6 +114,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-sse-parsing.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -107,6 +122,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-strict-tool-fallback.test.ts": {
 			"tests": 10,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -114,6 +130,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-strict-tool-schema.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -121,6 +138,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-temperature-compat.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -128,6 +146,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-thinking-binding-e2e.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -135,6 +154,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-thinking-disable.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -142,6 +162,7 @@
 		},
 		"packages/kernel/ai/test/anthropic-tool-name-normalization.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -149,6 +170,7 @@
 		},
 		"packages/kernel/ai/test/azure-openai-base-url.test.ts": {
 			"tests": 17,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -156,6 +178,7 @@
 		},
 		"packages/kernel/ai/test/azure-openai-completions.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -163,6 +186,7 @@
 		},
 		"packages/kernel/ai/test/azure-openai-responses-reasoning-replay.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -170,6 +194,7 @@
 		},
 		"packages/kernel/ai/test/azure-openai-tool-choice.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -177,6 +202,7 @@
 		},
 		"packages/kernel/ai/test/baseten-models.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -184,6 +210,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-cache-write-1h-cost.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -191,6 +218,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-convert-messages.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -198,6 +226,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-credentials.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -205,6 +234,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-custom-headers.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -212,6 +242,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-endpoint-resolution.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -219,6 +250,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-error-metadata.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -226,6 +258,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-models.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -233,6 +266,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-raw-stop-reason.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -240,6 +274,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-redacted-reasoning.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -247,6 +282,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-response-headers.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -254,6 +290,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-stream-state.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -261,6 +298,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-strict-tool-fallback.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -268,6 +306,7 @@
 		},
 		"packages/kernel/ai/test/bedrock-thinking-payload.test.ts": {
 			"tests": 19,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -275,6 +314,7 @@
 		},
 		"packages/kernel/ai/test/cache-retention.test.ts": {
 			"tests": 19,
+			"each": 4,
 			"skips": 0,
 			"conditionalSkips": 4,
 			"helperSkips": 0,
@@ -282,6 +322,7 @@
 		},
 		"packages/kernel/ai/test/classifier-images-live.test.ts": {
 			"tests": 3,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -289,6 +330,7 @@
 		},
 		"packages/kernel/ai/test/classifier-models.test.ts": {
 			"tests": 8,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -296,6 +338,7 @@
 		},
 		"packages/kernel/ai/test/cloudflare-ai-binding.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -303,6 +346,7 @@
 		},
 		"packages/kernel/ai/test/cloudflare-stream.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -310,6 +354,7 @@
 		},
 		"packages/kernel/ai/test/cloudflare-workers-ai-system-one.test.ts": {
 			"tests": 9,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -317,6 +362,7 @@
 		},
 		"packages/kernel/ai/test/compat-env.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -324,6 +370,7 @@
 		},
 		"packages/kernel/ai/test/compat-schema.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -331,6 +378,7 @@
 		},
 		"packages/kernel/ai/test/constrained-sampling.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -338,6 +386,7 @@
 		},
 		"packages/kernel/ai/test/context-estimate.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -345,6 +394,7 @@
 		},
 		"packages/kernel/ai/test/context-overflow.test.ts": {
 			"tests": 35,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 3,
 			"helperSkips": 0,
@@ -352,6 +402,7 @@
 		},
 		"packages/kernel/ai/test/cross-provider-handoff.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 2,
 			"helperSkips": 0,
@@ -359,6 +410,7 @@
 		},
 		"packages/kernel/ai/test/empty.test.ts": {
 			"tests": 120,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 16,
 			"helperSkips": 0,
@@ -366,6 +418,7 @@
 		},
 		"packages/kernel/ai/test/env-api-keys.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -373,6 +426,7 @@
 		},
 		"packages/kernel/ai/test/error-body.test.ts": {
 			"tests": 17,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -380,6 +434,7 @@
 		},
 		"packages/kernel/ai/test/event-stream.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -387,6 +442,7 @@
 		},
 		"packages/kernel/ai/test/faux-provider.test.ts": {
 			"tests": 24,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -394,6 +450,7 @@
 		},
 		"packages/kernel/ai/test/fetch-option.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -401,6 +458,7 @@
 		},
 		"packages/kernel/ai/test/fireworks-model-generation.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -408,6 +466,7 @@
 		},
 		"packages/kernel/ai/test/fireworks-models.test.ts": {
 			"tests": 19,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -415,6 +474,7 @@
 		},
 		"packages/kernel/ai/test/generate-models-strict.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -422,6 +482,7 @@
 		},
 		"packages/kernel/ai/test/github-copilot-anthropic.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -429,6 +490,7 @@
 		},
 		"packages/kernel/ai/test/github-copilot-oauth.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -436,6 +498,7 @@
 		},
 		"packages/kernel/ai/test/github-copilot-request-size-overflow.test.ts": {
 			"tests": 1,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -443,6 +506,7 @@
 		},
 		"packages/kernel/ai/test/google-raw-stop-reason.test.ts": {
 			"tests": 7,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -450,6 +514,7 @@
 		},
 		"packages/kernel/ai/test/google-shared-convert-tools.test.ts": {
 			"tests": 12,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -457,6 +522,7 @@
 		},
 		"packages/kernel/ai/test/google-shared-gemini3-unsigned-tool-call.test.ts": {
 			"tests": 6,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -464,6 +530,7 @@
 		},
 		"packages/kernel/ai/test/google-shared-image-tool-result-routing.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -471,6 +538,7 @@
 		},
 		"packages/kernel/ai/test/google-shared-retry.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -478,6 +546,7 @@
 		},
 		"packages/kernel/ai/test/google-shared-signed-empty-blocks.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -485,6 +554,7 @@
 		},
 		"packages/kernel/ai/test/google-thinking-disable.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 2,
 			"helperSkips": 0,
@@ -492,6 +562,7 @@
 		},
 		"packages/kernel/ai/test/google-thinking-level-map.test.ts": {
 			"tests": 10,
+			"each": 5,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -499,6 +570,7 @@
 		},
 		"packages/kernel/ai/test/google-thinking-signature.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -506,6 +578,7 @@
 		},
 		"packages/kernel/ai/test/google-vertex-api-key-resolution.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -513,6 +586,7 @@
 		},
 		"packages/kernel/ai/test/identity.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -520,6 +594,7 @@
 		},
 		"packages/kernel/ai/test/image-model-data.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -527,6 +602,7 @@
 		},
 		"packages/kernel/ai/test/image-tool-result.test.ts": {
 			"tests": 44,
+			"each": 0,
 			"skips": 4,
 			"conditionalSkips": 8,
 			"helperSkips": 0,
@@ -534,6 +610,7 @@
 		},
 		"packages/kernel/ai/test/images-models.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -541,6 +618,7 @@
 		},
 		"packages/kernel/ai/test/images.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -548,6 +626,7 @@
 		},
 		"packages/kernel/ai/test/interleaved-thinking.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -555,6 +634,7 @@
 		},
 		"packages/kernel/ai/test/json-parse.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -562,6 +642,7 @@
 		},
 		"packages/kernel/ai/test/kimi-coding-oauth.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -569,6 +650,7 @@
 		},
 		"packages/kernel/ai/test/lax-message-content.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -576,6 +658,7 @@
 		},
 		"packages/kernel/ai/test/lazy-module-load.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -583,6 +666,7 @@
 		},
 		"packages/kernel/ai/test/llama-cpp-classify.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -590,6 +674,7 @@
 		},
 		"packages/kernel/ai/test/max-thinking.test.ts": {
 			"tests": 4,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -597,6 +682,7 @@
 		},
 		"packages/kernel/ai/test/message-types.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -604,6 +690,7 @@
 		},
 		"packages/kernel/ai/test/meta-oauth.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -611,6 +698,7 @@
 		},
 		"packages/kernel/ai/test/mistral-http-transport.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -618,6 +706,7 @@
 		},
 		"packages/kernel/ai/test/mistral-raw-stop-reason.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -625,6 +714,7 @@
 		},
 		"packages/kernel/ai/test/mistral-reasoning-mode.test.ts": {
 			"tests": 11,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -632,6 +722,7 @@
 		},
 		"packages/kernel/ai/test/mistral-tool-schema.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -639,6 +730,7 @@
 		},
 		"packages/kernel/ai/test/model-catalog-types.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -646,6 +738,7 @@
 		},
 		"packages/kernel/ai/test/model-cost-tiers.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -653,6 +746,7 @@
 		},
 		"packages/kernel/ai/test/model-data-validation.test.ts": {
 			"tests": 21,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -660,6 +754,7 @@
 		},
 		"packages/kernel/ai/test/model-types.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -667,6 +762,7 @@
 		},
 		"packages/kernel/ai/test/models-entry.test.ts": {
 			"tests": 1,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -674,6 +770,7 @@
 		},
 		"packages/kernel/ai/test/models-runtime.test.ts": {
 			"tests": 43,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -681,6 +778,7 @@
 		},
 		"packages/kernel/ai/test/node-http-proxy.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -688,6 +786,7 @@
 		},
 		"packages/kernel/ai/test/oauth-auth.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -695,6 +794,7 @@
 		},
 		"packages/kernel/ai/test/oauth-callback-server.test.ts": {
 			"tests": 12,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -702,6 +802,7 @@
 		},
 		"packages/kernel/ai/test/oauth-device-code.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -709,6 +810,7 @@
 		},
 		"packages/kernel/ai/test/openai-chatgpt-oauth.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -716,6 +818,7 @@
 		},
 		"packages/kernel/ai/test/openai-codex-cache-affinity-e2e.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -723,6 +826,7 @@
 		},
 		"packages/kernel/ai/test/openai-codex-oauth.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -730,6 +834,7 @@
 		},
 		"packages/kernel/ai/test/openai-codex-stream.test.ts": {
 			"tests": 31,
+			"each": 5,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -737,6 +842,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-cache-control-format.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -744,6 +850,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-empty-tools.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -751,6 +858,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-prompt-cache.test.ts": {
 			"tests": 15,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -758,6 +866,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-provider-stream-event.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -765,6 +874,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-raw-stop-reason.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -772,6 +882,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-reasoning-details.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -779,6 +890,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-response-model.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -786,6 +898,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-retry.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -793,6 +906,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-thinking-as-text.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -800,6 +914,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-thinking-token-budget.test.ts": {
 			"tests": 10,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -807,6 +922,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-tool-choice.test.ts": {
 			"tests": 49,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -814,6 +930,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-tool-result-images.test.ts": {
 			"tests": 3,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -821,6 +938,7 @@
 		},
 		"packages/kernel/ai/test/openai-completions-vllm-priority.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -828,6 +946,7 @@
 		},
 		"packages/kernel/ai/test/openai-decisions.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -835,6 +954,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-cache-affinity-e2e.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -842,6 +962,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-chatgpt-sign-in.test.ts": {
 			"tests": 3,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -849,6 +970,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-compat.test.ts": {
 			"tests": 18,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -856,6 +978,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-empty-tool-result.test.ts": {
 			"tests": 1,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -863,6 +986,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-foreign-toolcall-id.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -870,6 +994,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-message-id.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -877,6 +1002,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-mid-convo-effort.test.ts": {
 			"tests": 4,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -884,6 +1010,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-namespace.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -891,6 +1018,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-partial-json-cleanup.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -898,6 +1026,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-reasoning-replay-e2e.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -905,6 +1034,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-terminal-event.test.ts": {
 			"tests": 12,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -912,6 +1042,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-tool-result-images.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 2,
 			"helperSkips": 0,
@@ -919,6 +1050,7 @@
 		},
 		"packages/kernel/ai/test/openai-responses-usage-limit.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -926,6 +1058,7 @@
 		},
 		"packages/kernel/ai/test/opencode-model-generation.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -933,6 +1066,7 @@
 		},
 		"packages/kernel/ai/test/opencode-provider-headers.test.ts": {
 			"tests": 3,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -940,6 +1074,7 @@
 		},
 		"packages/kernel/ai/test/openrouter-cache-write-repro.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -947,6 +1082,7 @@
 		},
 		"packages/kernel/ai/test/openrouter-cost.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -954,6 +1090,7 @@
 		},
 		"packages/kernel/ai/test/openrouter-images.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -961,6 +1098,7 @@
 		},
 		"packages/kernel/ai/test/openrouter-oauth.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -968,6 +1106,7 @@
 		},
 		"packages/kernel/ai/test/openrouter-reasoning-options.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -975,6 +1114,7 @@
 		},
 		"packages/kernel/ai/test/openrouter-user-models.test.ts": {
 			"tests": 2,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -982,6 +1122,7 @@
 		},
 		"packages/kernel/ai/test/overflow.test.ts": {
 			"tests": 24,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -989,6 +1130,7 @@
 		},
 		"packages/kernel/ai/test/pi-messages.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -996,6 +1138,7 @@
 		},
 		"packages/kernel/ai/test/pre-generation-error.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1003,6 +1146,7 @@
 		},
 		"packages/kernel/ai/test/provider-error-body-passthrough.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1010,6 +1154,7 @@
 		},
 		"packages/kernel/ai/test/provider-error-body-regression.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1017,6 +1162,7 @@
 		},
 		"packages/kernel/ai/test/provider-retry.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1024,6 +1170,7 @@
 		},
 		"packages/kernel/ai/test/providers.test.ts": {
 			"tests": 30,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1031,6 +1178,7 @@
 		},
 		"packages/kernel/ai/test/qwen-token-plan-models.test.ts": {
 			"tests": 10,
+			"each": 8,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1038,6 +1186,7 @@
 		},
 		"packages/kernel/ai/test/radius-oauth.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1045,6 +1194,7 @@
 		},
 		"packages/kernel/ai/test/radius-provider.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1052,6 +1202,7 @@
 		},
 		"packages/kernel/ai/test/reasoning-options.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1059,6 +1210,7 @@
 		},
 		"packages/kernel/ai/test/responseid.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 5,
 			"helperSkips": 0,
@@ -1066,6 +1218,7 @@
 		},
 		"packages/kernel/ai/test/retry.test.ts": {
 			"tests": 27,
+			"each": 7,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1073,6 +1226,7 @@
 		},
 		"packages/kernel/ai/test/sampling-options.test.ts": {
 			"tests": 11,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1080,6 +1234,7 @@
 		},
 		"packages/kernel/ai/test/stream.test.ts": {
 			"tests": 233,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 44,
 			"helperSkips": 0,
@@ -1087,6 +1242,7 @@
 		},
 		"packages/kernel/ai/test/streaming-json.test.ts": {
 			"tests": 31,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1094,6 +1250,7 @@
 		},
 		"packages/kernel/ai/test/streaming-tool-arguments.test.ts": {
 			"tests": 4,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1101,6 +1258,7 @@
 		},
 		"packages/kernel/ai/test/supports-xhigh.test.ts": {
 			"tests": 29,
+			"each": 4,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1108,6 +1266,7 @@
 		},
 		"packages/kernel/ai/test/system-message-replay.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1115,6 +1274,7 @@
 		},
 		"packages/kernel/ai/test/telemetry-options.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1122,6 +1282,7 @@
 		},
 		"packages/kernel/ai/test/telemetry.test.ts": {
 			"tests": 15,
+			"each": 4,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1129,6 +1290,7 @@
 		},
 		"packages/kernel/ai/test/text.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1136,6 +1298,7 @@
 		},
 		"packages/kernel/ai/test/together-models.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1143,6 +1306,7 @@
 		},
 		"packages/kernel/ai/test/tokens.test.ts": {
 			"tests": 31,
+			"each": 0,
 			"skips": 4,
 			"conditionalSkips": 4,
 			"helperSkips": 0,
@@ -1150,6 +1314,7 @@
 		},
 		"packages/kernel/ai/test/tool-call-id-normalization.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 4,
 			"helperSkips": 0,
@@ -1157,6 +1322,7 @@
 		},
 		"packages/kernel/ai/test/tool-call-without-result.test.ts": {
 			"tests": 30,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 4,
 			"helperSkips": 0,
@@ -1164,6 +1330,7 @@
 		},
 		"packages/kernel/ai/test/total-tokens.test.ts": {
 			"tests": 35,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 4,
 			"helperSkips": 0,
@@ -1171,6 +1338,7 @@
 		},
 		"packages/kernel/ai/test/transcript-tool-changes.test.ts": {
 			"tests": 22,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1178,6 +1346,7 @@
 		},
 		"packages/kernel/ai/test/transform-messages-copilot-openai-to-anthropic.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1185,6 +1354,7 @@
 		},
 		"packages/kernel/ai/test/transform-messages-cross-model-thinking.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1192,6 +1362,7 @@
 		},
 		"packages/kernel/ai/test/typesafe-system-one.test.ts": {
 			"tests": 15,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1199,6 +1370,7 @@
 		},
 		"packages/kernel/ai/test/unicode-surrogate.test.ts": {
 			"tests": 90,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 12,
 			"helperSkips": 0,
@@ -1206,6 +1378,7 @@
 		},
 		"packages/kernel/ai/test/uuid.test.ts": {
 			"tests": 4,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1213,6 +1386,7 @@
 		},
 		"packages/kernel/ai/test/validation.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1220,6 +1394,7 @@
 		},
 		"packages/kernel/ai/test/xai-oauth.test.ts": {
 			"tests": 11,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1227,6 +1402,7 @@
 		},
 		"packages/kernel/ai/test/xai-responses.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1234,6 +1410,7 @@
 		},
 		"packages/kernel/ai/test/xhigh.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1241,6 +1418,7 @@
 		},
 		"packages/kernel/ai/test/xiaomi-models.test.ts": {
 			"tests": 3,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1248,6 +1426,7 @@
 		},
 		"packages/kernel/ai/test/xiaomi-token-plan-ams-anthropic-empty-signature-smoke.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1255,6 +1434,7 @@
 		},
 		"packages/kernel/ai/test/zai-coding-plan-models.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1262,6 +1442,7 @@
 		},
 		"packages/kernel/ai/test/zen.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1269,6 +1450,7 @@
 		},
 		"packages/kernel/chord/test/awaiting.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1276,6 +1458,7 @@
 		},
 		"packages/kernel/chord/test/bindings.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1283,6 +1466,7 @@
 		},
 		"packages/kernel/chord/test/boundary.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1290,6 +1474,7 @@
 		},
 		"packages/kernel/chord/test/cluster.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1297,6 +1482,7 @@
 		},
 		"packages/kernel/chord/test/context.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1304,6 +1490,7 @@
 		},
 		"packages/kernel/chord/test/contract.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1311,6 +1498,7 @@
 		},
 		"packages/kernel/chord/test/delta-append-text.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1318,6 +1506,7 @@
 		},
 		"packages/kernel/chord/test/delta-apply-immutable.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1325,6 +1514,7 @@
 		},
 		"packages/kernel/chord/test/delta-clone.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1332,6 +1522,7 @@
 		},
 		"packages/kernel/chord/test/delta-diff.test.ts": {
 			"tests": 23,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1339,6 +1530,7 @@
 		},
 		"packages/kernel/chord/test/delta-op-text-retention.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1346,6 +1538,7 @@
 		},
 		"packages/kernel/chord/test/delta-pending.test.ts": {
 			"tests": 23,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1353,6 +1546,7 @@
 		},
 		"packages/kernel/chord/test/delta-tracker/retention.test.ts": {
 			"tests": 1,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1360,6 +1554,7 @@
 		},
 		"packages/kernel/chord/test/delta-tracker/tracker.test.ts": {
 			"tests": 74,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1367,6 +1562,7 @@
 		},
 		"packages/kernel/chord/test/delta.test.ts": {
 			"tests": 41,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1374,6 +1570,7 @@
 		},
 		"packages/kernel/chord/test/flow-units.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1381,6 +1578,7 @@
 		},
 		"packages/kernel/chord/test/flow.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1388,6 +1586,7 @@
 		},
 		"packages/kernel/chord/test/generations.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1395,6 +1594,7 @@
 		},
 		"packages/kernel/chord/test/host-objects-reload.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1402,6 +1602,7 @@
 		},
 		"packages/kernel/chord/test/host.test.ts": {
 			"tests": 25,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1409,6 +1610,7 @@
 		},
 		"packages/kernel/chord/test/hydration.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1416,6 +1618,7 @@
 		},
 		"packages/kernel/chord/test/json.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1423,6 +1626,7 @@
 		},
 		"packages/kernel/chord/test/link.test.ts": {
 			"tests": 20,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1430,6 +1634,7 @@
 		},
 		"packages/kernel/chord/test/links-review.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1437,6 +1642,7 @@
 		},
 		"packages/kernel/chord/test/loader.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1444,6 +1650,7 @@
 		},
 		"packages/kernel/chord/test/manager.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1451,6 +1658,7 @@
 		},
 		"packages/kernel/chord/test/next-node/compression.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1458,6 +1666,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/accepts.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1465,6 +1674,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/contract.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1472,6 +1682,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/declare.test.ts": {
 			"tests": 11,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1479,6 +1690,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/evolve.test.ts": {
 			"tests": 16,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1486,6 +1698,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/fingerprint.test.ts": {
 			"tests": 7,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1493,6 +1706,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/history.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1500,6 +1714,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/host-kind.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1507,6 +1722,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/params.test.ts": {
 			"tests": 3,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1514,6 +1730,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/schema.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1521,6 +1738,7 @@
 		},
 		"packages/kernel/chord/test/next/contracts/snapshot.test.ts": {
 			"tests": 15,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1528,6 +1746,7 @@
 		},
 		"packages/kernel/chord/test/next/data/args.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1535,6 +1754,7 @@
 		},
 		"packages/kernel/chord/test/next/data/errors.test.ts": {
 			"tests": 10,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1542,6 +1762,7 @@
 		},
 		"packages/kernel/chord/test/next/data/failure.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1549,6 +1770,7 @@
 		},
 		"packages/kernel/chord/test/next/data/params.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1556,6 +1778,7 @@
 		},
 		"packages/kernel/chord/test/next/data/principal.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1563,6 +1786,7 @@
 		},
 		"packages/kernel/chord/test/next/data/validator.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1570,6 +1794,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/address-source.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1577,6 +1802,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/definition.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1584,6 +1810,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/documents.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1591,6 +1818,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/fence.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1598,6 +1826,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/handles.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1605,6 +1834,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/keyed-slot.test.ts": {
 			"tests": 27,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1612,6 +1842,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/line.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1619,6 +1850,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/persistence.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1626,6 +1858,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/residency.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1633,6 +1866,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/slot.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1640,6 +1874,7 @@
 		},
 		"packages/kernel/chord/test/next/documents/transaction.test.ts": {
 			"tests": 30,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1647,6 +1882,7 @@
 		},
 		"packages/kernel/chord/test/next/host/activity.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1654,6 +1890,7 @@
 		},
 		"packages/kernel/chord/test/next/host/attempt.test.ts": {
 			"tests": 27,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1661,6 +1898,7 @@
 		},
 		"packages/kernel/chord/test/next/host/backoff.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1668,6 +1906,7 @@
 		},
 		"packages/kernel/chord/test/next/host/ctx.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1675,6 +1914,7 @@
 		},
 		"packages/kernel/chord/test/next/host/deadline.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1682,6 +1922,7 @@
 		},
 		"packages/kernel/chord/test/next/host/facet.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1689,6 +1930,7 @@
 		},
 		"packages/kernel/chord/test/next/host/follow.test.ts": {
 			"tests": 15,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1696,6 +1938,7 @@
 		},
 		"packages/kernel/chord/test/next/host/host.test.ts": {
 			"tests": 49,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1703,6 +1946,7 @@
 		},
 		"packages/kernel/chord/test/next/host/keyed-members.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1710,6 +1954,7 @@
 		},
 		"packages/kernel/chord/test/next/host/member-source.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1717,6 +1962,7 @@
 		},
 		"packages/kernel/chord/test/next/host/members.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1724,6 +1970,7 @@
 		},
 		"packages/kernel/chord/test/next/host/native.test.ts": {
 			"tests": 9,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1731,6 +1978,7 @@
 		},
 		"packages/kernel/chord/test/next/host/object.test.ts": {
 			"tests": 45,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1738,6 +1986,7 @@
 		},
 		"packages/kernel/chord/test/next/host/parked.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1745,6 +1994,7 @@
 		},
 		"packages/kernel/chord/test/next/host/presence.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1752,6 +2002,7 @@
 		},
 		"packages/kernel/chord/test/next/host/ref-state.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1759,6 +2010,7 @@
 		},
 		"packages/kernel/chord/test/next/host/reference.test.ts": {
 			"tests": 28,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1766,6 +2018,7 @@
 		},
 		"packages/kernel/chord/test/next/host/retry-on.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1773,6 +2026,7 @@
 		},
 		"packages/kernel/chord/test/next/host/revocation.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1780,6 +2034,7 @@
 		},
 		"packages/kernel/chord/test/next/host/root.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1787,6 +2042,7 @@
 		},
 		"packages/kernel/chord/test/next/host/route.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1794,6 +2050,7 @@
 		},
 		"packages/kernel/chord/test/next/host/routines.test.ts": {
 			"tests": 41,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1801,6 +2058,7 @@
 		},
 		"packages/kernel/chord/test/next/host/sleep.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1808,6 +2066,7 @@
 		},
 		"packages/kernel/chord/test/next/jobs/definition.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1815,6 +2074,7 @@
 		},
 		"packages/kernel/chord/test/next/jobs/job.test.ts": {
 			"tests": 54,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1822,6 +2082,7 @@
 		},
 		"packages/kernel/chord/test/next/jobs/persisted.test.ts": {
 			"tests": 32,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1829,6 +2090,7 @@
 		},
 		"packages/kernel/chord/test/next/jobs/records.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1836,6 +2098,7 @@
 		},
 		"packages/kernel/chord/test/next/jobs/run.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1843,6 +2106,7 @@
 		},
 		"packages/kernel/chord/test/next/jobs/running.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1850,6 +2114,7 @@
 		},
 		"packages/kernel/chord/test/next/link/channel.test.ts": {
 			"tests": 19,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1857,6 +2122,7 @@
 		},
 		"packages/kernel/chord/test/next/link/errors.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1864,6 +2130,7 @@
 		},
 		"packages/kernel/chord/test/next/link/ipc.test.ts": {
 			"tests": 5,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1871,6 +2138,7 @@
 		},
 		"packages/kernel/chord/test/next/link/link.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1878,6 +2146,7 @@
 		},
 		"packages/kernel/chord/test/next/link/message.test.ts": {
 			"tests": 30,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1885,6 +2154,7 @@
 		},
 		"packages/kernel/chord/test/next/link/part.test.ts": {
 			"tests": 16,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1892,6 +2162,7 @@
 		},
 		"packages/kernel/chord/test/next/link/values.test.ts": {
 			"tests": 7,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1899,6 +2170,7 @@
 		},
 		"packages/kernel/chord/test/next/link/websocket.test.ts": {
 			"tests": 6,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1906,6 +2178,7 @@
 		},
 		"packages/kernel/chord/test/next/registries/entries.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1913,6 +2186,7 @@
 		},
 		"packages/kernel/chord/test/next/registries/record.test.ts": {
 			"tests": 20,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1920,6 +2194,7 @@
 		},
 		"packages/kernel/chord/test/next/registries/registry.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1927,6 +2202,7 @@
 		},
 		"packages/kernel/chord/test/next/registries/value.test.ts": {
 			"tests": 12,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1934,6 +2210,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/calls.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1941,6 +2218,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/consumer.test.ts": {
 			"tests": 30,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1948,6 +2226,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/hold.test.ts": {
 			"tests": 20,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1955,6 +2234,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/host-link.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1962,6 +2242,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/path.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1969,6 +2250,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/provider.test.ts": {
 			"tests": 45,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1976,6 +2258,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/relay.test.ts": {
 			"tests": 25,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1983,6 +2266,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/remote-object.test.ts": {
 			"tests": 30,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1990,6 +2274,7 @@
 		},
 		"packages/kernel/chord/test/next/remote/replica.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -1997,6 +2282,7 @@
 		},
 		"packages/kernel/chord/test/next/state/batch.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2004,6 +2290,7 @@
 		},
 		"packages/kernel/chord/test/next/state/derive.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2011,6 +2298,7 @@
 		},
 		"packages/kernel/chord/test/next/state/native-source.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2018,6 +2306,7 @@
 		},
 		"packages/kernel/chord/test/next/state/watchable.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2025,6 +2314,7 @@
 		},
 		"packages/kernel/chord/test/next/state/writable.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2032,6 +2322,7 @@
 		},
 		"packages/kernel/chord/test/next/store/allocator.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2039,6 +2330,7 @@
 		},
 		"packages/kernel/chord/test/next/store/applier.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2046,6 +2338,7 @@
 		},
 		"packages/kernel/chord/test/next/store/apply-batch.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2053,6 +2346,7 @@
 		},
 		"packages/kernel/chord/test/next/store/archive.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2060,6 +2354,7 @@
 		},
 		"packages/kernel/chord/test/next/store/catalog.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2067,6 +2362,7 @@
 		},
 		"packages/kernel/chord/test/next/store/claims.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2074,6 +2370,7 @@
 		},
 		"packages/kernel/chord/test/next/store/columns.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2081,6 +2378,7 @@
 		},
 		"packages/kernel/chord/test/next/store/engine.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2088,6 +2386,7 @@
 		},
 		"packages/kernel/chord/test/next/store/evaluate.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2095,6 +2394,7 @@
 		},
 		"packages/kernel/chord/test/next/store/export.test.ts": {
 			"tests": 12,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2102,6 +2402,7 @@
 		},
 		"packages/kernel/chord/test/next/store/expression.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2109,6 +2410,7 @@
 		},
 		"packages/kernel/chord/test/next/store/import.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2116,6 +2418,7 @@
 		},
 		"packages/kernel/chord/test/next/store/json-column.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2123,6 +2426,7 @@
 		},
 		"packages/kernel/chord/test/next/store/jsonl.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2130,6 +2434,7 @@
 		},
 		"packages/kernel/chord/test/next/store/outbox.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2137,6 +2442,7 @@
 		},
 		"packages/kernel/chord/test/next/store/query.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2144,6 +2450,7 @@
 		},
 		"packages/kernel/chord/test/next/store/refusal.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2151,6 +2458,7 @@
 		},
 		"packages/kernel/chord/test/next/store/rows.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2158,6 +2466,7 @@
 		},
 		"packages/kernel/chord/test/next/store/sql.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2165,6 +2474,7 @@
 		},
 		"packages/kernel/chord/test/next/store/store.test.ts": {
 			"tests": 16,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2172,6 +2482,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table-changes.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2179,6 +2490,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table-evolve.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2186,6 +2498,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table-handle.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2193,6 +2506,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table-history.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2200,6 +2514,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table-migration.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2207,6 +2522,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table-writes.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2214,6 +2530,7 @@
 		},
 		"packages/kernel/chord/test/next/store/table.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2221,6 +2538,7 @@
 		},
 		"packages/kernel/chord/test/next/store/text.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2228,6 +2546,7 @@
 		},
 		"packages/kernel/chord/test/output-skip.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2235,6 +2554,7 @@
 		},
 		"packages/kernel/chord/test/output.test.ts": {
 			"tests": 21,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2242,6 +2562,7 @@
 		},
 		"packages/kernel/chord/test/placement.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2249,6 +2570,7 @@
 		},
 		"packages/kernel/chord/test/principals.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2256,6 +2578,7 @@
 		},
 		"packages/kernel/chord/test/provider-cost.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2263,6 +2586,7 @@
 		},
 		"packages/kernel/chord/test/readiness.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2270,6 +2594,7 @@
 		},
 		"packages/kernel/chord/test/reload.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2277,6 +2602,7 @@
 		},
 		"packages/kernel/chord/test/replicated-state-delivery.test.ts": {
 			"tests": 10,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2284,6 +2610,7 @@
 		},
 		"packages/kernel/chord/test/replicated-state.test.ts": {
 			"tests": 16,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2291,6 +2618,7 @@
 		},
 		"packages/kernel/chord/test/requests.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2298,6 +2626,7 @@
 		},
 		"packages/kernel/chord/test/review.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2305,6 +2634,7 @@
 		},
 		"packages/kernel/chord/test/sqlite/cloudflare.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2312,6 +2642,7 @@
 		},
 		"packages/kernel/chord/test/sqlite/migrations.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2319,6 +2650,7 @@
 		},
 		"packages/kernel/chord/test/sqlite/node.test.ts": {
 			"tests": 13,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2326,6 +2658,7 @@
 		},
 		"packages/kernel/chord/test/state-diff.test.ts": {
 			"tests": 22,
+			"each": 3,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2333,6 +2666,7 @@
 		},
 		"packages/kernel/chord/test/state-draft.test.ts": {
 			"tests": 8,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2340,6 +2674,7 @@
 		},
 		"packages/kernel/chord/test/state-fuzz.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2347,6 +2682,7 @@
 		},
 		"packages/kernel/chord/test/state-init.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2354,6 +2690,7 @@
 		},
 		"packages/kernel/chord/test/state-value.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2361,6 +2698,7 @@
 		},
 		"packages/kernel/chord/test/state.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2368,6 +2706,7 @@
 		},
 		"packages/kernel/chord/test/telemetry-sqlite-store.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2375,6 +2714,7 @@
 		},
 		"packages/kernel/chord/test/telemetry-sqlite.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2382,6 +2722,7 @@
 		},
 		"packages/kernel/chord/test/tutorial.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2389,6 +2730,7 @@
 		},
 		"packages/kernel/chord/test/types.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2396,6 +2738,7 @@
 		},
 		"packages/kernel/chord/test/variants.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2403,6 +2746,7 @@
 		},
 		"packages/kernel/chord/test/watch.test.ts": {
 			"tests": 46,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2410,6 +2754,7 @@
 		},
 		"packages/kernel/chord/test/websocket.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2417,6 +2762,7 @@
 		},
 		"packages/kernel/codemode/test/declarations.test.ts": {
 			"tests": 17,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2424,6 +2770,7 @@
 		},
 		"packages/kernel/codemode/test/deterministic.test.ts": {
 			"tests": 16,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2431,6 +2778,7 @@
 		},
 		"packages/kernel/codemode/test/portable.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2438,6 +2786,7 @@
 		},
 		"packages/kernel/codemode/test/sandbox.test.ts": {
 			"tests": 53,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2445,6 +2794,7 @@
 		},
 		"packages/kernel/codemode/test/source.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2452,6 +2802,7 @@
 		},
 		"packages/kernel/codemode/test/worker-lifetime.test.ts": {
 			"tests": 7,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -2459,6 +2810,7 @@
 		},
 		"packages/kernel/durable/test-workers/storage.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2466,6 +2818,7 @@
 		},
 		"packages/kernel/durable/test-workers/wake.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2473,6 +2826,7 @@
 		},
 		"packages/kernel/durable/test/codemode-checkpoints.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2480,6 +2834,7 @@
 		},
 		"packages/kernel/durable/test/codemode-describe.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2487,6 +2842,7 @@
 		},
 		"packages/kernel/durable/test/codemode-imports.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2494,6 +2850,7 @@
 		},
 		"packages/kernel/durable/test/codemode-models.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2501,6 +2858,7 @@
 		},
 		"packages/kernel/durable/test/codemode.test.ts": {
 			"tests": 41,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2508,6 +2866,7 @@
 		},
 		"packages/kernel/durable/test/conversation-transcript.test.ts": {
 			"tests": 16,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2515,6 +2874,7 @@
 		},
 		"packages/kernel/durable/test/env-line-scan.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2522,6 +2882,7 @@
 		},
 		"packages/kernel/durable/test/env-node-conformance.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -2529,6 +2890,7 @@
 		},
 		"packages/kernel/durable/test/env-node-spill.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -2536,6 +2898,7 @@
 		},
 		"packages/kernel/durable/test/env-node.test.ts": {
 			"tests": 45,
+			"each": 2,
 			"skips": 0,
 			"conditionalSkips": 3,
 			"helperSkips": 2,
@@ -2543,6 +2906,7 @@
 		},
 		"packages/kernel/durable/test/env-truncate.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2550,6 +2914,7 @@
 		},
 		"packages/kernel/durable/test/harness-after-run.test.ts": {
 			"tests": 29,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2557,6 +2922,7 @@
 		},
 		"packages/kernel/durable/test/harness-blocked.test.ts": {
 			"tests": 12,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2564,6 +2930,7 @@
 		},
 		"packages/kernel/durable/test/harness-callers.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2571,6 +2938,7 @@
 		},
 		"packages/kernel/durable/test/harness-cancellation-barrier.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2578,6 +2946,7 @@
 		},
 		"packages/kernel/durable/test/harness-compaction.test.ts": {
 			"tests": 98,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2585,6 +2954,7 @@
 		},
 		"packages/kernel/durable/test/harness-context.test.ts": {
 			"tests": 22,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2592,6 +2962,7 @@
 		},
 		"packages/kernel/durable/test/harness-continue.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2599,6 +2970,7 @@
 		},
 		"packages/kernel/durable/test/harness-conversations.test.ts": {
 			"tests": 12,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2606,6 +2978,7 @@
 		},
 		"packages/kernel/durable/test/harness-deferred-progress.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2613,6 +2986,7 @@
 		},
 		"packages/kernel/durable/test/harness-failed-run-inbox.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2620,6 +2994,7 @@
 		},
 		"packages/kernel/durable/test/harness-generation-recovery.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2627,6 +3002,7 @@
 		},
 		"packages/kernel/durable/test/harness-generation.test.ts": {
 			"tests": 26,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2634,6 +3010,7 @@
 		},
 		"packages/kernel/durable/test/harness-hook-reads.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2641,6 +3018,7 @@
 		},
 		"packages/kernel/durable/test/harness-host-inputs.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2648,6 +3026,7 @@
 		},
 		"packages/kernel/durable/test/harness-inbox.test.ts": {
 			"tests": 37,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2655,6 +3034,7 @@
 		},
 		"packages/kernel/durable/test/harness-input-entries.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2662,6 +3042,7 @@
 		},
 		"packages/kernel/durable/test/harness-inspect.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2669,6 +3050,7 @@
 		},
 		"packages/kernel/durable/test/harness-json.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2676,6 +3058,7 @@
 		},
 		"packages/kernel/durable/test/harness-lifecycle.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2683,6 +3066,7 @@
 		},
 		"packages/kernel/durable/test/harness-live-deltas.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2690,6 +3074,7 @@
 		},
 		"packages/kernel/durable/test/harness-nested-tools-restart.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2697,6 +3082,7 @@
 		},
 		"packages/kernel/durable/test/harness-nested-tools.test.ts": {
 			"tests": 35,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2704,6 +3090,7 @@
 		},
 		"packages/kernel/durable/test/harness-observers.test.ts": {
 			"tests": 15,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2711,6 +3098,7 @@
 		},
 		"packages/kernel/durable/test/harness-ownership.test.ts": {
 			"tests": 37,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2718,6 +3106,7 @@
 		},
 		"packages/kernel/durable/test/harness-partial-changes.test.ts": {
 			"tests": 7,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2725,6 +3114,7 @@
 		},
 		"packages/kernel/durable/test/harness-prompt.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2732,6 +3122,7 @@
 		},
 		"packages/kernel/durable/test/harness-read-only.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2739,6 +3130,7 @@
 		},
 		"packages/kernel/durable/test/harness-registry-reader.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2746,6 +3138,7 @@
 		},
 		"packages/kernel/durable/test/harness-registry.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2753,6 +3146,7 @@
 		},
 		"packages/kernel/durable/test/harness-reports.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2760,6 +3154,7 @@
 		},
 		"packages/kernel/durable/test/harness-restart-failure.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2767,6 +3162,7 @@
 		},
 		"packages/kernel/durable/test/harness-run-failure.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2774,6 +3170,7 @@
 		},
 		"packages/kernel/durable/test/harness-scheduler-indexes.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2781,6 +3178,7 @@
 		},
 		"packages/kernel/durable/test/harness-scheduler-retention.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2788,6 +3186,7 @@
 		},
 		"packages/kernel/durable/test/harness-sleep.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2795,6 +3194,7 @@
 		},
 		"packages/kernel/durable/test/harness-storage-failure.test.ts": {
 			"tests": 24,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2802,6 +3202,7 @@
 		},
 		"packages/kernel/durable/test/harness-structured-output.test.ts": {
 			"tests": 10,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2809,6 +3210,7 @@
 		},
 		"packages/kernel/durable/test/harness-structured.test.ts": {
 			"tests": 56,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2816,6 +3218,7 @@
 		},
 		"packages/kernel/durable/test/harness-submissions.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2823,6 +3226,7 @@
 		},
 		"packages/kernel/durable/test/harness-submit-in-commit.test.ts": {
 			"tests": 23,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2830,6 +3234,7 @@
 		},
 		"packages/kernel/durable/test/harness-task-graph.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2837,6 +3242,7 @@
 		},
 		"packages/kernel/durable/test/harness-tasks-recovery.test.ts": {
 			"tests": 25,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2844,6 +3250,7 @@
 		},
 		"packages/kernel/durable/test/harness-tasks.test.ts": {
 			"tests": 47,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2851,6 +3258,7 @@
 		},
 		"packages/kernel/durable/test/harness-telemetry-options.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2858,6 +3266,7 @@
 		},
 		"packages/kernel/durable/test/harness-telemetry.test.ts": {
 			"tests": 24,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2865,6 +3274,7 @@
 		},
 		"packages/kernel/durable/test/harness-tool-hooks.test.ts": {
 			"tests": 18,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2872,6 +3282,7 @@
 		},
 		"packages/kernel/durable/test/harness-tools-recovery.test.ts": {
 			"tests": 9,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2879,6 +3290,7 @@
 		},
 		"packages/kernel/durable/test/harness-tools.test.ts": {
 			"tests": 40,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2886,6 +3298,7 @@
 		},
 		"packages/kernel/durable/test/harness-turn-limit.test.ts": {
 			"tests": 11,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2893,6 +3306,7 @@
 		},
 		"packages/kernel/durable/test/harness-view-run.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2900,6 +3314,7 @@
 		},
 		"packages/kernel/durable/test/harness-view.test.ts": {
 			"tests": 23,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2907,6 +3322,7 @@
 		},
 		"packages/kernel/durable/test/images-wasm-module.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2914,6 +3330,7 @@
 		},
 		"packages/kernel/durable/test/indexeddb-storage.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2921,6 +3338,7 @@
 		},
 		"packages/kernel/durable/test/jsonl-storage.test.ts": {
 			"tests": 23,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2928,6 +3346,7 @@
 		},
 		"packages/kernel/durable/test/memory-storage.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2935,6 +3354,7 @@
 		},
 		"packages/kernel/durable/test/provider-session-cache-e2e.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -2942,6 +3362,7 @@
 		},
 		"packages/kernel/durable/test/session-adoption.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2949,6 +3370,7 @@
 		},
 		"packages/kernel/durable/test/session-checkpoints-migrations.test.ts": {
 			"tests": 20,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2956,6 +3378,7 @@
 		},
 		"packages/kernel/durable/test/session-deferred-commits.test.ts": {
 			"tests": 25,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2963,6 +3386,7 @@
 		},
 		"packages/kernel/durable/test/session-definitions.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2970,6 +3394,7 @@
 		},
 		"packages/kernel/durable/test/session-document-retention.test.ts": {
 			"tests": 21,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2977,6 +3402,7 @@
 		},
 		"packages/kernel/durable/test/session-documents.test.ts": {
 			"tests": 27,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2984,6 +3410,7 @@
 		},
 		"packages/kernel/durable/test/session-forks.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2991,6 +3418,7 @@
 		},
 		"packages/kernel/durable/test/session-observers.test.ts": {
 			"tests": 22,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -2998,6 +3426,7 @@
 		},
 		"packages/kernel/durable/test/session-tables.test.ts": {
 			"tests": 12,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3005,6 +3434,7 @@
 		},
 		"packages/kernel/durable/test/session-watches.test.ts": {
 			"tests": 28,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3012,6 +3442,7 @@
 		},
 		"packages/kernel/durable/test/spec-usage.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3019,6 +3450,7 @@
 		},
 		"packages/kernel/durable/test/sqlite-cloudflare.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3026,6 +3458,7 @@
 		},
 		"packages/kernel/durable/test/sqlite-facade.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3033,6 +3466,7 @@
 		},
 		"packages/kernel/durable/test/sqlite-migrations.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3040,6 +3474,7 @@
 		},
 		"packages/kernel/durable/test/sqlite-storage.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3047,6 +3482,7 @@
 		},
 		"packages/kernel/durable/test/storage-runtime-boundary.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3054,6 +3490,7 @@
 		},
 		"packages/kernel/durable/test/store-storage.test.ts": {
 			"tests": 14,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3061,6 +3498,7 @@
 		},
 		"packages/kernel/durable/test/system-order-cache-e2e.test.ts": {
 			"tests": 1,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -3068,6 +3506,7 @@
 		},
 		"packages/kernel/durable/test/tool-search.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3075,6 +3514,7 @@
 		},
 		"packages/kernel/durable/test/tools-images.test.ts": {
 			"tests": 27,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3082,6 +3522,7 @@
 		},
 		"packages/kernel/durable/test/tools-read-differential.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3089,6 +3530,7 @@
 		},
 		"packages/kernel/durable/test/tools.test.ts": {
 			"tests": 32,
+			"each": 1,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 3,
@@ -3096,6 +3538,7 @@
 		},
 		"packages/kernel/durable/test/types.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3103,6 +3546,7 @@
 		},
 		"packages/kernel/mcp/test/client.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3110,6 +3554,7 @@
 		},
 		"packages/kernel/mcp/test/content.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3117,6 +3562,7 @@
 		},
 		"packages/kernel/mcp/test/oauth.test.ts": {
 			"tests": 13,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3124,6 +3570,7 @@
 		},
 		"packages/kernel/mcp/test/stdio.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 1,
 			"helperSkips": 0,
@@ -3131,6 +3578,7 @@
 		},
 		"packages/kernel/mcp/test/streamable-http.test.ts": {
 			"tests": 16,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3138,6 +3586,7 @@
 		},
 		"packages/kernel/telemetry/test/conformance.test.ts": {
 			"tests": 2,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3145,6 +3594,7 @@
 		},
 		"packages/kernel/telemetry/test/metrics.test.ts": {
 			"tests": 4,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3152,6 +3602,7 @@
 		},
 		"packages/kernel/telemetry/test/propagation.test.ts": {
 			"tests": 6,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3159,6 +3610,7 @@
 		},
 		"packages/kernel/telemetry/test/render.test.ts": {
 			"tests": 8,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3166,6 +3618,7 @@
 		},
 		"packages/kernel/telemetry/test/store.test.ts": {
 			"tests": 3,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,
@@ -3173,6 +3626,7 @@
 		},
 		"packages/kernel/telemetry/test/telemetry.test.ts": {
 			"tests": 5,
+			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,
 			"helperSkips": 0,

@@ -9,11 +9,16 @@
  * budget per entry, so that regression fails at commit time instead.
  *
  * Only value imports count. `import type` / `export type` are erased before Node sees them.
+ *
+ * Budgets live in `scripts/entry-budgets.json`; `--update` rewrites `maxFiles` to
+ * ceil(measured * 1.1) and leaves `forbid` / `allow` untouched. The JSON diff is the
+ * review artifact.
  */
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, relative, resolve, sep } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findWorkspacePackages } from "./package-workspaces.mjs";
 
 /**
  * Repository root. `NAVETI_CHECK_ROOT` lets a test point the guard at a fixture: the
@@ -25,67 +30,28 @@ const ROOT = process.env.NAVETI_CHECK_ROOT
 	: resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Workspace package name -> its source root, so cross-package imports are followed. */
-const WORKSPACE = {
-	"@naveti/chord": "packages/kernel/chord/src",
-	"@naveti/ai": "packages/kernel/ai/src",
-	"@naveti/durable": "packages/kernel/durable/src",
-	"@naveti/codemode": "packages/kernel/codemode/src",
-	"@naveti/telemetry": "packages/kernel/telemetry/src",
-	"@naveti/mcp": "packages/kernel/mcp/src",
-};
+const WORKSPACE = Object.fromEntries(
+	findWorkspacePackages(join(ROOT, "packages")).map((directory) => {
+		const manifest = JSON.parse(readFileSync(join(directory, "package.json"), "utf8"));
+		return [manifest.name, relative(ROOT, join(directory, "src")).split(sep).join("/")];
+	}),
+);
 
-/**
- * Budgets are deliberate. Entries with no budget remain unbounded; each listed entry states the
- * graph it is allowed to reach.
- */
-const BUDGETS = {
-	"packages/kernel/ai": {
-		"./models": {
-			// Request telemetry reaches pi-ai's telemetry.ts and pi-telemetry's root (index, noop, metrics, memory).
-			// Request identity reaches utils/identity.ts and its version constant.
-			maxFiles: 20,
-			forbid: ["providers/", "models.generated.ts", "index.ts", "utils/validation.ts", "utils/typebox-helpers.ts"],
-			allow: ["packages/kernel/telemetry/src/index.ts"],
-		},
-		"./utils/*": { maxFiles: 3, forbid: ["providers/", "api/", "index.ts"] },
-	},
-	"packages/kernel/codemode": {
-		// Node and Bun users never load the Cloudflare entry, which imports the `cloudflare:workers` built-in.
-		".": { maxFiles: 12, forbid: ["codemode/src/cloudflare.ts"] },
-		// Runtimes without Node built-ins (Workers, browsers) import these; neither may reach the worker-thread host
-		// or the file-based wasm loader.
-		"./portable": {
-			maxFiles: 8,
-			forbid: ["codemode/src/index.ts", "runtime/host.ts", "runtime/worker.ts", "codemode/src/wasm.ts"],
-		},
-		"./cloudflare": {
-			maxFiles: 9,
-			forbid: ["codemode/src/index.ts", "runtime/host.ts", "runtime/worker.ts", "codemode/src/wasm.ts"],
-		},
-	},
-	"packages/kernel/durable": {
-		".": {
-			// Tool argument validation reaches TypeBox; provider-session creation reaches pi-ai's lean UUID utility; the
-			// memory and SQLite storages share scan order and cursor handling. Values from Chord's root (copyJson,
-			// replicatedState) reach its host runtime through the root barrel. Chord's context reaches pi-telemetry's root
-			// (index, noop, metrics, memory) for its NOOP telemetry default; harness/telemetry.ts is Durable's schema.
-			// The Harness's request identity reaches pi-ai's utils/identity.ts and its version constant. Partial commits
-			// parse streamed tool-call arguments with pi-ai's utils/streaming-json.ts (and its json-parse.ts) to append what
-			// argument strings grew by (harness/partial-changes.ts). Chord's watches fold pending ops with Delta's
-			// pending queue (delta/pending.ts). `registryReader` (harness/registry-reader.ts) reads a Chord v2 registry
-			// value through type-only imports.
-			maxFiles: 78,
-			forbid: [
-				"packages/kernel/ai/src/index.ts",
-				"packages/kernel/ai/src/utils/typebox-helpers.ts",
-				// Photon (WebAssembly) loads only through `./images`.
-				"packages/kernel/durable/src/images/",
-			],
-		},
-		// The file tools reach their environment helpers and the Harness definitions they need, not the Harness itself.
-		"./tools": { maxFiles: 17, forbid: ["packages/kernel/durable/src/images/"] },
-	},
-};
+const BUDGETS_FILE = join(ROOT, "scripts", "entry-budgets.json");
+if (!existsSync(BUDGETS_FILE)) {
+	console.error(`Missing ${relative(ROOT, BUDGETS_FILE)}; entry budgets have no source`);
+	process.exit(1);
+}
+const BUDGETS = JSON.parse(readFileSync(BUDGETS_FILE, "utf8"));
+const UPDATE = process.argv.includes("--update");
+
+function packageBudgets() {
+	return Object.entries(BUDGETS).filter(([pkgDir]) => !pkgDir.startsWith("_"));
+}
+
+function budgetEntries(pkgDir) {
+	return Object.entries(BUDGETS[pkgDir] ?? {}).filter(([entry]) => !entry.startsWith("_"));
+}
 
 const SPEC = /(?:^|\n)\s*(?:import|export)\s+(?!type\s)([^;]*?\sfrom\s*)?["']([^"']+)["']/g;
 
@@ -142,9 +108,11 @@ function expand(pkgDir, entry, target) {
 }
 
 let failures = 0;
-for (const [pkgDir, budgets] of Object.entries(BUDGETS)) {
+const changes = [];
+
+for (const [pkgDir] of packageBudgets()) {
 	const manifest = JSON.parse(readFileSync(resolve(ROOT, pkgDir, "package.json"), "utf8"));
-	for (const [entry, budget] of Object.entries(budgets)) {
+	for (const [entry, budget] of budgetEntries(pkgDir)) {
 		const declared = manifest.exports?.[entry];
 		if (!declared) {
 			console.error(`${pkgDir} declares no export "${entry}" but a budget exists for it`);
@@ -152,6 +120,10 @@ for (const [pkgDir, budgets] of Object.entries(BUDGETS)) {
 			continue;
 		}
 		const target = typeof declared === "string" ? declared : declared.import;
+		// A wildcard budget applies to every expanded entry, so `--update` must take the
+		// largest graph under that budget, not whichever expansion happens to be last.
+		let largestGraph = 0;
+		let sawGraph = false;
 		for (const [name, distPath] of expand(pkgDir, entry, target)) {
 			const source = sourceFor(pkgDir, distPath);
 			if (!source) {
@@ -160,7 +132,9 @@ for (const [pkgDir, budgets] of Object.entries(BUDGETS)) {
 				continue;
 			}
 			const graph = [...walk(source)].map((file) => relative(ROOT, file).split(sep).join("/"));
-			if (graph.length > budget.maxFiles) {
+			sawGraph = true;
+			largestGraph = Math.max(largestGraph, graph.length);
+			if (!UPDATE && budget.maxFiles !== undefined && graph.length > budget.maxFiles) {
 				console.error(
 					`${pkgDir} export "${name}" reaches ${graph.length} files, budget ${budget.maxFiles}\n` +
 						graph.map((file) => `    ${file}`).join("\n"),
@@ -175,7 +149,21 @@ for (const [pkgDir, budgets] of Object.entries(BUDGETS)) {
 				}
 			}
 		}
+		if (UPDATE && budget.maxFiles !== undefined && sawGraph) {
+			const next = Math.ceil(largestGraph * 1.1);
+			if (next !== budget.maxFiles) {
+				changes.push(`${pkgDir} ${entry} maxFiles ${budget.maxFiles} -> ${next}`);
+				budget.maxFiles = next;
+			}
+		}
 	}
+}
+
+if (UPDATE) {
+	writeFileSync(BUDGETS_FILE, `${JSON.stringify(BUDGETS, null, "\t")}\n`);
+	for (const change of changes) console.log(change);
+	console.log(`Updated ${changes.length} budget(s) in ${relative(ROOT, BUDGETS_FILE)}.`);
+	process.exit(failures > 0 ? 1 : 0);
 }
 
 if (failures > 0) {

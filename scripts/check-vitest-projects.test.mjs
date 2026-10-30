@@ -24,6 +24,15 @@ function writeConfig(root, projectsLine) {
 	return writeFile(join(root, "vitest.config.ts"), `export default {\n\ttest: {\n\t\t${projectsLine}\n\t},\n};\n`);
 }
 
+async function addTest(root, packagePath) {
+	await mkdir(join(root, packagePath, "test"), { recursive: true });
+	await writeFile(
+		join(root, packagePath, "package.json"),
+		JSON.stringify({ name: `@naveti/${packagePath.split("/").pop()}` }),
+	);
+	await writeFile(join(root, packagePath, "test/example.test.ts"), "test('x', () => {});\n");
+}
+
 function run(root) {
 	return spawnSync(process.execPath, [script], {
 		cwd: root,
@@ -69,4 +78,29 @@ test("rejects a root config with no projects declaration", async (t) => {
 	const result = run(root);
 	assert.equal(result.status, 1);
 	assert.match(result.stderr, /declares no test\.projects glob/);
+});
+
+test("rejects a package with tests but no vitest config", async (t) => {
+	const root = await workspace(t, "packages/kernel/*/vitest.config.ts");
+	await addTest(root, "packages/contracts");
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /packages\/contracts: has tests but no vitest\.config\.ts/);
+});
+
+test("rejects a package whose vitest config is not collected", async (t) => {
+	const root = await workspace(t, "packages/kernel/*/vitest.config.ts");
+	await addTest(root, "packages/contracts");
+	await writeFile(join(root, "packages/contracts/vitest.config.ts"), "export default { name: 'contracts' };\n");
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /packages\/contracts: vitest\.config\.ts is not collected/);
+});
+
+test("accepts a depth-1 package that ships tests and a collected config", async (t) => {
+	const root = await workspace(t, "packages/*/vitest.config.ts");
+	await addTest(root, "packages/contracts");
+	await writeFile(join(root, "packages/contracts/vitest.config.ts"), "export default { name: 'contracts' };\n");
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
 });
