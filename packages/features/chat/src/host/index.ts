@@ -4,8 +4,12 @@
 import { ChatConversation, ChatHub } from "@naveti/contracts";
 import { defineFeature } from "@naveti/host/extend";
 import { conversationFactory } from "./conversation.ts";
+import { ChatConversationsDoc } from "./doc.ts";
 import { ensureRoot, hubFactory } from "./hub.ts";
 import { chatSection } from "./section.ts";
+
+/** The persisted document's identity, for the golden file that pins it: a kind or version change is a data migration. */
+export { ChatConversationsDoc };
 
 export default defineFeature({
 	id: "chat",

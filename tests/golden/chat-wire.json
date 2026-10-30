@@ -1,0 +1,16 @@
+{
+	"wire": {
+		"naveti.chat.hub": {
+			"version": 1,
+			"fingerprint": "d15b9af5d97eef5c"
+		},
+		"naveti.chat.conversation": {
+			"version": 1,
+			"fingerprint": "28343e0c48791591"
+		}
+	},
+	"doc": {
+		"kind": "naveti.chat.conversations",
+		"version": 1
+	}
+}
