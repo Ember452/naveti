@@ -33,13 +33,18 @@
 			"packages/*/test/**/*.ts",
 			"packages/*/*/src/**/*.ts",
 			"packages/*/*/test/**/*.ts",
+			"packages/*/*/src/**/*.tsx",
+			"packages/*/*/test/**/*.tsx",
+			"apps/*/src/**/*.ts",
+			"apps/*/src/**/*.tsx",
+			"apps/*/test/**/*.ts",
+			"apps/*/test/**/*.tsx",
 			"packages/kernel/ai/catalog/**/*.ts",
 			"!**/node_modules/**/*",
 			"!**/test-sessions.ts",
 			"!**/models.generated.ts",
 			"!**/*.models.ts",
-			"!!**/node_modules",
-			"!!apps"
+			"!!**/node_modules"
 		]
 	},
 	"plugins": ["./scripts/biome/model-type-comparison.grit"]

@@ -1,5 +1,58 @@
 {
-	"_comment": "maxFiles = ceil(measured graph size * 1.1). Regenerate with `node scripts/check-entry-graphs.mjs --update`; forbid/allow stay manual. The JSON diff is the review artifact.",
+	"_comment": "maxFiles is a manual ceiling for product-layer packages (packages/contracts, platform, features, apps) and is only reported by --update; kernel entries are rewritten to ceil(measured * 1.1) because upstream owns their shape. forbid/allow stay manual. The JSON diff is the review artifact.",
+	"packages/contracts": {
+		".": {
+			"maxFiles": 174
+		},
+		"./chat": {
+			"maxFiles": 172
+		},
+		"./transport": {
+			"maxFiles": 2
+		}
+	},
+	"packages/platform/host": {
+		".": {
+			"maxFiles": 274
+		},
+		"./extend": {
+			"maxFiles": 3
+		},
+		"./extend/docs": {
+			"maxFiles": 87
+		},
+		"./extend/prompt": {
+			"maxFiles": 87
+		},
+		"./extend/serve": {
+			"maxFiles": 2
+		},
+		"./extend/tools": {
+			"maxFiles": 87
+		},
+		"./extend/types": {
+			"maxFiles": 2
+		},
+		"./testing": {
+			"maxFiles": 204
+		}
+	},
+	"packages/features/chat": {
+		".": {
+			"maxFiles": 257
+		},
+		"./client": {
+			"maxFiles": 185
+		}
+	},
+	"packages/platform/web": {
+		".": {
+			"maxFiles": 178
+		},
+		"./connection": {
+			"maxFiles": 172
+		}
+	},
 	"packages/kernel/ai": {
 		"./models": {
 			"maxFiles": 22,

@@ -82,9 +82,14 @@ makes a 247,000-line vendored tree reviewable.
 - **Why:** the other packages do not exist here.
 - **Risk:** these files enumerate things per package (workspaces, `paths`,
   aliases, entry budgets). Adding a package means editing all of them. See
-  `docs/structure.md` for the current list, and note that `biome.json` excludes
-  `apps` (`"!!apps"`) — product-layer code is not covered by `npm run check`
-  until that is changed.
+  `docs/structure.md` for the current list. `biome.json`'s `includes` is an
+  allowlist: until P2 it listed only `packages/**`, so `apps/` matched no
+  positive pattern and was formatted and linted by nothing. The `"!!apps"` entry
+  that used to sit there neither excluded nor included it — measured in the P2
+  spike, a deliberately broken file under `apps/` left `biome-check` green at the
+  same file count. P2 removed that entry and added
+  `apps/*/src/**/*.{ts,tsx}`, `apps/*/test/**/*.{ts,tsx}` (the same probe then
+  failed the check, and `apps/probe` was deleted).
 
 ## D5 — Release, publish and installer tooling excluded
 

@@ -2,6 +2,8 @@
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"noEmit": true,
+		"declaration": false,
+		"declarationMap": false,
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"customConditions": ["source"]
@@ -13,8 +15,16 @@
 		"packages/*/test/**/*",
 		"packages/*/*/src/**/*",
 		"packages/*/*/test/**/*",
+		"apps/*/src/**/*",
+		"apps/*/test/**/*",
 		"packages/kernel/ai/catalog/**/*",
 		"packages/kernel/durable/test-workers/**/*"
 	],
-	"exclude": ["**/dist/**"]
+	"exclude": [
+		"**/dist/**",
+		"packages/platform/web/**",
+		"packages/features/*/src/client/**",
+		"packages/features/*/test/**/*.tsx",
+		"apps/web/**"
+	]
 }

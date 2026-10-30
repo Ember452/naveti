@@ -95,15 +95,19 @@ function hasTests(directory) {
 	return false;
 }
 
-for (const directory of findWorkspacePackages(join(ROOT, "packages"))) {
-	if (!hasTests(directory)) continue;
-	const name = relative(ROOT, directory).split(sep).join("/");
-	if (!existsSync(join(directory, "vitest.config.ts"))) {
-		failures.push(`${name}: has tests but no vitest.config.ts, so its tests never run`);
-		continue;
-	}
-	if (!collectedConfigs.has(`${name}/vitest.config.ts`)) {
-		failures.push(`${name}: vitest.config.ts is not collected by any projects glob`);
+for (const root of ["packages", "apps"]) {
+	const directory = join(ROOT, root);
+	if (!existsSync(directory)) continue;
+	for (const pkg of findWorkspacePackages(directory)) {
+		if (!hasTests(pkg)) continue;
+		const name = relative(ROOT, pkg).split(sep).join("/");
+		if (!existsSync(join(pkg, "vitest.config.ts"))) {
+			failures.push(`${name}: has tests but no vitest.config.ts, so its tests never run`);
+			continue;
+		}
+		if (!collectedConfigs.has(`${name}/vitest.config.ts`)) {
+			failures.push(`${name}: vitest.config.ts is not collected by any projects glob`);
+		}
 	}
 }
 

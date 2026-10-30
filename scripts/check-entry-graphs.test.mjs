@@ -143,7 +143,44 @@ test("rejects a budget for an export the package no longer declares", async (t) 
 	assert.match(result.stderr, /declares no export "\.\/models" but a budget exists/);
 });
 
-test("--update rewrites maxFiles and preserves forbid", async (t) => {
+// A product-layer entry nobody budgeted is the failure mode the facade exists to
+// prevent: the facade can grow as wide as the barrel it replaced with no red case.
+test("rejects a product-layer export with no budget", async (t) => {
+	const root = await workspace(t, {
+		"packages/contracts/package.json": {
+			name: "@naveti/contracts",
+			exports: { ".": { import: "./dist/index.js" }, "./package.json": "./package.json" },
+		},
+		"packages/contracts/src/index.ts": "export const chat = 1;\n",
+	});
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /packages\/contracts export "\." has no entry in scripts\/entry-budgets\.json/);
+	// A string export (a JSON file) is not code and needs no budget.
+	assert.doesNotMatch(result.stderr, /"\.\/package\.json"/);
+});
+
+// The same rule for an app's entry: it is where a composition root could import the
+// kernel directly without anyone measuring what that drags in.
+test("rejects an app entry with no budget and accepts a covered one", async (t) => {
+	const uncovered = await workspace(t, {
+		"apps/server/package.json": { name: "@naveti/server", private: true, exports: { ".": { import: "./dist/main.js" } } },
+		"apps/server/src/main.ts": "export const main = 1;\n",
+	});
+	const rejected = run(uncovered);
+	assert.equal(rejected.status, 1);
+	assert.match(rejected.stderr, /apps\/server export "\." has no entry in scripts\/entry-budgets\.json/);
+
+	const covered = await workspace(t, {
+		"apps/server/package.json": { name: "@naveti/server", private: true, exports: { ".": { import: "./dist/main.js" } } },
+		"apps/server/src/main.ts": "export const main = 1;\n",
+		"scripts/entry-budgets.json": { ...BUDGETS, "apps/server": { ".": { maxFiles: 3 } } },
+	});
+	const accepted = run(covered);
+	assert.equal(accepted.status, 0, accepted.stderr);
+});
+
+test("--update rewrites kernel maxFiles and preserves forbid", async (t) => {
 	const root = await workspace(t);
 	const before = JSON.parse(readFileSync(join(root, "scripts/entry-budgets.json"), "utf8"));
 	const result = spawnSync(process.execPath, [script, "--update"], {
@@ -156,4 +193,32 @@ test("--update rewrites maxFiles and preserves forbid", async (t) => {
 	assert.equal(after["packages/kernel/ai"]["./utils/*"].maxFiles, 4);
 	assert.deepEqual(after["packages/kernel/ai"]["./utils/*"].forbid, before["packages/kernel/ai"]["./utils/*"].forbid);
 	assert.match(result.stdout, /maxFiles 3 -> 4/);
+});
+
+// A ceiling that follows the measurement records the present instead of constraining it:
+// the next regression is measured, accepted, and written back. Product-layer widths are our
+// decision, so `--update` reports them and leaves the number alone.
+test("--update reports a product-layer measurement and leaves its ceiling alone", async (t) => {
+	const root = await workspace(t, {
+		"packages/contracts/package.json": {
+			name: "@naveti/contracts",
+			exports: { ".": { import: "./dist/index.js" } },
+		},
+		"packages/contracts/src/index.ts": 'import "./a.ts";\nimport "./b.ts";\n',
+		"packages/contracts/src/a.ts": "export const a = 1;\n",
+		"packages/contracts/src/b.ts": "export const b = 1;\n",
+		"scripts/entry-budgets.json": {
+			...BUDGETS,
+			"packages/contracts": { ".": { maxFiles: 1 } },
+		},
+	});
+	const result = spawnSync(process.execPath, [script, "--update"], {
+		cwd: root,
+		encoding: "utf8",
+		env: { ...process.env, NAVETI_CHECK_ROOT: root },
+	});
+	assert.equal(result.status, 0, result.stderr);
+	const after = JSON.parse(readFileSync(join(root, "scripts/entry-budgets.json"), "utf8"));
+	assert.equal(after["packages/contracts"]["."].maxFiles, 1, "the manual ceiling must not be rewritten");
+	assert.match(result.stdout, /packages\/contracts \. measured 3 over its manual ceiling 1 \(not rewritten\)/);
 });

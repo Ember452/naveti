@@ -72,15 +72,16 @@ naveti/
 │   │   ├── mcp/                         @naveti/mcp
 │   │   ├── durable/                     @naveti/durable
 │   │   └── README.md                    所有权、变更分级、扩展点索引
-│   ├── contracts/                       [未建] L1 纯类型：wire + 自研 seam 声明
-│   ├── platform/                        [未建] L2 host（装配/seat/路径/transport/凭据）+ web（壳/slot）
+│   ├── contracts/                       L1 零 I/O：wire 契约与 transport 声明
+│   ├── AGENTS.md                        包级补充规则（exports 形状、测试配置、边界机检）
+│   ├── platform/                        L2 host（装配/seat/路径/transport）+ web（壳/slot）
 │   ├── providers/                       [未建] L2.5 可替换实现，按 seam 分，不进功能清单
-│   └── features/                        [未建] L3 一个功能一个包（§7）
-├── apps/                                [全部未建] L4 组合根：server / web / desktop / cli
+│   └── features/                        L3 一个功能一个包（§7），现为 `chat`
+├── apps/                                L4 组合根：server（宿主）/ web（浏览器）；desktop 在 P3
 ├── scripts/                             守卫与编排脚本，清单见 §14（不在这里数个数）
 ├── tests/
-│   ├── smoke/persist-resume.ts          现有：持久化与恢复冒烟
-│   └── golden/                          [未建] 首次内核改动或回补时的请求体与会话黄金文件
+│   ├── smoke/persist-resume.ts          持久化与恢复冒烟
+│   └── golden/chat-wire.json           wire 契约与持久化格式的黄金文件（首次改动内核或首个产品数据结构时建）
 ├── docs/
 │   ├── README.md                        导航：谁回答什么
 │   ├── structure.md                     本文，空间轴权威
@@ -135,7 +136,7 @@ naveti/
 | 类 | 例子 | 可以 import | 有界面 | 用户可见 | 变更频率 |
 | --- | --- | --- | --- | --- | --- |
 | **kernel** | `@naveti/durable` | 只 import 其他 kernel | 否 | 否 | 慢，但**允许改**（`KERNEL.md` §2） |
-| **contracts** | `@naveti/contracts` | 无（零运行时：只有类型、常量与纯函数，无 I/O、无状态、无注册表） | 否 | 否 | 稳定，破坏性改升版本 |
+| **contracts** | `@naveti/contracts` | 内核的声明层（契约与 schema 构造，现为 `@naveti/chord`）；无 I/O、无状态、无注册表 | 否 | 否 | 稳定，破坏性改升版本 |
 | **platform** | `@naveti/host`、`@naveti/web` | kernel、contracts | host 否 / web 是 | 否 | 中 |
 | **provider** | `@naveti/storage-sqlite` | kernel、contracts、platform/host | 否 | **否** | 跟随上游生态 |
 | **feature** | `@naveti/feature-memory` | contracts、host、web、其他 feature 的 `./contract` | 可选 | **是** | 高频 |
@@ -179,6 +180,8 @@ naveti/
 
 门面存在的前提是**功能真的不用内核**。一旦某个功能需要内核深处能力（自定义 entry、直接操作 doc 内部），正确处理是给门面加子路径并在 `docs/kernel/seats.md` 登记，而不是在该功能里深引内核。
 
+**门面的宽度是量出来的，不是声称的。** 每个子路径在 `scripts/entry-budgets.json` 里有预算，产品层的每个代码入口都必须有（`check-entry-graphs`），而且产品层入口的 `maxFiles` 是**手工天花板**：`--update` 只报实测、不写回，要抬数字必须改文件并在 PR 里说明。P2 落地时的实测表明：只引用类型的子路径很窄，而转出内核运行值的子路径与内核根入口同量级——因为一行 `export { … } from "@naveti/durable"` 拖进来的是整个 barrel。这不是门面的失败，是内核只有根入口的结果；收窄已写进 P4 的验收（目标：每个入口降到两位数），实测与理由见 `.agents/notes/implemented/2026-10-30-facade-width-measured.md`。
+
 **门面是内核改动的吸收层**：内核重构时只改这里，功能包一行不动。这是"内核不冻结"能成立的结构原因。
 
 ## 7. 一个功能一个包
@@ -187,27 +190,28 @@ naveti/
 
 ```text
 packages/features/memory/
-├── package.json          exports: "." → host / "./contract" / "./client" / "./manifest"
+├── package.json          exports: "." → host / "./client" / "./manifest"
 ├── naveti.feature.json   { id, contract, seats, requires, provides }
 ├── README.md             五行契约：拥有什么 / 可 import 什么 / 占哪些 seat / 依赖谁 / 删掉会怎样
 ├── src/
-│   ├── contract.ts       wire 类型 + 本功能服务接口（无运行时、无 node、无 react）
-│   ├── shared.ts         纯函数，前后端共用
-│   ├── host/index.ts     默认导出 defineFeature(...)：doc / tool / task / hook / section 各一处调用
+│   ├── host/index.ts     默认导出 defineFeature(...)
 │   ├── host/doc.ts       功能状态（scope 三选一，见 docs/kernel/seats.md §4）
 │   ├── host/tools.ts     defineTool 的贡献点
-│   ├── host/facet.ts     把状态与命令映射成 contracts 里的 wire 类型
-│   ├── host/settings.ts  设置项 schema
+│   ├── host/<thing>.ts   一个贡献点一个文件
+│   ├── shared.ts         纯函数，前后端共用（可选）
 │   ├── client/index.ts   register(slots)
-│   ├── client/panel.tsx  右栏面板，只吃 props 与 standard hook
-│   ├── client/settings.tsx
-│   ├── client/store.ts   可选：无 React 的镜像，React 只读它
-│   └── client/renderer.tsx  可选：本功能自有 entry kind 的渲染器
+│   ├── client/panel.tsx  右栏面板，只吃 props 与 shared hook
+│   ├── client/renderer.tsx  可选：本功能自有 entry kind 的渲染器
+│   └── client/store.ts   可选：无 React 的镜像，React 只读它
 └── test/
     ├── host.spec.ts      必有
     ├── client.spec.tsx   有界面必有
     └── fixtures/         本功能自己的夹具，不外放到仓库级目录
 ```
+
+**wire 契约不在功能包里。** 它住 `packages/contracts`（宿主与客户端都要持有，而平台不许 import 功能），
+所以功能包没有 `./contract` 出口——两份声明就是两套真相。功能间需要共享的*服务接口*仍可以走 `./contract`，
+那是另一个事实（“我能被谁调”），与 wire 格式不同。
 
 `package.json` 的出口面（包边界唯一可用的地方）：
 
@@ -219,7 +223,6 @@ packages/features/memory/
   "type": "module",
   "exports": {
     ".": { "source": "./src/host/index.ts", "types": "./dist/host/index.d.ts", "import": "./dist/host/index.js" },
-    "./contract": { "source": "./src/contract.ts", "types": "./dist/contract.d.ts", "import": "./dist/contract.js" },
     "./client": { "source": "./src/client/index.ts", "types": "./dist/client/index.d.ts", "import": "./dist/client/index.js" },
     "./manifest": "./naveti.feature.json"
   },
@@ -236,7 +239,7 @@ packages/features/memory/
 规则：
 
 1. **命名固定 `@naveti/feature-<id>`，目录固定 `packages/features/<id>/`。** id 只允许小写短横线，且与目录名、包名后缀一致（机检）。
-2. **`./contract` 是唯一稳定面。** 契约改动必须同时更新 `tests/golden/` 的对应黄金文件，否则不算改完。
+2. **wire 契约住 `@naveti/contracts`，功能包不自称契约的权威。** 契约为全局版本（`name` + `version`），契约改动同时更新 `tests/golden/` 的对应黄金文件。
 3. **一个贡献点一个文件。** 单文件超过约 200 行再拆子目录，不预先拆。
 4. **每个包至少一条 host 测试；有界面再加一条 client 测试。** 测试与夹具在包内 `test/`，禁止放仓库级 `tests/`；但**运行**由根上单个 vitest 进程统一调度，不是每包起一个 runner（§13.1）。
 5. **包内文件可自由拆分，包外只能经 `exports` 进入。** 深路径 import 在所有包上是红。
@@ -259,6 +262,14 @@ packages/features/memory/
 | `packages/features/*/` 目录 | 代码在哪 |
 
 三者必须双向相等，由 `check-feature-registry` 机检（缺目录、缺登记、孤儿包、幽灵条目、未知 seat、悬空 `requires` 全部失败）。
+
+**但两份 compose 不是相等关系，别把上一句套到 `apps/web` 上：**
+
+| 关系 | 规则 | 为什么 |
+| --- | --- | --- |
+| 目录 ↔ manifest ↔ `apps/server/src/compose.ts` | 双向相等 | 装了什么就该有什么 |
+| 功能 `exports["./client"]` ↔ `apps/web/src/compose.ts` 的条目 | 有 `./client` 就必须在清单里，没有就不能在 | 有客户端面没人挂载 = 永远不渲染 |
+| `apps/web` 的 id 集合 ⊆ `apps/server` 的 id 集合 | 子集，不是相等 | 两面独立：一个功能可以有宿主面而没有界面（§8 下文那句“界面随应用一起构建”就是指这个） |
 
 manifest 只写**现在真有消费者**的字段：
 
@@ -285,11 +296,18 @@ manifest 只写**现在真有消费者**的字段：
 
 现在不做任何预留。真要做，先写一条决策记录，第一个 spike 只做宿主侧（一个 demo 功能通过 `import()` 装上、被调用、被卸载、错误不影响主进程）；界面侧不承诺。
 
-`compose.ts` 的形状（懒加载，启动成本按功能分摊）：
+`compose.ts` 的形状（懒加载，启动成本按功能分摊）。宿主与客户端各一份：两个面本来就独立（一个功能可以只有宿主面），
+但它们必须在功能集合上一致：
 
 ```ts
-export const features = [
-  { id: "chat", host: () => import("@naveti/feature-chat"), client: () => import("@naveti/feature-chat/client") },
+// apps/server/src/compose.ts
+export const compose = [
+  { id: "chat", host: () => import("@naveti/feature-chat") },
+];
+
+// apps/web/src/compose.ts
+export const compose = [
+  { id: "chat", client: () => import("@naveti/feature-chat/client") },
 ];
 ```
 
@@ -309,7 +327,7 @@ export const features = [
 
 两条纪律：
 
-1. **内核已声明过的 seam，不在我们这边重写一份。** provider 直接实现内核接口；自研 seam 的声明放 `contracts`（零运行时），而“当前选中哪个实现”的注册表与选择逻辑放 `platform/host`——选中是装配决策，不是类型。重写 = 两处真相，内核一改就对不上。
+1. **内核已声明过的 seam，不在我们这边重写一份。** provider 直接实现内核接口；自研 seam 的声明放 `contracts`（无 I/O、无状态、不 import `platform`/`features`——但它会产出运行时值：chord 的 `remote()` / `method()` 就是用来算 name + version + 指纹的声明，纯 `import type` 拿不到指纹），而“当前选中哪个实现”的注册表与选择逻辑放 `platform/host`——选中是装配决策，不是类型。重写 = 两处真相，内核一改就对不上。
 2. **Definition 跟着当前消费者走。** 没有第二个实现、没有第二个使用方，就不抽 interface（否则得到一层空抽象）。
 
 `providers/` 目录**按需出现**：出现"同一个 seam 的第二个实现"时才建对应包。第一个实现如果已在内核里，不搬到 `providers/`。
@@ -334,7 +352,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 权威表在 [`docs/kernel/seats.md`](./kernel/seats.md)：每个 seat 记机制（哪个内核符号）、门面子路径、状态、典型用途；另有 `doc` 三种 scope 的取舍表、新增 seat 的门槛、provider 与 seat 的区分。**本文不复制那张表**（复制即漂移）。
 
-一句话摘要：宿主侧 7 个已采用 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension`），另有 `config` / `service` 两个候选；客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。权威表见 [`docs/kernel/seats.md`](./kernel/seats.md)。
+一句话摘要：宿主侧 7 个已声明的 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension`）——其中**今天能占的只有 `tool` / `section` / `doc` / `extension`**（`FeatureContext` 给了挂点）；`hook` / `wrap` / `task` 机制在内核里但平台没给挂点，占它是一次平台变更。客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`），已建 `panel` / `renderer`。权威表见 [`docs/kernel/seats.md`](./kernel/seats.md)。
 
 ## 11. 发布形态：一个打包入口，不给每包写构建配置
 
@@ -375,7 +393,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 | # | 规则 | 违反时的症状 |
 | --- | --- | --- |
-| 1 | 一个功能的一切都在它自己的包里；包外唯一允许出现的痕迹是 `compose.ts` 的一行 | 改一个功能要开五个目录 |
+| 1 | 一个功能的一切都在它自己的包里；包外唯一允许出现的痕迹是两份 `compose.ts` 各一行 | 改一个功能要开五个目录 |
 | 2 | 功能之间 import 为 0，只允许 `./contract` 类型面 + 显式声明依赖 | 功能互相调用内部实现，删除时牵一发动全身 |
 | 3 | 跨进程/跨功能 wire 类型进 `contracts/<domain>.ts`；功能内部类型留在 `shared.ts` | 契约目录变成杂物间，或功能私造协议 |
 | 4 | 功能不给内核打补丁。需要改内核就走 `KERNEL.md` §2 的对应档位 | 内核里长出产品语义，回补上游时冲突 |
@@ -383,8 +401,9 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 6 | **装配不改壳。** 壳文件（`app-frame.tsx`、`sidebar.tsx`、`chat-view.tsx`）里出现任何功能 id 即失败 | 每加一个功能都要动同一个巨型组件 |
 | 7 | 状态只有一处真相：功能状态住 durable doc（宿主侧），前端只消费流；`localStorage` 只允许纯视图偏好 | 前端自造持久状态，刷新与多端对不上 |
 | 8 | wire 必须远程安全：不放 `Date` 对象、不放函数、id 是不透明字符串、订阅可断点续传 | 手机远程上线时要改每一个功能 |
-| 9 | **删得掉**：删功能 = 删包 + 删 `compose.ts` 一行，不留孤儿夹具、孤儿设置键、孤儿 seat | 仓库里堆着没人敢删的死代码 |
+| 9 | **删得掉**：删功能 = 删包 + 两份 `compose.ts` 各一行 + 两处依赖声明 + 重生生成物（锁文件、测试清单）；判据是 `packages/platform/*` 未动 | 仓库里堆着没人敢删的死代码 |
 | 10 | 同一个事实只有一处权威；要引用就写"见 X"，不复制正文 | 复制的那一刻就开始漂移 |
+| 11 | **凭据不进 URL**（query、path、`VITE_*` 都不行）。本机 token 走 WebSocket subprotocol；浏览器端只存 `sessionStorage`（刷新不丢、关标签页即失），不进 `localStorage`、不落盘。将来的远程凭据走请求头或首帧认证，存法同此 | 凭据落进历史/日志/代理，换掉时要动已发布的客户端 |
 
 ## 13. 守卫
 
@@ -398,9 +417,12 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 | 闭包由打包器或 `pnpm deploy` 直接算出后 |
 | `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） | TypeScript 或 lint 原生拒绝跨包相对导入后 |
 | `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败）；含测试的包必须自带 `vitest.config.ts` 且被某个 glob 收集 | 有 | projects 改成显式清单、误收不可能发生之后 |
-| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） | 入口预算由发布期打包产物报告接管后 |
+| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护。**产品层（`packages/{contracts,platform,features}`、`apps/*`）的每个代码入口必须有条目**；内核包仍是手工按需登记 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具；含“产品层入口无预算”与“app 入口无预算”两个红例） | 入口预算由发布期打包产物报告接管后 |
 | `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 | 锁文件改为 CI 生成、不再随提交进入仓库后 |
 | `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 | 模块解析交回 Project References 或打包器统一裁决后 |
+| `check-package-layers` | 读 `dependencies` / `peerDependencies` / `devDependencies` 守四个方向：kernel 只依赖 kernel；contracts 只依赖内核的声明层（现为 `@naveti/chord`）；platform 不依赖 feature/app；feature 不依赖任何内核包 | 有（`NAVETI_CHECK_ROOT` 夹具，每个方向一条红例） | 包边界改由打包器或发布清单统一声明后 |
+| `check-client-face` | 从每个功能的 `./client` 入口走**值导入图**（`import type` 不算），命中 `node:*`、`@naveti/host*`、同包 `src/host/**` 即失败 | 有（`NAVETI_CHECK_ROOT` 夹具：node 内置、host 包、同包 host 面、一跳远、无 client 面） | client 面改为独立构建目标、天然不解析 node 后 |
+| `check-feature-registry` | 目录 ↔ manifest ↔ `apps/server` compose 双向相等；功能有 `./client` ⇔ 在 `apps/web` 清单里；web 清单 ⊆ server 清单；seat 必在 `seats.ts` 闭集里（现读该文件，不复制）；`requires` 必指向已装功能 | 有（夹具：无 manifest、id 不匹配、未知 seat、无人安装、幽灵条目、有界面未挂载、无界面却挂载、web 装而 host 未装、悬空 requires、无界面的宿主侧功能必须通过） | `compose.ts` 改为生成物（P5 的 `gen-feature-index`）后，生成器自带一致性 |
 | `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 | 测试统计改为运行时采集、不再文本计数后 |
 | `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 | 文档站构建的 dead-link 检查接管后 |
 | `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 | 规则文档里的清单段全部移入生成物后 |
@@ -416,10 +438,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 | 守卫 | 判据 | 建它的触发条件 |
 | --- | --- | --- |
-| `check-package-layers` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | 第一个产品层包（`packages/contracts`）出现时 |
 | `check-kernel-facade` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力 | `platform/host/extend/` 建起来后 |
-| `check-feature-registry` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；壳文件无功能 id | 第二个功能出现时 |
-| `check-client-face` | 从 `src/client/index.ts` 走值导入图，命中 `node:*` / `platform/host` / 同包 `src/host/**` 即失败 | 第一个带界面的功能出现时 |
 
 ### 不要生成器
 
@@ -527,6 +546,9 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-ts-relative-imports.mjs` / `.test.mjs` | 相对导入不跨包 |
 | 检查 | `check-entry-graphs.mjs` / `.test.mjs` + `entry-budgets.json` | 入口值导入图预算；`--update` 重写 `maxFiles` |
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
+| 检查 | `check-package-layers.mjs` / `.test.mjs` | 包之间的依赖方向：kernel 不依赖产品层、contracts 只依赖内核声明层、platform 不依赖 feature、feature 不依赖内核 |
+| 检查 | `check-client-face.mjs` / `.test.mjs` | 功能的 client 面不加载 `node:*`、`@naveti/host` 或同包 host 面 |
+| 检查 | `check-feature-registry.mjs` / `.test.mjs` | 目录、manifest 与两份 compose 的一致性；seat 闭集；悬空 `requires` |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
 | 检查 | `check-kernel-divergence.mjs` / `.test.mjs` + `kernel-baseline.json` | 内核与基线不一致的每个文件都必须在 `divergence.md` 或 `deviations.md` 被命名；基线同时记录上游独有的路径，所以“恢复了上游文件”不会被当成普通新增 |

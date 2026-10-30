@@ -11,7 +11,7 @@
 		"clean": "pnpm -r run clean",
 		"build": "pnpm -r --filter \"./packages/kernel/*\" run build",
 		"build:catalog": "pnpm --filter @naveti/ai run build:catalog",
-		"check": "node scripts/biome-check.mjs && pnpm run check:pinned-deps && pnpm run check:runtime-deps && pnpm run check:ts-imports && pnpm run check:vitest-projects && pnpm run check:entry-graphs && pnpm run check:workspace-resolution && pnpm run check:lockfile-commit && pnpm run check:test-integrity && pnpm run check:doc-links && pnpm run check:doc-counts && pnpm run check:parked && pnpm run check:kernel-divergence && pnpm run check:gate-registration && pnpm run test:scripts && tsc --noEmit",
+		"check": "node scripts/biome-check.mjs && pnpm run check:pinned-deps && pnpm run check:runtime-deps && pnpm run check:ts-imports && pnpm run check:vitest-projects && pnpm run check:entry-graphs && pnpm run check:workspace-resolution && pnpm run check:package-layers && pnpm run check:client-face && pnpm run check:feature-registry && pnpm run check:lockfile-commit && pnpm run check:test-integrity && pnpm run check:doc-links && pnpm run check:doc-counts && pnpm run check:parked && pnpm run check:kernel-divergence && pnpm run check:gate-registration && pnpm run test:scripts && tsc --noEmit && tsc --noEmit -p apps/web",
 		"check:fix": "node scripts/biome-check.mjs --write && pnpm run check",
 		"check:kernel-divergence": "node scripts/check-kernel-divergence.mjs",
 		"check:pinned-deps": "node scripts/check-pinned-deps.mjs",
@@ -19,6 +19,7 @@
 		"check:ts-imports": "node scripts/check-ts-relative-imports.mjs",
 		"check:entry-graphs": "node scripts/check-entry-graphs.mjs",
 		"check:workspace-resolution": "node scripts/check-workspace-resolution.mjs",
+		"check:package-layers": "node scripts/check-package-layers.mjs",
 		"check:lockfile-commit": "node scripts/check-lockfile-commit.mjs",
 		"check:test-integrity": "node scripts/check-test-integrity.mjs",
 		"test-integrity:write": "node scripts/check-test-integrity.mjs --write",
@@ -34,7 +35,9 @@
 		"check:vitest-projects": "node scripts/check-vitest-projects.mjs",
 		"check:parked": "node scripts/check-parked-triggers.mjs",
 		"check:gate-registration": "node scripts/check-gate-registration.mjs",
-		"audit:deps": "node scripts/deps-audit.mjs"
+		"audit:deps": "node scripts/deps-audit.mjs",
+		"check:client-face": "node scripts/check-client-face.mjs",
+		"check:feature-registry": "node scripts/check-feature-registry.mjs"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.5",

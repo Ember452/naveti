@@ -1,0 +1,21 @@
+{
+	"name": "@naveti/server",
+	"version": "0.0.0",
+	"private": true,
+	"description": "The composition root: paths, model, host, transport, address",
+	"type": "module",
+	"scripts": {
+		"start": "node --conditions=source src/main.ts"
+	},
+	"dependencies": {
+		"@naveti/ai": "workspace:*",
+		"@naveti/contracts": "workspace:*",
+		"@naveti/durable": "workspace:*",
+		"@naveti/feature-chat": "workspace:*",
+		"@naveti/host": "workspace:*"
+	},
+	"devDependencies": {
+		"vitest": "4.1.12",
+		"@naveti/web": "workspace:*"
+	}
+}

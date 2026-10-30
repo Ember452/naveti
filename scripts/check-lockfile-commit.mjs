@@ -12,9 +12,14 @@
  *     -> either a transitive bump nobody asked for, or a hand-edited lockfile
  *
  * `pnpm-workspace.yaml` counts as a manifest for this purpose: its `overrides` block
- * decides resolved versions, so a lockfile change caused by an override must arrive in
- * the same commit as the override. Without that link the guard rejects legitimate
- * security fixes and the escape hatch becomes routine.
+ * decides resolved versions and its `packages` globs decide which directories are
+ * importers, so a lockfile change caused by either must arrive in the same commit.
+ * Without that link the guard rejects legitimate fixes and the escape hatch becomes
+ * routine.
+ *
+ * A workspace package that appears or disappears is a dependency change too: it adds or
+ * removes an `importers` entry, which is exactly what the lockfile records. Treating it
+ * as "no manifest change" made every new package trip the reverse direction.
  *
  * Either direction is a red unless `NAVETI_ALLOW_LOCKFILE_CHANGE` is truthy, which
  * is the deliberate escape hatch for `pnpm update`.
@@ -85,10 +90,10 @@ function sameJson(left, right) {
 	return JSON.stringify(left) === JSON.stringify(right);
 }
 
-/** The `overrides:` block, which is version policy and therefore a dependency change. */
-function overridesBlock(text) {
+/** A named top-level block of `pnpm-workspace.yaml`, empty when absent. */
+function workspaceBlock(text, name) {
 	const lines = text.split(/\r?\n/);
-	const start = lines.findIndex((line) => line.trim() === "overrides:");
+	const start = lines.findIndex((line) => line.trim() === `${name}:`);
 	if (start === -1) return "";
 	const block = [];
 	for (const line of lines.slice(start + 1)) {
@@ -97,6 +102,16 @@ function overridesBlock(text) {
 		block.push(line.trim());
 	}
 	return block.join("\n");
+}
+
+/** The `overrides:` block, which is version policy and therefore a dependency change. */
+function overridesBlock(text) {
+	return workspaceBlock(text, "overrides");
+}
+
+/** The `packages:` globs, which decide the lockfile's importers. */
+function packagesBlock(text) {
+	return workspaceBlock(text, "packages");
 }
 
 const allow = /^(1|true|yes)$/i.test(process.env[ALLOW_ENV] ?? "");
@@ -112,20 +127,33 @@ const lockChanged = changed.has(LOCKFILE);
 const manifestChanges = [];
 for (const path of changed) {
 	if (path === WORKSPACE_FILE) {
-		const previous = overridesBlock(tryGit(["show", `HEAD:${path}`]) ?? "");
+		const previousText = tryGit(["show", `HEAD:${path}`]) ?? "";
 		const absolute = join(ROOT, path);
-		const current = overridesBlock(currentText(path, absolute) ?? "");
-		if (previous !== current) manifestChanges.push(`${path} (overrides)`);
+		const current = currentText(path, absolute) ?? "";
+		for (const [name, read] of [
+			["overrides", overridesBlock],
+			["packages", packagesBlock],
+		]) {
+			if (read(previousText) !== read(current)) manifestChanges.push(`${path} (${name})`);
+		}
 		continue;
 	}
 	if (path !== "package.json" && !path.endsWith("/package.json")) continue;
 	const absolute = join(ROOT, path);
-	if (!existsSync(absolute)) continue; // deleted manifest: nothing to resolve
-	const currentTextValue = currentText(path, absolute);
+	const currentTextValue = existsSync(absolute) ? currentText(path, absolute) : undefined;
+	const previousText = tryGit(["show", `HEAD:${path}`]);
+	// A workspace package that appears or disappears adds or removes a lockfile importer.
+	if (previousText === undefined && currentTextValue !== undefined) {
+		manifestChanges.push(`${path} (new)`);
+		continue;
+	}
+	if (previousText !== undefined && currentTextValue === undefined) {
+		manifestChanges.push(`${path} (deleted)`);
+		continue;
+	}
 	if (currentTextValue === undefined) continue;
 	const current = JSON.parse(currentTextValue);
-	const previousText = tryGit(["show", `HEAD:${path}`]);
-	if (previousText === undefined) continue; // new manifest
+	if (previousText === undefined) continue;
 	const previous = JSON.parse(previousText);
 	if (!sameJson(dependencySections(previous), dependencySections(current))) manifestChanges.push(path);
 }

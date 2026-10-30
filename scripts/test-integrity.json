@@ -1,5 +1,37 @@
 {
 	"files": {
+		"apps/server/test/golden.spec.ts": {
+			"tests": 2,
+			"each": 0,
+			"skips": 0,
+			"conditionalSkips": 0,
+			"helperSkips": 0,
+			"todos": 0
+		},
+		"apps/server/test/loopback.spec.ts": {
+			"tests": 3,
+			"each": 0,
+			"skips": 0,
+			"conditionalSkips": 0,
+			"helperSkips": 0,
+			"todos": 0
+		},
+		"packages/features/chat/test/client.spec.tsx": {
+			"tests": 2,
+			"each": 0,
+			"skips": 0,
+			"conditionalSkips": 0,
+			"helperSkips": 0,
+			"todos": 0
+		},
+		"packages/features/chat/test/host.spec.ts": {
+			"tests": 2,
+			"each": 0,
+			"skips": 0,
+			"conditionalSkips": 0,
+			"helperSkips": 0,
+			"todos": 0
+		},
 		"packages/kernel/ai/test/abort.test.ts": {
 			"tests": 41,
 			"each": 0,
@@ -3626,6 +3658,14 @@
 		},
 		"packages/kernel/telemetry/test/telemetry.test.ts": {
 			"tests": 5,
+			"each": 0,
+			"skips": 0,
+			"conditionalSkips": 0,
+			"helperSkips": 0,
+			"todos": 0
+		},
+		"packages/platform/host/test/transport.spec.ts": {
+			"tests": 3,
 			"each": 0,
 			"skips": 0,
 			"conditionalSkips": 0,

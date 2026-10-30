@@ -1,0 +1,62 @@
+{
+	"name": "@naveti/host",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Assembly, seats, paths, and the loopback transport: everything between a client and the kernel",
+	"type": "module",
+	"exports": {
+		".": {
+			"source": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./extend": {
+			"source": "./src/extend/index.ts",
+			"types": "./dist/extend/index.d.ts",
+			"import": "./dist/extend/index.js"
+		},
+		"./extend/tools": {
+			"source": "./src/extend/tools.ts",
+			"types": "./dist/extend/tools.d.ts",
+			"import": "./dist/extend/tools.js"
+		},
+		"./extend/docs": {
+			"source": "./src/extend/docs.ts",
+			"types": "./dist/extend/docs.d.ts",
+			"import": "./dist/extend/docs.js"
+		},
+		"./extend/prompt": {
+			"source": "./src/extend/prompt.ts",
+			"types": "./dist/extend/prompt.d.ts",
+			"import": "./dist/extend/prompt.js"
+		},
+		"./extend/serve": {
+			"source": "./src/extend/serve.ts",
+			"types": "./dist/extend/serve.d.ts",
+			"import": "./dist/extend/serve.js"
+		},
+		"./extend/types": {
+			"source": "./src/extend/types.ts",
+			"types": "./dist/extend/types.d.ts",
+			"import": "./dist/extend/types.js"
+		},
+		"./testing": {
+			"source": "./src/testing.ts",
+			"types": "./dist/testing.d.ts",
+			"import": "./dist/testing.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"sideEffects": false,
+	"dependencies": {
+		"@naveti/ai": "workspace:*",
+		"@naveti/chord": "workspace:*",
+		"@naveti/contracts": "workspace:*",
+		"@naveti/durable": "workspace:*",
+		"ws": "8.21.0"
+	},
+	"devDependencies": {
+		"@types/ws": "8.18.2",
+		"vitest": "4.1.12"
+	}
+}

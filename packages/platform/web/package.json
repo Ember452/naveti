@@ -1,0 +1,33 @@
+{
+	"name": "@naveti/web",
+	"version": "0.0.0",
+	"private": true,
+	"description": "The client shell: slots, the connection, and the frame that renders what a feature registers",
+	"type": "module",
+	"exports": {
+		".": {
+			"source": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./connection": {
+			"source": "./src/connection.ts",
+			"types": "./dist/connection.d.ts",
+			"import": "./dist/connection.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"sideEffects": false,
+	"dependencies": {
+		"@naveti/chord": "workspace:*",
+		"@naveti/contracts": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": "19.3.1"
+	},
+	"devDependencies": {
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
+		"react": "19.3.1"
+	}
+}

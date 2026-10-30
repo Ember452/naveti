@@ -68,16 +68,16 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 
 ## 5. 加一个功能的固定流程
 
-1. 建 `packages/features/<id>/`，包名 `@naveti/feature-<id>`，`exports` 四出口（`.` / `./contract` / `./client` / `./manifest`）。
+1. 建 `packages/features/<id>/`，包名 `@naveti/feature-<id>`，`exports` 三出口（`.` / `./client` / `./manifest`）。wire 契约住 `@naveti/contracts`，不在功能包里再写一份。**每个代码出口都要在 `scripts/entry-budgets.json` 里登记 `maxFiles`**（产品层没有自动补位，漏登记即红；数字是手工天花板，只降不跟涨）。
 2. 写 `naveti.feature.json`：`id`、`contract`、`seats`、`requires`、`provides`。
 3. 写 `README.md` 五行：拥有什么 / 可 import 什么 / 占哪些 seat / 依赖谁 / 删掉会怎样。
-4. `contract.ts` 先定型（远程安全：无 `Date` 对象、无函数、id 为不透明字符串）。
+4. wire 契约先在 `@naveti/contracts` 定型（远程安全：无 `Date` 对象、无函数、id 为不透明值），功能包引用它。
 5. `host/index.ts` 默认导出 `defineFeature(...)`，一个贡献点一个文件。
 6. `client/index.ts` 只 `register(slots)`；壳文件里不出现功能 id。
-7. 加 `test/host.spec.ts`（有界面再加 `client.spec.tsx`），夹具放包内 `test/fixtures/`。不要给包单独配 runner——根上 `test.projects` 统一调度。
-8. `compose.ts` 加一行，然后跑 `pnpm check && pnpm test:ci`。
+7. 加 `test/host.spec.ts`（有界面再加 `client.spec.tsx`），夹具放包内 `test/fixtures/`。**有测试就必须有 `vitest.config.ts`**（三行：`mergeConfig(sharedTestConfig, defineConfig({ test: { name } }))`），否则根上的 `test.projects` glob 收不到它，`check-vitest-projects` 会报“测试永远不跑”。不要在里面配路径、alias 或第二个 runner。
+8. **两份** `compose.ts` 各加一行（`apps/server/src/compose.ts` 宿主面、`apps/web/src/compose.ts` 客户端面），然后跑 `pnpm check && pnpm test:ci`。机检规则（`check-feature-registry`）：目录 ↔ manifest ↔ server 清单双向相等；有 `./client` 就在 web 清单里，没有就不能在；web 清单 ⊆ server 清单（可以有宿主面没界面，不能反过来）；`seats` 必在 `packages/platform/host/src/seats.ts` 的闭集里。
 
-**自查判据：删掉这个功能，是否只需删包 + 删 `compose.ts` 一行？** 需要动别处，说明放错了。
+**自查判据：删掉这个功能时，`packages/platform/*` 与 `apps/*/src/main.*` 是否需要改？** 需要，说明放错了。删包、两份 compose 各删一行、两份 `package.json` 去掉依赖声明、重跑生成物（锁文件与 `test-integrity.json`），这是删一个功能的全部动作；平台代码不在其中。
 
 ## 6. 改内核的固定流程
 

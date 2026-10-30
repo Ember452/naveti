@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -131,3 +131,33 @@ test("rejects a staged dependency change reverted in the working tree", async (t
 	assert.equal(result.status, 1);
 	assert.match(result.stderr, /dependency sections changed in package\.json but pnpm-lock\.yaml did not/);
 });
+
+// A workspace package that appears adds an `importers` entry: the lockfile must move with it,
+// and the reverse direction must not call that move unexplained.
+test("accepts a new workspace package together with its importer", async (t) => {
+	const root = await repository(t);
+	await mkdir(join(root, "packages", "added"), { recursive: true });
+	await writeFile(join(root, "packages", "added", "package.json"), JSON.stringify({ name: "added", private: true }, null, 2));
+	await writeFile(join(root, "pnpm-lock.yaml"), `${baseLock}  packages/added:\n    dependencies: {}\n`);
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+});
+
+test("rejects a new workspace package whose lockfile did not change", async (t) => {
+	const root = await repository(t);
+	await mkdir(join(root, "packages", "added"), { recursive: true });
+	await writeFile(join(root, "packages", "added", "package.json"), JSON.stringify({ name: "added", private: true }, null, 2));
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /packages\/added\/package\.json \(new\)/);
+});
+
+test("counts a packages glob change as a dependency change", async (t) => {
+	const root = await repository(t);
+	await writeFile(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n  - apps/*\n");
+	await writeFile(join(root, "pnpm-lock.yaml"), `${baseLock}  apps/server:\n    dependencies: {}\n`);
+	const result = run(root);
+	assert.equal(result.status, 0, result.stderr);
+	assert.match(result.stdout, /consistent/);
+});
+
