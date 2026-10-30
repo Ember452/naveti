@@ -5,7 +5,7 @@
 
 ## 1. 现在的地基
 
-仓库里只有内核，没有产品层。所以本文描述的是**内核已经能做的事**（每个结论都能在 `packages/kernel/*` 与 `tests/smoke/persist-resume.ts` 里找到依据），以及产品层将来**必须**接到哪里（标注 `未建`）。
+内核六包是运行时；产品层（`contracts` / `platform` / `features` / `apps`）只经门面接它。本文描述两者接起来后的形状：内核那段能在 `packages/kernel/*` 与 `tests/smoke/persist-resume.ts` 里找到依据；产品层那段是 P2 落地的**设计**，实现落在 `packages/{contracts,platform,features}` 与 `apps/*`，但判据是“能不能用本文的词复述”，不是“能不能找到某个服务”。
 
 内核六包之间**不是一条链**，而是“一基础 + 四个并列消费者”：
 
@@ -20,6 +20,8 @@
 
 ## 2. 一次提交怎么走完一轮
 
+### 2.1 内核里的三段
+
 以 `tests/smoke/persist-resume.ts` 为准，装配与运行是三段：
 
 1. **打开**：`Harness.open(storage, { models, registry }, context)`。`storage` 是 `durable` 的 `Storage` 接口（内存、JSONL、SQLite 各有实现），`models` 来自 `ai`，`registry` 由调用方用 `createRegistry()` 建立并 `install()` 扩展。
@@ -27,6 +29,20 @@
 3. **提交**：一次用户输入变成一次 submission，驱动一次 generation。模型流式产出 assistant 文本与 tool call；每个 tool call 走工具执行管线（含 hook 与审批），结果作为 entry 提交进日志。
 
 关键性质是**提交点唯一**：观察者看到的状态只在 commit 之后出现，所以"前端显示了什么"与"存储里有什么"不会分叉。中断与重启后，未完成的 generation 从日志恢复，而不是从内存重建——这是 `durable` 存在的理由。
+
+### 2.2 请求进来之后、界面更新之前
+
+上面三段是内核在进程里的形状。一段对话从"有人按了发送"到"屏幕上出现工具结果"还要穿过产品层，而且只有一条路。按顺序是：
+
+1. **transport 收到一帧**。界面端只持有一个到本机 loopback 的连接（P2 是 `127.0.0.1` + token），它不代表任何产品语义：帧里的每个持有、每次调用都带一个 principal，transport 在握手时把它钉死（P2 只有“这台机器的主人”）。这层是平台的事，功能不经手。
+2. **帧变成 submission**。功能把一次“发送”翻成一次 submission（用户输入、中断、工具授权决定），交给它占着 `doc`/`extension` 的那个会话。submission 是**意图**，不是消息：它先被 admit 成可查询的记录，再由 task 调度器推进；同一个会话在跑时到达的下一次输入是排队，不是抢跑。
+3. **commit 是唯一提交点**。generation 与 tool task 的每次写入都在一个 commit 里；一个 commit 同时产生 entry（事实）、doc 变更（投影）与 task 状态变化。所以“工具跑完了”不是一个通知，而是一次 commit 的可见结果。
+4. **view 是投影，不是查询**。会话对外给出的不是“查一次 entry 表”，而是一个带窗口的 view：entry 窗口 + 内建 doc（agent / live / inbox / provider / usage）。它通过 `follow` 接到宿主对象的一个 state 成员上；功能自己的 doc 走同一条 watch，不开第二条通道。
+5. **帧回到界面**。state 成员一变，宿主先给新持有的端一个 snapshot，再用 delta 推送其后每一个 commit 的变更；一个 commit 一帧，界面拿到的顺序就是 commit 顺序。
+6. **界面只渲染**。client 面把 view 映射到 `renderer` 与 `panel` 两个 seat，不读 entry 原文、不写状态；它的本地存留只允许纯视图偏好。
+7. **断线不改事实**。连接断开只影响“谁在看”；重启后未完成的 generation 从 entry 日志恢复，view 重新绑定，界面拿到的第一个值就是恢复后的快照。这就是 host 侧那个验收（重启后读得回）为什么不由界面提供证据。
+
+一句话的所有权划分：**transport 归平台，submission 与 commit 归内核，view 到 state 的接线归平台，帧里的类型归 `contracts`，渲染归功能与壳。** 这条划分是 P2 “第二个功能加进来时平台不用改”的判据：新功能只新增自己的 seat 占用与契约，不新增上面任何一步。
 
 ## 3. 三种持久化对象
 
@@ -65,7 +81,7 @@
 | --- | --- | --- |
 | 模型输出 → 工具执行 | `durable` 的工具管线 + `hook` 审批 | 已有机制，产品策略未写 |
 | 脚本 → 宿主 | `codemode` 沙箱，唯一能力是调用注入的工具 | 已有 |
-| 浏览器/手机 → 宿主 | `platform/host` 的 transport | `未建` |
+| 浏览器/手机 → 宿主 | `platform/host` 的 transport | loopback 已有（`127.0.0.1` + token）；`remote` 未建 |
 | 凭据 | `platform/host/credentials`，不落明文 | `未建` |
 | 落盘数据 | `Storage` 实现 + commit 原子性 | 已有 |
 
@@ -73,11 +89,9 @@
 
 | 缺失 | 它会拥有什么 | 为什么现在不建 |
 | --- | --- | --- |
-| `packages/contracts` | 跨进程 wire 类型、自研 seam 声明 | 没有跨进程调用方 |
-| `packages/platform/host` | 装配、seat 表、路径注入、transport、凭据 | 没有第一个功能要用它 |
-| `packages/platform/web` | 壳、slot、主题、连接 | 没有界面要挂 |
-| `packages/{providers,features}` | 可替换实现、用户可见能力 | 没有消费者 |
-| `apps/*` | 组合根 | 同上 |
+| `packages/providers` | 可替换实现（存储、模型、沙箱） | 第一个需要换一个 seam 的实现时才建（现有实现都已在内核里） |
+| `platform/host` 的 `remote` transport | 手机与外部端接入 | 第一次真要让非本机端连接时；contracts 的 `transport.ts` 先定型 |
+| `platform/host` 的 `credentials` | 凭据不落明文 | 接入第一个需要用户凭证的 provider 时 |
 
 按什么顺序建、每步的验收判据是什么：见 [`plan/master-plan.md`](./plan/master-plan.md)。
 
