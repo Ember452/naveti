@@ -20,4 +20,5 @@ node scripts/check-test-integrity.mjs
 node scripts/check-doc-links.mjs
 node scripts/check-doc-counts.mjs
 node scripts/check-parked-triggers.mjs
+node scripts/check-kernel-divergence.mjs
 node scripts/check-gate-registration.mjs

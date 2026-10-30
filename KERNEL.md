@@ -7,7 +7,7 @@
 
 ## 1. 边界规则
 
-- `packages/kernel/` 是内核；`packages/{contracts,platform,providers,features}` 与 `apps/*` 是产品层。**内核不得 import 产品层**（CI 拦截）。
+- `packages/kernel/` 是内核；`packages/{contracts,platform,providers,features}` 与 `apps/*` 是产品层。**内核不得 import 产品层**。这条目前靠纪律：机检是 `check-package-layers`（`docs/structure.md` §13 未建表），建立时机是第一个产品层包（`packages/contracts`）出现时。在两侧目录都不存在时建它，是对空集的断言。
 - 产品层访问内核只有一条路：`@naveti/host/extend/*` 门面。功能包连内核的包名都不该出现在 `dependencies` 里。
 - 内核不承载产品语义：UI、命令、皮肤、安装器、发布流程都不进内核包。
 
@@ -41,7 +41,7 @@
 
 规则：
 
-1. 与基线 hash 不同的内核文件，必须在账本里有条目（`check-kernel-divergence` 机检，脚本待建，当前靠纪律）。
+1. 与基线 hash 不同的内核文件，必须在账本里有条目（`check-kernel-divergence` 机检）。基线物证是 `scripts/kernel-baseline.json`：`--write` 拒绝吸收没有账本命名的改动，pre-commit 拒绝只有基线移动、没有账本变化的提交。
 2. 条目**追加，不改写历史**；失效的标记 `retired` + 理由，不删。
 3. 账本只记"我们改了什么"。来源与迁移期的偏离仍在 `docs/migration/deviations.md`：前者是持续记录，后者是迁移存证。
 

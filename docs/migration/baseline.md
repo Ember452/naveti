@@ -16,15 +16,20 @@ the number rather than in someone's memory.
 
 | Gate | Result |
 | --- | --- |
-| `pnpm check` — biome, pinned deps, runtime deps, TS relative imports, entry graphs, workspace resolution, lockfile/manifest parity, test inventory ratchet, `test:scripts`, `tsc --noEmit` | PASS |
+| `pnpm check` — biome (verify only), pinned deps, runtime dependency closure, TS relative imports, vitest projects, entry graphs, workspace resolution, lockfile/manifest parity, test inventory ratchet, doc links, doc counts, parked triggers, kernel divergence, gate registration, `test:scripts`, `tsc --noEmit` | PASS |
 | `pnpm build` — six kernel packages in dependency order, no network | PASS |
 | `node --conditions=source tests/smoke/persist-resume.ts` | 4/4 PASS |
 | `pnpm test:ci` — one process, all projects, hermetic env | PASS, 6040 passed / 879 skipped |
 | `node scripts/run-tests.mjs` — one process per package (fallback) | PASS, same counts |
 
-`pnpm check` runs `biome-check.mjs --write` first, so it **rewrites files**. It is a
-fixer plus a verifier. CI running it means formatting differences are fixed rather
-than reported.
+`pnpm check` **verifies and never writes**: `biome-check.mjs` runs without `--write`, so a
+formatting difference is reported and fails the gate. Use `pnpm check:fix` when you want
+the files rewritten. CI and `.githooks/pre-commit` both run `check`, so a green local run
+and a green CI run mean the same thing.
+
+Re-verified 2026-10-30 on Windows after that change: the same counts (452 files, 6040
+passed / 879 skipped), `pnpm build` and `pnpm check` both green. Nothing in this file
+changed, which is the point — a gate that stops rewriting files must not move the numbers.
 
 ## Per package
 

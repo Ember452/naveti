@@ -48,7 +48,7 @@ pnpm run check                            # 现在是不是绿
 
 **交付形态决定 `apps/` 的形状：** 现在出 Windows 安装包，将来支持手机远程控制。本机与远程共用同一个运行时与同一份前端产物，`apps/desktop` 不是第二个运行时。
 
-**现在做到哪一步、按什么顺序继续：** 见 [`plan/master-plan.md`](./plan/master-plan.md)。本文不写阶段状态。
+**现在做到哪一步、按什么顺序继续：** 见 [`plan/master-plan.md`](./plan/master-plan.md)。**做什么、优先级**见 [`product.md`](./product.md)。本文不写阶段状态，也不写功能取舍。
 
 ## 2. 四层目标与结构手段
 
@@ -84,12 +84,14 @@ naveti/
 ├── docs/
 │   ├── README.md                        导航：谁回答什么
 │   ├── structure.md                     本文，空间轴权威
+│   ├── product.md                       做什么、先做哪个、什么不做
 │   ├── architecture.md                  系统怎么运转
 │   ├── plan/master-plan.md              阶段、出现时机、待决
 │   ├── plan/parked.md                   现在不做、到点必须重新判断的事（带触发条件与前提）
 │   ├── kernel/
 │   │   ├── seats.md                     扩展点权威表
 │   │   └── divergence.md                与 pi 1.4.0 的分歧账本
+│   ├── learn/                           学习文档：本项目讲解与带出处的外部资料（非权威）
 │   └── migration/                       README / baseline / deviations / upstream-sync / diffs/
 ├── .agents/
 │   ├── notes/{proposed,implemented,archived,rejected}/   决策记录（§14）
@@ -390,32 +392,34 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 ### 已建的
 
-| 守卫 | 判据 | 反例测试 |
-| --- | --- | --- |
-| `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 |
-| `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 |
-| `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） |
-| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败）；含测试的包必须自带 `vitest.config.ts` 且被某个 glob 收集 | 有 |
-| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） |
-| `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 |
-| `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 |
-| `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 |
-| `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 |
-| `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 |
-| `check-parked-triggers` | `docs/plan/parked.md` 每条推迟的事都必须带**触发条件 + 复核日期 + 前提**；条件成立或日期到期就红，红则必须在同一改动里做/改条件/作废 | 有 |
-| `check-gate-registration` | 每条 `scripts/check-*.mjs` 必须同时有 `.test.mjs`、在 `check` 链里可达（透过 `pnpm run` 别名追踪）、并在本文出现；链里引用的脚本必须存在 | 有 |
+| 守卫 | 判据 | 反例测试 | 退役条件 |
+| --- | --- | --- | --- |
+| `check-pinned-deps` | 依赖版本钉死，不允许浮动范围 | 有 | 依赖冻结改由锁文件策略单独承担后 |
+| `check-runtime-deps` | 运行时依赖闭包完整（不漏声明） | 有 | 闭包由打包器或 `pnpm deploy` 直接算出后 |
+| `check-ts-relative-imports` | 相对导入不跨包 | 有（直接拿 cwd 扫描，夹具就是一个临时目录） | TypeScript 或 lint 原生拒绝跨包相对导入后 |
+| `check-vitest-projects` | 根 `vitest.config.ts` 的 projects glob 只能命中配置文件或包目录（命中普通文件会让整个测试启动失败）；含测试的包必须自带 `vitest.config.ts` 且被某个 glob 收集 | 有 | projects 改成显式清单、误收不可能发生之后 |
+| `check-entry-graphs` | 每个 `exports` 入口的值导入图预算（防 `export *` 把整包拖进来）；预算在 `scripts/entry-budgets.json`，`--update` 按实测 +10% 重写 `maxFiles`，`forbid`/`allow` 手工维护 | 有（`NAVETI_CHECK_ROOT` 指向镜像仓库布局的夹具） | 入口预算由发布期打包产物报告接管后 |
+| `check-lockfile-commit` | 依赖段变了 `pnpm-lock.yaml` 必须跟着变；反之锁文件变了必须有依赖变更，否则要 `NAVETI_ALLOW_LOCKFILE_CHANGE=1` | 有 | 锁文件改为 CI 生成、不再随提交进入仓库后 |
+| `check-workspace-resolution` | 跨包依赖必须 `workspace:*`；`exports` 每条带 `source` 且在首位；`tsconfig` 无 `paths`、有 `customConditions`；vitest 配置无 `@naveti` alias | 有 | 模块解析交回 Project References 或打包器统一裁决后 |
+| `check-test-integrity` | `.only` / `describe.skip` 直接红；测试数不得减、各类 skip 不得增（对 `scripts/test-integrity.json` 棘轮） | 有 | 测试统计改为运行时采集、不再文本计数后 |
+| `check-doc-links` | 我们拥有的 markdown（根 `*.md`、`docs/`、`.agents/`、`packages/kernel/README.md`）里的链接必须能解析；散文与代码块里的路径不查——那些经常是将来或示例路径 | 有 | 文档站构建的 dead-link 检查接管后 |
+| `check-doc-counts` | 规则文档里不许出现清单数（`现有 N 个/条`、`N 个脚本/守卫/工作流`，以及旧的存在性标记）。只查说规矩的文档：`docs/migration/` 与 `.agents/notes/` 豁免 | 有 | 规则文档里的清单段全部移入生成物后 |
+| `check-parked-triggers` | `docs/plan/parked.md` 每条推迟的事都必须带**触发条件 + 复核日期 + 前提**；条件成立或日期到期就红，红则必须在同一改动里做/改条件/作废 | 有 | parked 机制改为外部 issue 跟踪后 |
+| `check-kernel-divergence` | 与 `scripts/kernel-baseline.json` 不同的内核文件必须在 `docs/kernel/divergence.md` 或 `docs/migration/deviations.md` 被命名；`--write` 拒绝吸收未命名改动，且基线在暂存区时必须同时暂存账本 | 有（`NAVETI_CHECK_ROOT` 指向临时树；含 `.json` glob、`.tsx` 边界、`--write` 拒绝吸收等红例） | 决定不再跟随上游、停止回补后 |
+| `check-gate-registration` | 每条 `scripts/check-*.mjs` 必须同时有 `.test.mjs`、在 `check` 链里可达（透过 `pnpm run` 别名追踪）、并在本文出现且填了退役条件；链里引用的脚本必须存在 | 有 | 守卫清单改由生成器产出、登记不再手工后 |
 
 两条纪律：反例测试要证明守卫**会变红**（只写绿例等于没有）；守卫的红例必须进 `check` 链（`pnpm run test:scripts`），否则反向校验永远不在门禁里。守卫能用夹具驱动的前提是它不把自己的目录当根：`check-entry-graphs` 靠 `NAVETI_CHECK_ROOT`，`check-ts-relative-imports` 靠 `process.cwd()`。
+
+最后一列回答的是**这条守卫什么时候该消失**。它不是备注：`check-gate-registration` 要求每行都填，空着就红。只增不减的守卫最终会被人绕过，而绕过的习惯会传染给其它守卫。
 
 ### 未建的（每条都有触发条件，不是待办清单）
 
 | 守卫 | 判据 | 建它的触发条件 |
 | --- | --- | --- |
-| `check-package-layers` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | 第一个 `packages/features/*` 出现时 |
+| `check-package-layers` | 读 `dependencies`：kernel 不依赖产品层；feature 不依赖 kernel；client 面不依赖 host 包 | 第一个产品层包（`packages/contracts`）出现时 |
 | `check-kernel-facade` | 产品侧只能从 `@naveti/host/extend/*` 的登记子路径取内核能力 | `platform/host/extend/` 建起来后 |
 | `check-feature-registry` | 目录 ↔ manifest ↔ `compose.ts` 三方相等；seat 属于封闭枚举；壳文件无功能 id | 第二个功能出现时 |
 | `check-client-face` | 从 `src/client/index.ts` 走值导入图，命中 `node:*` / `platform/host` / 同包 `src/host/**` 即失败 | 第一个带界面的功能出现时 |
-| `check-kernel-divergence` | 与基线 hash 不同的内核文件必须在 `docs/kernel/divergence.md` 有条目 | 第一次真改内核前（需先生成 baseline hash 表） |
 
 ### 不要生成器
 
@@ -525,6 +529,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | 检查 | `check-workspace-resolution.mjs` / `.test.mjs` | 内部依赖必须 `workspace:*`、`exports` 带首位的 `source` 条件、`tsconfig` 无 `paths`、vitest 无 `@naveti` alias |
 | 检查 | `check-lockfile-commit.mjs` / `.test.mjs` | 清单依赖段与 `pnpm-lock.yaml` 必须同进同退 |
 | 检查 | `check-test-integrity.mjs` / `.test.mjs` + `test-integrity.json` | 测试清单棘轮：`.only` / `describe.skip` 直接红，测试数不得减、skip 不得增 |
+| 检查 | `check-kernel-divergence.mjs` / `.test.mjs` + `kernel-baseline.json` | 内核与基线不一致的每个文件都必须在 `divergence.md` 或 `deviations.md` 被命名；基线同时记录上游独有的路径，所以“恢复了上游文件”不会被当成普通新增 |
 | 测试编排 | `hermetic-env.mjs` | 移植上游 `test.sh` 的密封环境：临时 HOME/TMP、无 API key、不读用户 git/npm 配置、`TZ=UTC LANG=C` |
 | 仓库 | `install-hooks.mjs` | 把 `core.hooksPath` 指到 `.githooks/`；故意不进 `postinstall` |
 | 检查 | `model-catalog-protocol.ts` / `.test.ts` | 模型目录协议校验 |
@@ -536,7 +541,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 ### `tests/`
 
-只放跨包的公共资产：`smoke/`（现有）+ `golden/`（首次内核改动或回补时）。功能自己的夹具留在功能包内。
+只放跨包的公共资产：`smoke/`（现有）+ `golden/`（首次内核改动、回补，或 durable 里第一次出现产品自己的数据结构时，以 `plan/master-plan.md` 的触发表为准）。功能自己的夹具留在功能包内。
 
 ## 15. 目录出现时机
 
@@ -575,8 +580,10 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 | `docs/README.md` | 哪类问题去问哪篇文档（导航） |
 | `docs/structure.md`（本文） | 文件放哪、什么不该建 |
 | `docs/architecture.md` | 运行时怎么运转（分层、一次提交的路径、信任边界） |
+| `docs/product.md` | 做什么、先做哪个、什么不做（产品目标与功能优先级） |
 | `docs/plan/master-plan.md` | 阶段、目录出现时机、待决项 |
 | `docs/plan/parked.md` | 推迟的事：它们的触发条件、复核日期与当时依赖的前提 |
+| `docs/learn/` | 怎么学会读这个项目（读者材料；不是权威，冲突时以本节其它文档为准） |
 | `packages/features/*/naveti.feature.json` | 该功能提供什么 |
 | `apps/server/src/compose.ts` | 系统里到底装了哪些功能 |
 | `packages/features/*/README.md` | 该功能的唯一契约说明 |

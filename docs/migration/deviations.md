@@ -278,3 +278,57 @@ makes a 247,000-line vendored tree reviewable.
   collaborator and is unaffected. The file is additive again: the next approval
   writes one entry and the change is reviewable.
 
+## D18 — Per-package build and test config, with three local additions
+
+- **What:** every kernel package ships its own `tsconfig.build.json` and
+  `vitest.config.ts`. Three of those files exist here but not upstream:
+  `telemetry/vitest.config.ts`, `chord/vitest.config.ts`, and
+  `durable/vitest.retention0.config.ts` (a second `durable` pass with the
+  retention window off). The forty-six local-only paths the baseline records are
+  these three, the generated provider catalogue from D2, and
+  `durable/test/helpers/symlink-support.ts` from D14.
+- **Why:** the build configs emit each package's types through its own entry
+  set. `telemetry` had no test runner config upstream because its suite was run
+  from the repository root; here every package that ships tests carries the
+  config the root `test.projects` glob collects (`structure.md` section 13.1).
+  `durable`'s retention-off pass is a separate lane, not a second default run.
+- **Risk:** an upstream change to a package's build or test defaults will not
+  reach these files, and nothing compares them file by file. The semantics they
+  implement are owned by `docs/structure.md` section 13.1 and measured in
+  `baseline.md`, so drift shows up as a gate failure rather than as a silent
+  difference.
+- **Recorded here because:** `scripts/check-kernel-divergence.mjs` froze these
+  paths into `scripts/kernel-baseline.json` when the baseline was taken. A later
+  reader comparing two trees would otherwise find unexplained files on both
+  sides.
+
+## D19 — Vendored README prose corrected where it described this tree wrongly
+
+- **What:** `packages/kernel/ai/README.md` had four statements that no longer
+  described this repository: the `User-Agent` example said
+  `pi/<version> (...)` where the code sends `naveti/<version> (...)`
+  (`src/utils/identity.ts`); the provider-scoped env overrides listed
+  `PI_CACHE_RETENTION` where the code reads `NAVETI_CACHE_RETENTION`; the
+  "Adding a New Provider" runbook sent authors to `../coding-agent/`,
+  `src/core/model-resolver.ts`, `src/cli/args.ts` and `docs/providers.md`, none of
+  which exist here; and its self-references still read `packages/ai/...` after D13
+  moved the package under `packages/kernel/`. The `Coding Agent Integration` step
+  was removed whole and the remaining steps renumbered; one sentence in the OAuth
+  section now says the entry point is kept for compatibility with the upstream
+  `coding-agent` package (not vendored here). `src/utils/identity.ts` carried a
+  JSDoc that still said `the pi-ai version`; it now says `@naveti/ai`.
+- **Why:** D11 rebranded the runtime identifiers and D13 moved the packages, but
+  neither swept README prose, and nothing checked these files. These are not
+  cosmetic: a wrong environment variable name sends a reader to a switch that does
+  nothing, and a runbook that names four missing files sends an author somewhere
+  that cannot work.
+- **Risk:** every future `sync-upstream.mjs` run will show these lines as local
+  changes and must keep them; they are not upstream's text any more. The rule that
+  produced them is now enforced: `check-doc-links` covers
+  `packages/kernel/<pkg>/README.md` and checks cross-package references and
+  multi-segment file paths inside code spans (bare file names under a "Tests
+  (`test/`)" heading remain allowed, as do placeholders, globs and fenced blocks).
+- **Boundary:** only paths were checked, not prose accuracy. A wrong sentence that
+  names no path is still invisible to every guard, which is why the OAuth sentence
+  and the runbook edits are recorded here rather than left to the next reader.
+
