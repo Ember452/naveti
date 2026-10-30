@@ -12,9 +12,9 @@
  *   - `describe.skip(` is an error. It removes a whole block at once.
  *
  * Ratchet against the committed baseline, per file:
- *   - `tests` may not decrease, unless the same file's `each` count increased
- *                                          (a loop rewritten as `.each`, not a deletion)
- *   - `each` is recorded so the `.each` rewrite is distinguishable from a deletion
+ *   - `tests` may not decrease; a decrease with a new `.each` is a likely rewrite
+ *                                          but still requires `--write` to re-baseline
+ *   - `each` is recorded so the rewrite is distinguishable from a deletion
  *   - `skips` may not increase            (`.skip(`)
  *   - `conditionalSkips` may not increase (`.skipIf(` — legitimate, but must be reviewed)
  *   - `helperSkips` may not increase      (`itSymlinkFile`-style wrappers that decide at runtime)
@@ -128,11 +128,18 @@ for (const [file, before] of Object.entries(baseline)) {
 		continue;
 	}
 	const after = current[file];
-	// Tests may grow; skips may shrink. Only the wrong direction fails. A drop is allowed
-	// when the same file gained an `.each`, which is the only text signal that separates a
-	// loop rewrite from a deletion. It cannot see a rewrite that also deletes cases.
-	if (after.tests < before.tests && (after.each ?? 0) <= (before.each ?? 0)) {
-		failures.push(`${file}: tests ${before.tests} -> ${after.tests} (a test disappeared)`);
+	// Tests may grow; skips may shrink. Only the wrong direction fails. A drop with a
+	// new `.each` is a likely loop rewrite, but it still needs a baseline update: if the
+	// waiver were silent, the old `each` value would keep waiving every later run. Force
+	// `--write` so the re-baseline is a reviewable JSON diff.
+	if (after.tests < before.tests) {
+		if ((after.each ?? 0) > (before.each ?? 0)) {
+			failures.push(
+				`${file}: tests ${before.tests} -> ${after.tests} with a new .each; run --write to re-baseline and review the JSON diff`,
+			);
+		} else {
+			failures.push(`${file}: tests ${before.tests} -> ${after.tests} (a test disappeared)`);
+		}
 	}
 	for (const counter of ["skips", "conditionalSkips", "helperSkips", "todos"]) {
 		if (after[counter] > before[counter]) {

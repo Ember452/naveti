@@ -15,6 +15,14 @@ const twoTests = [
 	"",
 ].join("\n");
 
+const threeTests = [
+	'import { it } from "vitest";',
+	'it("first", () => {});',
+	'it("second", () => {});',
+	'it("third", () => {});',
+	"",
+].join("\n");
+
 async function workspace(t, source = twoTests) {
 	const root = await mkdtemp(join(tmpdir(), "pi-test-integrity-"));
 	t.after(() => rm(root, { recursive: true, force: true }));
@@ -130,10 +138,23 @@ test("scans tests/ for .only", async (t) => {
 	assert.match(result.stderr, /tests\/golden\/a\.test\.ts: uses \.only/);
 });
 
-test("accepts a loop replaced by it.each", async (t) => {
+test("requires a re-baseline when a loop becomes it.each", async (t) => {
 	const { root, file } = await workspace(t);
 	assert.equal(run(root, "--write").status, 0);
 	await writeFile(file, 'import { it } from "vitest";\nit.each([[1], [2], [3]]) ("value %s", () => {});\n');
 	const result = run(root);
-	assert.equal(result.status, 0, result.stderr);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /tests 2 -> 1 with a new \.each; run --write/);
+	assert.equal(run(root, "--write").status, 0);
+	const after = run(root);
+	assert.equal(after.status, 0, after.stderr);
+});
+
+test("a new .each does not silence a larger deletion", async (t) => {
+	const { root, file } = await workspace(t, threeTests);
+	assert.equal(run(root, "--write").status, 0);
+	await writeFile(file, 'import { it } from "vitest";\nit.each([[1]]) ("value %s", () => {});\n');
+	const result = run(root);
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /tests 3 -> 1 with a new \.each; run --write/);
 });
