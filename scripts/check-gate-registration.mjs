@@ -9,7 +9,7 @@
  * repository has been fixing all week, so it gets fixed by a checker instead of by
  * remembering.
  *
- * Four assertions, all derived from the filesystem and `package.json`:
+ * Four registrations, and one statement about the guard's own lifetime:
  *
  *   1. every `scripts/check-*.mjs` has a sibling `.test.mjs`
  *   2. every guard is reachable from `scripts.check`, following `pnpm run <key>` one
@@ -17,6 +17,9 @@
  *   3. every `check` chain step resolves to a real script file, so a renamed guard
  *      cannot leave a dangling invocation behind
  *   4. every guard is named in `docs/structure.md`, where the inventory lives
+ *   5. every row there answers *when this guard should stop existing*. A guard
+ *      that can never be retired only accumulates until people route around it,
+ *      so the retirement condition is registration, not a later decision.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -60,7 +63,6 @@ function expand(command, scripts, depth) {
 const guards = scriptFiles();
 const pkg = packageJson();
 const problems = [];
-
 if (!pkg) {
 	console.error("package.json is missing or unreadable at the repository root");
 	process.exit(1);
@@ -73,6 +75,24 @@ if (!scripts.check) {
 	problems.push("package.json declares no `check` script, so nothing is gated");
 }
 
+/**
+ * The retirement condition of a guard, read from the built-guards table.
+ *
+ * Rows are `| guard | judgement | red case | retires when |`. A row with fewer
+ * than four cells has no condition, which is the failure this asserts against:
+ * the guard arrived, and nothing says how it may ever leave.
+ */
+function retirementCondition(structure, guard) {
+	const built = structure.includes("### 已建的")
+		? structure.split("### 已建的")[1].split("### 未建的")[0]
+		: structure;
+	for (const line of built.split("\n")) {
+		if (!line.trim().startsWith(`| \`${guard}\``)) continue;
+		return line.split("|")[4]?.trim() ?? "";
+	}
+	return null;
+}
+
 for (const guard of guards) {
 	if (!existsSync(join(SCRIPTS, `${guard}.test.mjs`))) {
 		problems.push(`${guard}: no ${guard}.test.mjs — a guard without a red case is decoration`);
@@ -80,11 +100,19 @@ for (const guard of guards) {
 	if (!chain.includes(`scripts/${guard}.mjs`)) {
 		problems.push(`${guard}: not reachable from \`pnpm run check\`, so it never gates anything`);
 	}
-	const mentioned = existsSync(join(ROOT, "docs", "structure.md"))
-		? readFileSync(join(ROOT, "docs", "structure.md"), "utf8").includes(guard)
-		: false;
+	const structure = existsSync(join(ROOT, "docs", "structure.md"))
+		? readFileSync(join(ROOT, "docs", "structure.md"), "utf8")
+		: "";
+	const mentioned = structure.includes(guard);
 	if (!mentioned) {
 		problems.push(`${guard}: absent from docs/structure.md, so the inventory lies`);
+		continue;
+	}
+	const retirement = retirementCondition(structure, guard);
+	if (retirement === null) {
+		problems.push(`${guard}: mentioned in docs/structure.md but has no row in the built-guards table`);
+	} else if (retirement === "") {
+		problems.push(`${guard}: its table row states no retirement condition, so it can only ever accrete`);
 	}
 }
 
@@ -101,4 +129,6 @@ if (problems.length > 0) {
 	process.exit(1);
 }
 
-console.log(`${guards.length} guard(s) each have a red case, run in the check chain, and appear in docs/structure.md.`);
+console.log(
+	`${guards.length} guard(s) each have a red case, run in the check chain, appear in docs/structure.md, and name a retirement condition.`,
+);

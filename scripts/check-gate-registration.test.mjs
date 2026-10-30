@@ -15,7 +15,7 @@ const script = fileURLToPath(new URL("./check-gate-registration.mjs", import.met
  */
 async function workspace(
 	t,
-	{ withTest = true, inChain = true, inDocs = true, chainExtra = "" } = {},
+	{ withTest = true, inChain = true, inDocs = true, chainExtra = "", retiresWhen = "the feature it guards is removed" } = {},
 ) {
 	const root = await mkdtemp(join(tmpdir(), "naveti-gate-"));
 	t.after(() => rm(root, { recursive: true, force: true }));
@@ -38,7 +38,10 @@ async function workspace(
 	await writeFile(join(root, "scripts/biome-check.mjs"), "// exists\n");
 	await writeFile(
 		join(root, "docs/structure.md"),
-		inDocs ? "# guards\n\n| `check-something` | does a thing |\n" : "# guards\n\nnothing listed\n",
+		inDocs
+			? "# guards\n\n| Guard | Judgement | Red case | Retires when |\n| --- | --- | --- | --- |\n" +
+					`| \`check-something\` | does a thing | yes | ${retiresWhen} |\n`
+			: "# guards\n\nnothing listed\n",
 	);
 	return root;
 }
@@ -73,6 +76,12 @@ test("rejects a guard missing from the inventory document", async (t) => {
 	const result = run(await workspace(t, { inDocs: false }));
 	assert.equal(result.status, 1);
 	assert.match(result.stderr, /absent from docs\/structure\.md/);
+});
+
+test("rejects a guard whose row names no retirement condition", async (t) => {
+	const result = run(await workspace(t, { retiresWhen: "" }));
+	assert.equal(result.status, 1);
+	assert.match(result.stderr, /states no retirement condition/);
 });
 
 test("rejects a chain step pointing at a file that is not there", async (t) => {
