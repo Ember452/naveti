@@ -26,11 +26,12 @@ agent 在本仓库必须遵守的硬约束。**规则只有这一份**；`CLAUDE
 | 改文档 | `docs/README.md` 的写文档规矩 |
 | 加或改一条守卫 | `.agents/skills/add-a-guard/SKILL.md` + `docs/structure.md` §13 |
 | 想把一件事推到将来 | `docs/plan/parked.md`：必须同时写下触发条件、`review_by` 日期、以及**当时依赖的前提** |
+| 要做什么功能、为什么是它 | `docs/product.md`：首批功能表与「明确不做」 |
 | 不知道去哪找 | `docs/README.md` 的路由表 |
 
 下面这份是按“如果全错就全读”的顺序排的清单，只在任务真的跨多个层面时使用：
 
-1. [`docs/README.md`](docs/README.md) —— 四类文档分别回答什么，先看它决定读哪一篇。
+1. [`docs/README.md`](docs/README.md) —— 四类文档分别回答什么，先看它决定读哪一篇。面向读者的学习材料在 `docs/learn/`，非权威。
 2. `docs/structure.md` —— 什么文件放哪、什么还不该建。
 3. `KERNEL.md` —— 内核能不能改、按哪一档改。
 4. `docs/kernel/seats.md` —— 扩展点清单（封闭枚举）。
