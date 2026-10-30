@@ -24,14 +24,16 @@ import { join, relative } from "node:path";
 const ROOT = process.cwd();
 const SKIP_DIRECTORIES = new Set(["node_modules", "dist", ".git", ".upstream", "coverage", "migration", "notes"]);
 /**
- * The shapes that carried a stale number in the past. Arabic digits only on purpose:
- * `一个功能一个包` is the project's own slogan, and a guard that reds on it is a
- * guard that gets deleted.
+ * The shapes that carried a stale number in the past. The numeral class excludes the
+ * singular `一` and the pair `两` on purpose: `一个功能一个包` is the project's own slogan,
+ * and `新增一条守卫` / `两条守卫补上...` are normal sentences rather than inventories. The
+ * noun list stays narrow for the same reason: `2–4 个 seat` is a rule, not a count.
  */
 const PATTERNS = [
 	[/现有\s*[0-9一二三四五六七八九十]+\s*(个|条|张|项)/g, 'counts belong to `ls` / `git ls-files`, not to a rule document'],
-	[/[0-9]+\s*(个|条|项)\s*(脚本|守卫|工作流|生成器|测试文件)/g, "inventory counts go stale; name the command that answers instead"],
-	[/\[待建\]/g, "this tree marks unbuilt paths `[未建]`（structure.md §1）"],
+	[/[0-9三四五六七八九十]+\s*(个|条|项)\s*(脚本|结构守卫|守卫|工作流|生成器|测试文件|写文档的规矩|规矩)/g, "inventory counts go stale; name the command that answers instead"],
+	[/[0-9三四五六七八九十]+\s*篇/g, "document counts go stale; name the document instead"],
+	[/[\[（(]待建[\]）)]/g, "this tree marks unbuilt paths `[未建]`（structure.md §1）"],
 ];
 
 function collectMarkdown(directory, out) {
