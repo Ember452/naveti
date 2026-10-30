@@ -12,4 +12,4 @@
 
 ## 连接
 
-`connect(url)` 用一个浏览器 `WebSocket` 连上宿主打印的地址；此后一切渲染都走这份连接上的状态推送，面板不轮询、不自开通道。地址来自 `?url=` 或 `VITE_NAVETI_URL`，由 `apps/web` 决定。
+`connect(url, token)` 用一个浏览器 `WebSocket` 连上宿主打印的地址，token 作为握手的 subprotocol 提交——它不进 URL，所以不会落进浏览历史、access log 或代理日志；token 不对时握手就被拒，一帧都不会有。此后一切渲染都走这份连接上的状态推送，面板不轮询、不自开通道。地址来自 `?url=` 或 `VITE_NAVETI_URL`，token 由用户在壳里粘贴，由 `apps/web` 决定什么时候问。

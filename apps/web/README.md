@@ -8,12 +8,13 @@
 # 1. 宿主（默认 faux provider，不需要凭证）
 pnpm --filter @naveti/server start
 
-# 2. 它打印 ws://127.0.0.1:<port>/?token=…
+# 2. 它打印两行：地址 ws://127.0.0.1:<port>/ 与 token
 pnpm --filter @naveti/app-web dev
 # 打开 http://localhost:5173/?url=<上一步打印的地址>
+# 页面会要你粘贴 token——它不进 URL。
 ```
 
-`VITE_NAVETI_URL` 可以预先填好地址，省得每次把 URL 带进查询串。
+`VITE_NAVETI_URL` 可以预先填好地址，省得每次把 URL 带进查询串。token 没有对应的变量：任何进 URL 或环境变量的凭据都会留下痕迹，粘贴框是故意的。
 
 ## 这里能看到什么
 

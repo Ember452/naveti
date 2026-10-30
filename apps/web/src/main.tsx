@@ -1,7 +1,7 @@
-// The browser entry: fill the seat table from compose, then hand it to the shell with the address of the host.
+// The browser entry: fill the seat table from compose, then hand it to the shell with the host's address.
 //
-// The address is what the server printed (`ws://127.0.0.1:PORT/?token=…`), passed as `?url=`. A dev run can pin it in
-// VITE_NAVETI_URL instead, so reloading the tab does not lose it.
+// The address is what the server printed (`ws://127.0.0.1:PORT/`), passed as `?url=`. The token is not in the URL: the
+// shell asks for it, because a credential in a query string ends up in history, in logs and in every proxy in between.
 import { AppFrame, createSlots } from "@naveti/web";
 import { createRoot } from "react-dom/client";
 import { compose } from "./compose.ts";

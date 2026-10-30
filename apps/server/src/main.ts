@@ -1,8 +1,8 @@
 // The composition root. Five steps and a shutdown handler; everything it decides is a path, a model or an address.
 //
 // Paths are computed here because this is the only layer that knows the machine (structure.md §5 rule 8); the platform
-// takes them as an argument. Nothing below prints a secret except the loopback URL, which carries the token a client
-// needs and which the user asked for by starting the process.
+// takes them as an argument. The address and the token are printed on separate lines: the token never becomes part of a
+// URL, so it cannot leak through a query string, a referrer header or a proxy log.
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { type HostPaths, openHost } from "@naveti/host";
@@ -32,6 +32,7 @@ await host.install(await Promise.all(compose.map(async (entry) => (await entry.h
 const listener = await host.listen(env.NAVETI_PORT === undefined ? {} : { port: Number(env.NAVETI_PORT) });
 
 console.log(`naveti host listening on ${listener.url}`);
+console.log(`token: ${listener.token}`);
 console.log(`data: ${dataDir}`);
 console.log(`model: ${model.provider} / ${model.modelId}`);
 

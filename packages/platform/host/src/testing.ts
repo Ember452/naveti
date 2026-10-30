@@ -14,7 +14,7 @@ import {
 	type WebSocketLike,
 	webSocketLink,
 } from "@naveti/chord/next";
-import type { Principal } from "@naveti/contracts/transport";
+import { loopbackProtocols, type Principal } from "@naveti/contracts/transport";
 import type { ModelRef } from "@naveti/durable";
 import type { Host } from "./host.ts";
 
@@ -53,9 +53,9 @@ export async function connectInProcess(host: Host): Promise<Client> {
 	return wrap(client);
 }
 
-/** A client dialing the URL the host printed: the lane a browser takes, minus the browser. */
-export async function connectLoopback(url: string): Promise<Client> {
-	const socket = new WebSocket(url);
+/** A client dialing the URL and token the host printed: the lane a browser takes, minus the browser. */
+export async function connectLoopback(url: string, token: string): Promise<Client> {
+	const socket = new WebSocket(url, [...loopbackProtocols(token)]);
 	const client = createHost<Principal>({ onError: () => {} });
 	client.connect(
 		webSocketLink(socket as unknown as WebSocketLike),

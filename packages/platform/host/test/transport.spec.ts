@@ -1,4 +1,3 @@
-import { once } from "node:events";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -16,6 +15,7 @@ import {
 	webSocketLink,
 } from "@naveti/chord/next";
 import type { Principal } from "@naveti/contracts/transport";
+import { loopbackProtocols } from "@naveti/contracts/transport";
 import { describe, expect, it } from "vitest";
 import { WebSocket } from "ws";
 import { defineDoc } from "../src/extend/docs.ts";
@@ -151,7 +151,11 @@ describe("the loopback transport", () => {
 		await withHost(async (host) => {
 			const listener = await host.listen({ port: 0 });
 			try {
-				await roundTrip(() => webSocketLink(new WebSocket(listener.url) as unknown as WebSocketLike));
+				await roundTrip(() =>
+					webSocketLink(
+						new WebSocket(listener.url, [...loopbackProtocols(listener.token)]) as unknown as WebSocketLike,
+					),
+				);
 			} finally {
 				await listener.close();
 			}
@@ -162,12 +166,18 @@ describe("the loopback transport", () => {
 		await withHost(async (host) => {
 			const listener = await host.listen({ port: 0 });
 			try {
-				// A raw socket: the refusal has to happen at the transport, before any hold exists. The close code is the
-				// observation: a client host would translate it into a retry and only give up at `readyTimeout`.
-				const socket = new WebSocket(`ws://127.0.0.1:${listener.port}/?token=wrong`);
-				const closed = once(socket, "close") as Promise<[number, Buffer]>;
-				const [code] = await closed;
-				expect(code).toBe(4401);
+				// A raw socket: the refusal has to happen at the transport during the handshake, before any hold exists. The
+				// observation is that the connection never opens: `ws` reports the rejected subprotocol as an error.
+				const socket = new WebSocket(listener.url, [...loopbackProtocols("wrong")]);
+				let opened = false;
+				socket.once("open", () => {
+					opened = true;
+				});
+				// A rejected subprotocol surfaces as an error first; consume it, then wait for the close.
+				socket.once("error", () => {});
+				await new Promise<void>((resolve) => socket.once("close", () => resolve()));
+				expect(opened).toBe(false);
+				expect(socket.readyState).toBe(3);
 			} finally {
 				await listener.close();
 			}

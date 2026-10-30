@@ -7,7 +7,13 @@
 import { randomBytes } from "node:crypto";
 import type { Context } from "@naveti/chord";
 import { type Host as ChordHost, type WebSocketLike, webSocketLink } from "@naveti/chord/next";
-import { LOOPBACK_HOST, loopbackUrl, type Principal, readLoopbackToken } from "@naveti/contracts/transport";
+import {
+	LOOPBACK_HOST,
+	LOOPBACK_PROTOCOL,
+	loopbackUrl,
+	type Principal,
+	readLoopbackToken,
+} from "@naveti/contracts/transport";
 import { WebSocketServer } from "ws";
 
 export type ListenOptions = {
@@ -33,17 +39,20 @@ export async function listenLoopback(
 	context: Context,
 ): Promise<Listener> {
 	const token = randomBytes(32).toString("base64url");
-	const server = new WebSocketServer({ host: LOOPBACK_HOST, port: options.port ?? 0 });
+	const server = new WebSocketServer({
+		host: LOOPBACK_HOST,
+		port: options.port ?? 0,
+		// The credential arrives as an offered subprotocol, so a wrong token is refused during the handshake: no frame,
+		// no link, nothing to hold. The host echoes the protocol itself, never the token protocol.
+		handleProtocols: (protocols) =>
+			readLoopbackToken([...protocols].join(",")) === token ? LOOPBACK_PROTOCOL : false,
+	});
 	await new Promise<void>((resolve, reject) => {
 		server.once("listening", resolve);
 		server.once("error", reject);
 	});
 
-	server.on("connection", (socket, request) => {
-		if (readLoopbackToken(request.url) !== token) {
-			socket.close(4401, "unauthorized");
-			return;
-		}
+	server.on("connection", (socket) => {
 		// `ws`'s WebSocket matches chord's structural `WebSocketLike`; the cast is the price of `ws` exporting classes
 		// whose `send` overloads are wider than the interface's.
 		host.accept(webSocketLink(socket as unknown as WebSocketLike), { principal: { kind: "owner" } }, context);
@@ -54,7 +63,7 @@ export async function listenLoopback(
 
 	let closed = false;
 	return {
-		url: loopbackUrl(port, token),
+		url: loopbackUrl(port),
 		token,
 		port,
 		async close() {

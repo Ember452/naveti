@@ -15,6 +15,8 @@ export {
 export {
 	LOOPBACK_HOST,
 	LOOPBACK_PATH,
+	LOOPBACK_PROTOCOL,
+	loopbackProtocols,
 	loopbackUrl,
 	type Principal,
 	readLoopbackToken,

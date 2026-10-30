@@ -5,6 +5,9 @@ export const theme = `
 body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
 .naveti { background: #101214; color: #e6e6e6; min-height: 100vh; box-sizing: border-box; }
 .naveti-notice { display: grid; place-items: center; padding: 2rem; color: #9aa0a6; }
+.naveti-token { display: flex; flex-direction: column; gap: 0.75rem; min-width: 22rem; }
+.naveti-token input { padding: 0.5rem 0.6rem; border-radius: 0.4rem; border: 1px solid #2b3036; background: #161a1e; color: inherit; font: inherit; }
+.naveti-token button { padding: 0.5rem; border-radius: 0.4rem; border: 1px solid #2b3036; background: #1e2227; color: inherit; cursor: pointer; }
 .naveti-panel { display: grid; grid-template-columns: 16rem 1fr; min-height: 100vh; }
 .naveti-list { border-right: 1px solid #23262a; padding: 0.75rem; overflow-y: auto; }
 .naveti-list button { display: block; width: 100%; text-align: left; margin: 0 0 0.25rem; padding: 0.5rem 0.6rem; border: 0; border-radius: 0.4rem; background: transparent; color: inherit; cursor: pointer; }
