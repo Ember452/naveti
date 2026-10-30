@@ -440,9 +440,9 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 - **不需要基线的硬规则**：`.only` 直接红（它会让整轮只剩标记的用例）；`describe.skip` 直接红（整块消失）。`vitest.config.ts` 另设 `allowOnly: false` 做运行时兜底，防止绕过文本扫描。
 - **允许的方向**：测试数可增、各类 skip 可减、新测试文件随便加。只有反方向红。
-- **重构例外**：同一文件的 `each` 计数上升时，允许 `tests` 下降——这是把“循环改 `.each`”与“删测试”分开的唯一文本信号。它仍然抓不到“加一个 `.each` 同时删掉更多用例”的情况，审查物仍是 JSON diff。
+- **重构例外**：同一文件的 `each` 计数上升时，`tests` 下降不再算“删测试”，但仍必须跑 `--write` 重新基线；否则豁免会一直复用旧基线。JSON diff 是审查物。它仍然抓不到“加一个 `.each` 同时删掉更多用例”的具体数量，只能要求这次重基线被看见。
 - **删文件**必须同步改基线，否则红——删除也是变更，必须进 diff。
-- **局限（必须知道）**：这是文本计数，不是运行时统计。`.each` 重构不再误红，但“加一个 `.each` 同时删更多用例”可能漏过；把断言从 `toBe(4)` 改成 `toBeGreaterThan(0)` 它**抓不到**。测试**质量**不属于这道守卫，只能靠黄金文件与人工验收。
+- **局限（必须知道）**：这是文本计数，不是运行时统计。`.each` 重构会要求一次 `--write` 重基线，但“加一个 `.each` 同时删更多用例”的具体数量仍可能漏过；把断言从 `toBe(4)` 改成 `toBeGreaterThan(0)` 它**抓不到**。测试**质量**不属于这道守卫，只能靠黄金文件与人工验收。
 
 ## 14. 仓库级基础设施
 
@@ -452,7 +452,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 | 文件 | 负责 | 需要改什么 |
 | --- | --- | --- |
-| `ci.yml` | `build-check`（build → check）+ `test-ci`（`pnpm test:ci`，与本地同源）+ `durable-lanes`（retention0 / store / workers） | 已转 pnpm；Ubuntu 已有两次实测（数字见 `docs/migration/baseline.md`） |
+| `ci.yml` | `build-check`（build → check）+ `test-ci`（`pnpm test:ci` + `pnpm smoke`，与本地同源）+ `durable-lanes`（retention0 / store / workers） | 已转 pnpm；Ubuntu 已有两次实测（数字见 `docs/migration/baseline.md`） |
 | `pr-title.yml` | PR 标题格式：`type(scope): 摘要` | 不动 |
 | `deps-audit.yml` | 生产依赖公告审计（定时） | 已转 pnpm：`pnpm install --frozen-lockfile` + `node scripts/deps-audit.mjs`。npm 的 `audit signatures` 步骤已删——pnpm 无等价命令，锁文件完整性由安装本身保证 |
 | `pr-gate.yml` | PR 门槛 | 不动 |

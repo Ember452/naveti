@@ -29,6 +29,7 @@ pnpm install
 pnpm build          # 测试需要 dist：ai 与 chord 的 probe 用例走构建产物
 pnpm check
 pnpm test:ci        # 单进程 + 密封环境
+pnpm smoke          # 持久化与恢复冒烟
 ```
 
 装一次钩子，让静态检查在提交时就跑：`pnpm hooks:install`。

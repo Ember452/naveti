@@ -134,6 +134,7 @@ pnpm build          # 六包构建，不联网；模型目录只校验不刷新
 pnpm build:catalog  # 显式刷新模型目录（联网），它的 diff 必须单独提交并说明
 pnpm test:ci        # 门禁：单进程 projects + 密封环境（无 API key、临时 HOME、TZ/LANG 固定）
 pnpm test:ci:local  # 同上但继承本机环境，只在需要带凭证调试时用
+pnpm smoke          # 持久化与恢复冒烟，CI 的 test-ci 也跑
 pnpm hooks:install  # 一次性把 core.hooksPath 指到 .githooks
 ```
 

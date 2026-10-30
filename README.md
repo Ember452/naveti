@@ -25,6 +25,7 @@ pnpm install
 pnpm build          # 六包构建，不联网
 pnpm check          # biome + 依赖与导入守卫 + 锁文件一致性 + 测试清单棘轮 + tsc
 pnpm test:ci        # 门禁测试：单进程 projects + 密封环境（需先 build）
+pnpm smoke          # 持久化与恢复冒烟（需先 build）
 
 pnpm build:catalog  # 显式刷新模型目录（联网），产物 diff 单独提交
 pnpm hooks:install  # 一次性装 pre-commit / pre-push 钩子
