@@ -67,6 +67,7 @@ export interface Host {
 
 class HostImpl implements Host {
 	readonly harness: Harness;
+	readonly #model: ModelRef;
 	readonly #store: Awaited<ReturnType<typeof openStore>>;
 	readonly #registry: Registry;
 	readonly #chord: ChordHost<Principal>;
@@ -77,12 +78,14 @@ class HostImpl implements Host {
 
 	constructor(parts: {
 		harness: Harness;
+		model: ModelRef;
 		store: Awaited<ReturnType<typeof openStore>>;
 		registry: Registry;
 		chord: ChordHost<Principal>;
 		context: Context;
 	}) {
 		this.harness = parts.harness;
+		this.#model = parts.model;
 		this.#store = parts.store;
 		this.#registry = parts.registry;
 		this.#chord = parts.chord;
@@ -140,6 +143,7 @@ class HostImpl implements Host {
 	): FeatureContext {
 		return {
 			harness: this.harness,
+			model: this.#model,
 			context: this.#context,
 			tools: { register: (tool) => tools.push(tool) },
 			sections: { add: (section) => sections.push(section) },
@@ -150,13 +154,14 @@ class HostImpl implements Host {
 
 	async #loadContracts(mounts: readonly Mount[]): Promise<void> {
 		const harness = this.harness;
+		const model = this.#model;
 		const facet = defineFacet<Principal>((api) => {
 			for (const { contract, factory } of mounts) {
 				// chord types `serve` by the contract's declaration; these are the same values with a widened parameter.
 				// The cast belongs here, at the one place that erases a per-feature generic, and nowhere else.
 				const serve = api.serve as (contract: unknown, factory: unknown) => void;
 				serve(contract, (params: never, principal: Principal, self: Self) =>
-					factory(params, principal, selfFor(harness, self)),
+					factory(params, principal, selfFor(harness, model, self)),
 				);
 			}
 		});
@@ -164,11 +169,13 @@ class HostImpl implements Host {
 	}
 }
 
-/** chord's `self`, narrowed to what a feature may use, plus the harness the platform opened. */
-function selfFor(harness: Harness, self: Self): FeatureSelf {
+/** chord's `self`, narrowed to what a feature may use, plus what the platform opened. */
+function selfFor(harness: Harness, model: ModelRef, self: Self): FeatureSelf {
 	return {
 		harness,
+		model,
 		follow: (attach) => self.follow(attach),
+		derive: (sources, compute) => self.derive(sources, compute),
 		get: (contract, params) => self.get(contract, params),
 	};
 }
@@ -210,7 +217,7 @@ export async function openHost(paths: HostPaths, options: HostOptions): Promise<
 			principal: { kind: "owner" },
 			onError: (error) => (options.onError ?? console.error)(error),
 		});
-		return new HostImpl({ harness, store, registry, chord, context });
+		return new HostImpl({ harness, model: options.model, store, registry, chord, context });
 	} catch (error) {
 		await store.close(context).catch(() => {});
 		throw error;

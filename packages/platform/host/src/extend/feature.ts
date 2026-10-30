@@ -5,13 +5,15 @@
 // belongs in `start`, which the platform awaits before it listens.
 import type { Context } from "@naveti/chord";
 import type { Contract } from "@naveti/chord/next";
-import type { Harness, PromptSection, ToolRegistration } from "@naveti/durable";
+import type { Harness, ModelRef, PromptSection, ToolRegistration } from "@naveti/durable";
 import type { FeatureFactory } from "./serve.ts";
 
 /** The contribution points a feature may use while it installs. Each one is a seat the platform owns. */
 export type FeatureContext = {
 	/** The host's harness. Conversations, docs and submissions are the kernel's API; this is how a feature reaches it. */
 	readonly harness: Harness;
+	/** The model a new conversation starts with. The host chose it; a feature that creates conversations needs it. */
+	readonly model: ModelRef;
 	/** The context for work the feature starts itself. A request carries its own context instead. */
 	readonly context: Context;
 	/** The `tool` seat. Names must be unique across the host's extensions. */
