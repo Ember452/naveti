@@ -125,7 +125,7 @@
 	"scripts": {
 		"clean": "shx rm -rf dist",
 		"build": "tsc -p tsconfig.build.json",
-		"test": "vitest --run && vitest --run --config vitest.retention0.config.ts && pnpm run test:store && pnpm run test:workers",
+		"test": "vitest --run",
 		"test:retention0": "vitest --run --config vitest.retention0.config.ts",
 		"test:store": "vitest --run --config vitest.store.config.ts",
 		"test:workers": "vitest --run --config test-workers/vitest.config.ts",

@@ -32,6 +32,8 @@ pnpm test:ci        # 单进程 + 密封环境
 pnpm smoke          # 持久化与恢复冒烟
 ```
 
+`durable` 的额外 lane 用 `pnpm --filter @naveti/durable run test:retention0|test:store|test:workers`；`pnpm test` 只跑默认套件。
+
 装一次钩子，让静态检查在提交时就跑：`pnpm hooks:install`。
 
 ## 提交信息

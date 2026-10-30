@@ -430,7 +430,8 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 - **为什么不能"测试在包里，所以每包一个 runner"**：旧做法是每包一次 `vitest`，包数 N 就启动 N 次、N 份 transform 缓存。30–50 个包时反馈时间线性增长，而这是每天要做几十次的动作。
 - 包内 `vitest.config.ts` 只在确实需要特殊设置时存在，默认继承根配置。
 - **隔离例外**：会 spy 全局定时器或共享模块状态的用例（现在 `chord` 有一个）单独放一个 project，只对它设 `isolate` / `--no-file-parallelism`，不要因此把整包改成串行。
-- CI 的车道划分：`test-ci` 跑与本地同源的 `pnpm test:ci`，`durable-lanes` 只补 `test:ci` 不跑的 retention0 / store / workers；不再按目录循环。
+- CI 的车道划分：`test-ci` 跑与本地同源的 `pnpm test:ci`（含 `pnpm smoke`），`durable-lanes` 只补 `test:ci` 不跑的 retention0 / store / workers；不再按目录循环。
+- `durable` 的 `test` 只跑默认套件；`retention0` / `store` / `workers` 是显式 lane（`test:retention0` / `test:store` / `test:workers`），由 `durable-lanes` 跑，不要靠 `pnpm test` 全跑。
 
 ### 13.2 测试完整性：清单棘轮，不是上限
 
