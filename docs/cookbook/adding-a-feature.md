@@ -11,6 +11,7 @@
 packages/features/chat/
 ├── package.json          exports: "." → src/host/index.ts / "./client" / "./manifest"
 ├── naveti.feature.json   { id, contract, seats, requires, provides }
+├── vitest.config.ts      有 test/ 就必须有：mergeConfig(sharedTestConfig, { test: { name } })
 ├── README.md             五行契约：拥有什么 / 可 import 什么 / 占哪些 seat / 依赖谁 / 删掉会怎样
 └── src/
     ├── host/index.ts     默认导出 defineFeature(...)
@@ -20,6 +21,7 @@ packages/features/chat/
     ├── host/section.ts
     ├── client/index.ts   只 register(slots)
     └── client/panel.tsx  界面
+    test/host.spec.ts     必须；有界面再加 client.spec.tsx
 ```
 
 宿主面只经门面取内核能力，不 import 内核包名：
@@ -69,6 +71,18 @@ export function register(slots: SlotRegistry): void {
 }
 ```
 
+## 新包必须登记的地方
+
+除了写代码，新功能一定会在下面四处留下痕迹；漏一处 `pnpm check` 就会红，而且报错位置不在你刚写的文件里：
+
+| 位置 | 做什么 | 漏了会怎样 |
+| --- | --- | --- |
+| `scripts/entry-budgets.json` | 包的每个**代码**出口（`.` 与 `./client`）各一条 `maxFiles`；数字是手工天花板，只降不跟涨 | `check-entry-graphs`："a product-layer entry is a cost contract, and an unmeasured one is not" |
+| `packages/features/<id>/vitest.config.ts` | 有 `test/` 就要有，内容只有 `name` | `check-vitest-projects`："has tests but no vitest.config.ts, so its tests never run" |
+| `apps/server/src/compose.ts` 与 `apps/web/src/compose.ts` | 各一行（宿主面 / 客户端面） | 不会红，功能只是不出现——两份清单的一致性现在靠 review（P4 的 `check-feature-registry`） |
+| `pnpm install` + `pnpm run test-integrity:write` | 重生成锁文件与测试清单 | `check-lockfile-commit` / `check-test-integrity` |
+
+`naveti.feature.json` 的 `seats` 今天**没有校验者**：`seats.ts` 的枚举函数还没有消费者。写对它是为了对（以及给 P4 的 `check-feature-registry` 用），不是为了过门。
 ## 六条硬规则
 
 1. **状态住 doc，scope 先选对。** `session` / `conversation` / `task` 三选一，取舍表在 [`kernel/seats.md`](../kernel/seats.md) §4。选错不会报错：放进 `session` 的会话数据会在两个会话间互相污染，放进 `conversation` 的用户偏好会在新会话里消失。`chat` 的会话列表是 `session`，它的第二条测试就是为这条写的（第二个会话里仍看得见两个会话）。

@@ -73,6 +73,7 @@ naveti/
 │   │   ├── durable/                     @naveti/durable
 │   │   └── README.md                    所有权、变更分级、扩展点索引
 │   ├── contracts/                       L1 零 I/O：wire 契约与 transport 声明
+│   ├── AGENTS.md                        包级补充规则（exports 形状、测试配置、边界机检）
 │   ├── platform/                        L2 host（装配/seat/路径/transport）+ web（壳/slot）
 │   ├── providers/                       [未建] L2.5 可替换实现，按 seam 分，不进功能清单
 │   └── features/                        L3 一个功能一个包（§7），现为 `chat`
@@ -343,7 +344,7 @@ seat 是功能接入宿主与界面的**固定挂点**。清单封闭，新增 s
 
 权威表在 [`docs/kernel/seats.md`](./kernel/seats.md)：每个 seat 记机制（哪个内核符号）、门面子路径、状态、典型用途；另有 `doc` 三种 scope 的取舍表、新增 seat 的门槛、provider 与 seat 的区分。**本文不复制那张表**（复制即漂移）。
 
-一句话摘要：宿主侧 7 个已采用 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension`），另有 `config` / `service` 两个候选；客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`）。权威表见 [`docs/kernel/seats.md`](./kernel/seats.md)。
+一句话摘要：宿主侧 7 个已声明的 seat（`tool` `section` `hook` `wrap` `task` `doc` `extension`）——其中**今天能占的只有 `tool` / `section` / `doc` / `extension`**（`FeatureContext` 给了挂点）；`hook` / `wrap` / `task` 机制在内核里但平台没给挂点，占它是一次平台变更。客户端侧 7 个（`panel` `nav` `settings` `command` `composer` `renderer` `status`），已建 `panel` / `renderer`。权威表见 [`docs/kernel/seats.md`](./kernel/seats.md)。
 
 ## 11. 发布形态：一个打包入口，不给每包写构建配置
 
