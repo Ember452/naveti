@@ -11,7 +11,7 @@
 | **P0 机械层** | done | 分组目录 `packages/kernel/*`、pnpm 隔离式依赖、删手写 `paths`/alias 改 `exports` 的 `source` 条件、根 `test.projects` 单进程、密封测试环境、结构守卫（见 `docs/structure.md` §13） | `pnpm check` / `pnpm build` / `pnpm test:ci` 三平台全绿；Ubuntu 数字见 `migration/baseline.md` |
 | **P1 规则层** | doing | `AGENTS.md`、`KERNEL.md`、`docs/structure.md`、`docs/architecture.md`、`docs/product.md`、`docs/kernel/{seats,divergence}.md`、`.agents/notes/`、`CONTRIBUTING.md`、`SECURITY.md` | `structure.md` §17 权威分工表里每篇文档在磁盘存在且被 `check-doc-links` 绿；此后**规则文档只为已被现实触发的漂移新增，不为“更完备”新增**（新增判据同 §13 守卫：照做会失败才写） |
 | **P2 主干** | next | `spike 桌面 shell 前提` → `packages/contracts` → `packages/platform/host`（门面 + seat 表 + paths 注入 + transport loopback）→ `apps/server` → 第一个功能 `chat`（compose 装上内核已有工具）→ 最小 web 壳（只建 `panel`/`renderer` 两个 seat）→ `apps/web` | host 侧：loopback 端到端一轮**带工具调用**的对话（`read`/`edit`/`bash` 至少各发生一次且落盘可恢复）；client 侧：chat 界面在 `apps/web` 渲染同一轮对话。删掉该功能 = 删包 + 两行 |
-| **P3 出包** | later | `packages/platform/web` 补全 → `apps/desktop` + `tsdown.config.ts`（shell 形态与 sqlite 结论由 P2 步骤 0 定案，此处只执行） | 出一个能装能跑、数据落在 `userData` 的安装包；安装包上跑通 product「一年判据」第 1 条的编码任务 |
+| **P3 出包** | later | `packages/platform/web` 补全 → `apps/desktop` + `tsdown.config.ts`（shell 形态由 P3 定案，运行时与存储已由 P2 步骤 0 定案，见 [`2026-10-30-p2-runtime-shape.md`](../../.agents/notes/implemented/2026-10-30-p2-runtime-shape.md)） | 出一个能装能跑、数据落在 `userData` 的安装包；安装包上跑通 product「一年判据」第 1 条的编码任务。**出第一个安装包的同一轮必须定案两件 P2 仍未定的事：Electron 内 `node:sqlite` 是否可用、包体积与冷启动耗时**（到期条件在此，不再“以后再说”）；若不可用，按已写下的退路只加一个 `storage` provider 包 |
 | **P4 功能扩展** | later | 下一个功能由 `product.md` 首批功能表顺位定（当前是记忆与检索）；`platform/host` 的 `seats.ts` 转为唯一权威、开 `check-feature-registry` 与 `check-client-face` | 两个功能并行不互相 import；新功能的 seat 全部来自 `seats.ts` 封闭枚举，无新增挂点 |
 | **P5 将来** | later | 远程 transport、`compose.ts` 生成化；运行期加载只做宿主侧 spike；product 优先级 3–5（定时/通知/检索）按各自消费者出现落进 P4 式的功能轮次 | — |
 
@@ -65,7 +65,7 @@
 
 | # | 待决 | 当前倾向 | 决定前需要的证据 |
 | --- | --- | --- | --- |
-| 1 | 桌面外壳：Electron / Tauri / 自打包 Node；sqlite 退路；主进程还是 spawn | Electron + 主进程内跑 server | **已前置为 P2 拆解步骤 0 的 spike**，定案后写 `.agents/notes/implemented/` 并从本表删除 |
+| 1 | 桌面外壳：Electron / Tauri / 自打包 Node；宿主进程内还是 spawn | Electron + 宿主进程内跑 server（spawn 保留为退路） | 运行时与存储已由 P2 步骤 0 定案（见 [`2026-10-30-p2-runtime-shape.md`](../../.agents/notes/implemented/2026-10-30-p2-runtime-shape.md)）；只剩 Electron 内 `node:sqlite` 与包体积/启动耗时，到期条件写在 P3 的 Gate 列 |
 | 2 | 手机远程的鉴权模型 | 设备配对 + 能力 token，`contracts/auth.ts` 先定型 | 是否暴露公网 |
 | 3 | `compose.ts` 何时改为生成物 | 功能数 > 20 或重复登记出过事故 | 漏登记次数 |
 | 4 | 内核是否分拆 `durable` | 暂不拆，靠门面与账本控制半径 | 连续若干次改动都落在同一子目录 |
