@@ -180,7 +180,7 @@ test("rejects an app entry with no budget and accepts a covered one", async (t) 
 	assert.equal(accepted.status, 0, accepted.stderr);
 });
 
-test("--update rewrites maxFiles and preserves forbid", async (t) => {
+test("--update rewrites kernel maxFiles and preserves forbid", async (t) => {
 	const root = await workspace(t);
 	const before = JSON.parse(readFileSync(join(root, "scripts/entry-budgets.json"), "utf8"));
 	const result = spawnSync(process.execPath, [script, "--update"], {
@@ -193,4 +193,32 @@ test("--update rewrites maxFiles and preserves forbid", async (t) => {
 	assert.equal(after["packages/kernel/ai"]["./utils/*"].maxFiles, 4);
 	assert.deepEqual(after["packages/kernel/ai"]["./utils/*"].forbid, before["packages/kernel/ai"]["./utils/*"].forbid);
 	assert.match(result.stdout, /maxFiles 3 -> 4/);
+});
+
+// A ceiling that follows the measurement records the present instead of constraining it:
+// the next regression is measured, accepted, and written back. Product-layer widths are our
+// decision, so `--update` reports them and leaves the number alone.
+test("--update reports a product-layer measurement and leaves its ceiling alone", async (t) => {
+	const root = await workspace(t, {
+		"packages/contracts/package.json": {
+			name: "@naveti/contracts",
+			exports: { ".": { import: "./dist/index.js" } },
+		},
+		"packages/contracts/src/index.ts": 'import "./a.ts";\nimport "./b.ts";\n',
+		"packages/contracts/src/a.ts": "export const a = 1;\n",
+		"packages/contracts/src/b.ts": "export const b = 1;\n",
+		"scripts/entry-budgets.json": {
+			...BUDGETS,
+			"packages/contracts": { ".": { maxFiles: 1 } },
+		},
+	});
+	const result = spawnSync(process.execPath, [script, "--update"], {
+		cwd: root,
+		encoding: "utf8",
+		env: { ...process.env, NAVETI_CHECK_ROOT: root },
+	});
+	assert.equal(result.status, 0, result.stderr);
+	const after = JSON.parse(readFileSync(join(root, "scripts/entry-budgets.json"), "utf8"));
+	assert.equal(after["packages/contracts"]["."].maxFiles, 1, "the manual ceiling must not be rewritten");
+	assert.match(result.stdout, /packages\/contracts \. measured 3 over its manual ceiling 1 \(not rewritten\)/);
 });

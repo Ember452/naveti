@@ -1,5 +1,5 @@
 {
-	"_comment": "maxFiles = ceil(measured graph size * 1.1). Regenerate with `node scripts/check-entry-graphs.mjs --update`; forbid/allow stay manual. The JSON diff is the review artifact.",
+	"_comment": "maxFiles is a manual ceiling for product-layer packages (packages/contracts, platform, features, apps) and is only reported by --update; kernel entries are rewritten to ceil(measured * 1.1) because upstream owns their shape. forbid/allow stay manual. The JSON diff is the review artifact.",
 	"packages/contracts": {
 		".": {
 			"maxFiles": 174

@@ -18,6 +18,12 @@
  * hand because they change with upstream; every **product-layer** entry (packages/
  * contracts|platform|features, apps/*) must be listed, or the facade could grow as
  * wide as the barrel it replaced without one line going red.
+ *
+ * Product-layer `maxFiles` are **manual ceilings**. `--update` rewrites the kernel's
+ * numbers from the measurement (upstream moves them), but for the product layer it only
+ * reports: a number that follows the measurement is a recorder, not a constraint, and
+ * the whole point of the product layer is that its width is our decision. Raising one
+ * is an edit with a reason in the pull request.
  */
 
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -204,10 +210,17 @@ for (const [pkgDir] of packageBudgets()) {
 			}
 		}
 		if (UPDATE && budget.maxFiles !== undefined && sawGraph) {
-			const next = Math.ceil(largestGraph * 1.1);
-			if (next !== budget.maxFiles) {
-				changes.push(`${pkgDir} ${entry} maxFiles ${budget.maxFiles} -> ${next}`);
-				budget.maxFiles = next;
+			if (isProductLayer(pkgDir)) {
+				// A ceiling that rewrites itself from the measurement constrains nothing.
+				if (largestGraph > budget.maxFiles) {
+					changes.push(`${pkgDir} ${entry} measured ${largestGraph} over its manual ceiling ${budget.maxFiles} (not rewritten)`);
+				}
+			} else {
+				const next = Math.ceil(largestGraph * 1.1);
+				if (next !== budget.maxFiles) {
+					changes.push(`${pkgDir} ${entry} maxFiles ${budget.maxFiles} -> ${next}`);
+					budget.maxFiles = next;
+				}
 			}
 		}
 	}
