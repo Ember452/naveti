@@ -446,7 +446,7 @@ const models = createModels({
 await models.completeSimple(model, context, { identity: { attribution: null } });
 ```
 
-- `userAgent`: `"detailed"` (default) sends `pi/<version> (<platform>; <runtime>; <arch>)`, `"short"` sends `naveti`, and `{ custom: "..." }` sends the given value. On Bedrock the value is appended to the AWS SDK user agent.
+- `userAgent`: `"detailed"` (default) sends `naveti/<version> (<platform>; <runtime>; <arch>)`, `"short"` sends `naveti`, and `{ custom: "..." }` sends the given value. On Bedrock the value is appended to the AWS SDK user agent.
 - `version`: the version in the detailed `User-Agent`. Default: the @naveti/ai version.
 - `attribution`: provider attribution headers. Absent (default) or `null` sends none; `null` also turns off attribution from a merged identity. `{ name, url, categories? }` maps to each provider's headers:
   - OpenRouter: `HTTP-Referer: <url>` (the app's identity in OpenRouter's rankings, grouped by origin), `X-OpenRouter-Title: <name>`, and `X-OpenRouter-Categories` (comma-separated).
@@ -1769,7 +1769,7 @@ That explicit override bundles the AWS SDK. Without it, Bedrock's opaque runtime
 
 ### Provider-Scoped Environment Overrides
 
-Pass `env` in stream options to scope provider configuration to a request. Values in `env` are used before process environment variables for provider auth and configuration such as Cloudflare account IDs, Azure OpenAI settings, Vertex project/location, Bedrock settings, `PI_CACHE_RETENTION`, and `HTTP_PROXY`/`HTTPS_PROXY`.
+Pass `env` in stream options to scope provider configuration to a request. Values in `env` are used before process environment variables for provider auth and configuration such as Cloudflare account IDs, Azure OpenAI settings, Vertex project/location, Bedrock settings, `NAVETI_CACHE_RETENTION`, and `HTTP_PROXY`/`HTTPS_PROXY`.
 
 ```typescript
 const models = builtinModels();
@@ -1868,7 +1868,7 @@ Credentials are saved to `auth.json` in the current directory.
 
 ### Programmatic OAuth
 
-Built-in login and refresh flows are private provider implementations. Use provider-owned `OAuthAuth`, which composes with `CredentialStore` and gets locked auto-refresh through `Models`. The `@naveti/ai/oauth` entry point retains only type declarations required by coding-agent extension OAuth compatibility.
+Built-in login and refresh flows are private provider implementations. Use provider-owned `OAuthAuth`, which composes with `CredentialStore` and gets locked auto-refresh through `Models`. The `@naveti/ai/oauth` entry point retains only type declarations, kept for OAuth extension compatibility with the upstream `coding-agent` package (not vendored here).
 
 Provider notes:
 
@@ -1962,31 +1962,17 @@ For `cross-provider-handoff.test.ts`, add at least one provider/model pair. If t
 
 For providers with non-standard auth (AWS, Google Vertex), create a utility like `bedrock-utils.ts` with credential detection helpers.
 
-#### 6. Coding Agent Integration (`../coding-agent/`)
+#### 6. Documentation
 
-Update `src/core/model-resolver.ts`:
-
-- Add a default model ID for the provider in `defaultModelPerProvider`
-
-Update `src/cli/args.ts`:
-
-- Add environment variable documentation in the help text
-
-Update `docs/providers.md`:
-
-- Add setup instructions, the environment variable, and the `auth.json` key
-
-#### 7. Documentation
-
-Update `packages/ai/README.md`:
+Update `packages/kernel/ai/README.md`:
 
 - Add to the Supported Providers table
 - Document any provider-specific options or authentication requirements
 - Add environment variable to the Environment Variables section
 
-#### 8. Changelog
+#### 7. Changelog
 
-Add an entry to `packages/ai/CHANGELOG.md` under `## [Unreleased]`:
+Add an entry to `packages/kernel/ai/CHANGELOG.md` under `## [Unreleased]`:
 
 ```markdown
 ### Added

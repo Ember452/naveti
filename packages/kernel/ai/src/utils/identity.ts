@@ -36,7 +36,7 @@ export interface ClientIdentity {
 	userAgent?: UserAgentMode;
 	/** Provider attribution headers. Absent or `null`: none; `null` also turns off attribution set by a merged identity. */
 	attribution?: ClientAttribution | null;
-	/** Version in the detailed `User-Agent`. Default: the pi-ai version. */
+	/** Version in the detailed `User-Agent`. Default: the @naveti/ai version. */
 	version?: string;
 }
 
